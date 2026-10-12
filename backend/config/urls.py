@@ -13,5 +13,6 @@ urlpatterns = [
     # API v1 namespaces
     path("api/v1/auth/", include("apps.accounts.urls")),
     path("api/v1/ai/", include("apps.genai.urls")),
+    path("api/v1/catalog/", include("apps.catalog.urls")),
     path("api/v1/", include("apps.catalog.urls")),
 ]

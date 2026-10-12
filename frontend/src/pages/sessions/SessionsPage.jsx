@@ -10,6 +10,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
+  KeyRound,
+  Lock,
 } from 'lucide-react'
 import { authApi } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
@@ -92,6 +94,46 @@ export const SessionsPage = () => {
     else if (/android/i.test(ua)) os = 'Android'
 
     return { isMobile, browser, os }
+  }
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters.')
+      return
+    }
+
+    setPasswordLoading(true)
+    try {
+      await authApi.changePassword({
+        current_password: currentPassword,
+        new_password: newPassword,
+      })
+      setPasswordSuccess(
+        'Password changed successfully. All other active sessions have been revoked.'
+      )
+      setCurrentPassword('')
+      setNewPassword('')
+      await fetchSessions()
+    } catch (err) {
+      const msg =
+        err.response?.data?.errors?.[0]?.message ||
+        err.response?.data?.current_password?.[0] ||
+        err.response?.data?.detail ||
+        'Failed to change password. Please verify your current password.'
+      setPasswordError(msg)
+    } finally {
+      setPasswordLoading(false)
+    }
   }
 
   return (
@@ -302,6 +344,75 @@ export const SessionsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Change Password Card */}
+      <BentoCard highlight className="p-6 max-w-xl">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+            <KeyRound className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-white">
+              Change Account Password
+            </h3>
+            <p className="text-xs text-slate-400">
+              Updating your password revokes all other active sessions across devices.
+            </p>
+          </div>
+        </div>
+
+        {passwordError && (
+          <div className="my-4 p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs">
+            {passwordError}
+          </div>
+        )}
+
+        {passwordSuccess && (
+          <div className="my-4 p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs">
+            {passwordSuccess}
+          </div>
+        )}
+
+        <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-slate-300">
+              Current Password
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="••••••••••••"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-slate-300">
+              New Password (min 8 chars)
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="••••••••••••"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            isLoading={passwordLoading}
+            icon={Lock}
+          >
+            Update Password
+          </Button>
+        </form>
+      </BentoCard>
     </div>
   )
 }

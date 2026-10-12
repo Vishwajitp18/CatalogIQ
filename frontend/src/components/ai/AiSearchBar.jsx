@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles, ArrowRight, X, Cpu, Tag, DollarSign, BrainCircuit, Search } from 'lucide-react'
+import { Sparkles, ArrowRight, X, Cpu, Tag, DollarSign, BrainCircuit } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
 
@@ -8,7 +8,7 @@ export const AiSearchBar = ({
   onClear,
   isLoading = false,
   interpretation = null,
-  activeQuery = '',
+  _activeQuery = '',
 }) => {
   const [query, setQuery] = useState('')
 
@@ -95,69 +95,93 @@ export const AiSearchBar = ({
       )}
 
       {/* AI Semantic Interpretation Breakdown Card */}
-      {interpretation && (
-        <div className="rounded-2xl p-5 bg-gradient-to-r from-purple-950/30 via-slate-900/60 to-cyan-950/30 border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.12)] space-y-3 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300">
-                <Cpu className="w-4 h-4" />
+      {interpretation && (() => {
+        const brandLabel =
+          typeof interpretation.brand === 'object' && interpretation.brand !== null
+            ? interpretation.brand.name
+            : interpretation.brand
+
+        const categoryLabel =
+          typeof interpretation.category === 'object' && interpretation.category !== null
+            ? interpretation.category.name
+            : interpretation.category
+
+        const terms = interpretation.search_terms || interpretation.keywords || []
+        const notes = interpretation.notes || []
+
+        return (
+          <div className="rounded-2xl p-5 bg-gradient-to-r from-purple-950/30 via-slate-900/60 to-cyan-950/30 border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.12)] space-y-3 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300">
+                  <Cpu className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
+                  Groq Qwen 27B Query Interpretation
+                </span>
               </div>
-              <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
-                Groq Qwen 27B Query Interpretation
-              </span>
+
+              <button
+                type="button"
+                onClick={onClear}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10"
+              >
+                <X className="w-3.5 h-3.5" />
+                Exit AI Search
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={onClear}
-              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10"
-            >
-              <X className="w-3.5 h-3.5" />
-              Exit AI Search
-            </button>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {brandLabel && (
+                <Badge variant="brand" className="gap-1">
+                  <Tag className="w-3 h-3" />
+                  Brand: <strong className="text-white">{brandLabel}</strong>
+                </Badge>
+              )}
+
+              {categoryLabel && (
+                <Badge variant="ai" className="gap-1">
+                  Category: <strong className="text-white">{categoryLabel}</strong>
+                </Badge>
+              )}
+
+              {(interpretation.min_price != null || interpretation.max_price != null) && (
+                <Badge variant="success" className="gap-1">
+                  <DollarSign className="w-3 h-3" />
+                  Price:
+                  <strong className="text-white">
+                    {interpretation.min_price != null ? `$${interpretation.min_price}` : '$0'}
+                    {' - '}
+                    {interpretation.max_price != null ? `$${interpretation.max_price}` : 'No limit'}
+                  </strong>
+                </Badge>
+              )}
+
+              {terms.length > 0 && (
+                <Badge variant="neutral" className="gap-1">
+                  Keywords: {terms.join(', ')}
+                </Badge>
+              )}
+
+              {interpretation.sort_by && (
+                <Badge variant="neutral" className="gap-1">
+                  Sort: {interpretation.sort_by}
+                </Badge>
+              )}
+            </div>
+
+            {notes.length > 0 && (
+              <div className="text-xs text-slate-400 space-y-1 pt-1">
+                {notes.map((note, idx) => (
+                  <p key={idx} className="italic text-slate-300">
+                    ℹ️ {note}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {interpretation.brand && (
-              <Badge variant="brand" className="gap-1">
-                <Tag className="w-3 h-3" />
-                Brand: <strong className="text-white">{interpretation.brand}</strong>
-              </Badge>
-            )}
-
-            {interpretation.category && (
-              <Badge variant="ai" className="gap-1">
-                Category:{' '}
-                <strong className="text-white">{interpretation.category}</strong>
-              </Badge>
-            )}
-
-            {(interpretation.min_price != null || interpretation.max_price != null) && (
-              <Badge variant="success" className="gap-1">
-                <DollarSign className="w-3 h-3" />
-                Price:
-                <strong className="text-white">
-                  {interpretation.min_price != null ? `$${interpretation.min_price}` : '$0'}
-                  {' - '}
-                  {interpretation.max_price != null ? `$${interpretation.max_price}` : 'No limit'}
-                </strong>
-              </Badge>
-            )}
-
-            {interpretation.keywords && interpretation.keywords.length > 0 && (
-              <Badge variant="neutral" className="gap-1">
-                Keywords: {interpretation.keywords.join(', ')}
-              </Badge>
-            )}
-          </div>
-
-          {interpretation.reasoning && (
-            <p className="text-xs text-slate-400 italic">
-              "{interpretation.reasoning}"
-            </p>
-          )}
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

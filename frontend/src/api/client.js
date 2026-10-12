@@ -48,9 +48,9 @@ apiClient.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes('/auth/login') &&
-      !originalRequest.url.includes('/auth/register') &&
-      !originalRequest.url.includes('/auth/refresh')
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/register') &&
+      !originalRequest.url?.includes('/auth/refresh')
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -141,35 +141,47 @@ export const authApi = {
     const res = await apiClient.delete(`/auth/sessions/${sessionId}/`)
     return res.data
   },
+  changePassword: async (passwords) => {
+    const res = await apiClient.post('/auth/password/change/', passwords)
+    return res.data
+  },
 }
 
 export const catalogApi = {
   getProducts: async (params = {}) => {
-    const res = await apiClient.get('/catalog/products/', { params })
+    const res = await apiClient.get('/products/', { params })
     return res.data
   },
   getProduct: async (id) => {
-    const res = await apiClient.get(`/catalog/products/${id}/`)
+    const res = await apiClient.get(`/products/${id}/`)
     return res.data
   },
   createProduct: async (productData) => {
-    const res = await apiClient.post('/catalog/products/', productData)
+    const res = await apiClient.post('/products/', productData)
     return res.data
   },
   updateProduct: async (id, productData) => {
-    const res = await apiClient.patch(`/catalog/products/${id}/`, productData)
+    const res = await apiClient.patch(`/products/${id}/`, productData)
     return res.data
   },
   deleteProduct: async (id) => {
-    const res = await apiClient.delete(`/catalog/products/${id}/`)
+    const res = await apiClient.delete(`/products/${id}/`)
     return res.data
   },
   getBrands: async () => {
-    const res = await apiClient.get('/catalog/brands/')
+    const res = await apiClient.get('/brands/')
+    return res.data
+  },
+  createBrand: async (brandData) => {
+    const res = await apiClient.post('/brands/', brandData)
     return res.data
   },
   getCategories: async () => {
-    const res = await apiClient.get('/catalog/categories/')
+    const res = await apiClient.get('/categories/')
+    return res.data
+  },
+  createCategory: async (categoryData) => {
+    const res = await apiClient.post('/categories/', categoryData)
     return res.data
   },
 }
@@ -185,3 +197,15 @@ export const aiApi = {
   },
 }
 
+export const healthApi = {
+  checkReady: async () => {
+    const rootUrl = API_BASE_URL.replace(/\/api\/v1\/?$/, '')
+    const res = await axios.get(`${rootUrl}/api/health/ready/`)
+    return res.data
+  },
+  checkLiveness: async () => {
+    const rootUrl = API_BASE_URL.replace(/\/api\/v1\/?$/, '')
+    const res = await axios.get(`${rootUrl}/api/health/`)
+    return res.data
+  },
+}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, Tag, Eye, Edit3, Trash2, Package } from 'lucide-react'
+import { Eye, Edit3, Trash2 } from 'lucide-react'
 import { BentoCard } from '../ui/BentoCard'
 import { Badge } from '../ui/Badge'
 import { useAuth } from '../../context/AuthContext'

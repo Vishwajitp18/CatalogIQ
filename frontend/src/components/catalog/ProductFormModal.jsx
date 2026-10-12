@@ -13,6 +13,7 @@ export const ProductFormModal = ({
   brands = [],
   categories = [],
   onSaved,
+  onRefreshMetadata,
 }) => {
   const isEditing = Boolean(product?.id)
 
@@ -27,6 +28,15 @@ export const ProductFormModal = ({
   const [tags, setTags] = useState([])
   const [tagInput, setTagInput] = useState('')
 
+  // Quick brand & category creation
+  const [showNewBrandInput, setShowNewBrandInput] = useState(false)
+  const [newBrandName, setNewBrandName] = useState('')
+  const [isCreatingBrand, setIsCreatingBrand] = useState(false)
+
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+
   // AI draft helpers
   const [bullets, setBullets] = useState('')
   const [tone, setTone] = useState('Professional')
@@ -34,6 +44,40 @@ export const ProductFormModal = ({
   const [aiSuccessMessage, setAiSuccessMessage] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+
+  const handleCreateBrand = async () => {
+    if (!newBrandName.trim()) return
+    setIsCreatingBrand(true)
+    setError('')
+    try {
+      const created = await catalogApi.createBrand({ name: newBrandName.trim() })
+      if (onRefreshMetadata) await onRefreshMetadata()
+      setBrandId(created.id)
+      setNewBrandName('')
+      setShowNewBrandInput(false)
+    } catch (err) {
+      setError(err.response?.data?.errors?.[0]?.message || 'Failed to create brand.')
+    } finally {
+      setIsCreatingBrand(false)
+    }
+  }
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return
+    setIsCreatingCategory(true)
+    setError('')
+    try {
+      const created = await catalogApi.createCategory({ name: newCategoryName.trim() })
+      if (onRefreshMetadata) await onRefreshMetadata()
+      setCategoryId(created.id)
+      setNewCategoryName('')
+      setShowNewCategoryInput(false)
+    } catch (err) {
+      setError(err.response?.data?.errors?.[0]?.message || 'Failed to create category.')
+    } finally {
+      setIsCreatingCategory(false)
+    }
+  }
 
   useEffect(() => {
     if (product) {
@@ -199,39 +243,101 @@ export const ProductFormModal = ({
           />
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-300">
-              Brand
-            </label>
-            <select
-              value={brandId}
-              onChange={(e) => setBrandId(e.target.value)}
-              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
-            >
-              <option value="">No Brand Selected</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-slate-300">
+                Brand
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowNewBrandInput(!showNewBrandInput)}
+                className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                {showNewBrandInput ? 'Cancel' : '+ New Brand'}
+              </button>
+            </div>
+
+            {showNewBrandInput ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="New brand name (e.g. Dyson)..."
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  className="w-full rounded-xl glass-input px-3 py-2 text-xs"
+                />
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  isLoading={isCreatingBrand}
+                  onClick={handleCreateBrand}
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <select
+                value={brandId}
+                onChange={(e) => setBrandId(e.target.value)}
+                className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
+              >
+                <option value="">No Brand Selected</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-300">
-              Category
-            </label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
-            >
-              <option value="">No Category Selected</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-slate-300">
+                Category
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowNewCategoryInput(!showNewCategoryInput)}
+                className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                {showNewCategoryInput ? 'Cancel' : '+ New Category'}
+              </button>
+            </div>
+
+            {showNewCategoryInput ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="New category name (e.g. Wearables)..."
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="w-full rounded-xl glass-input px-3 py-2 text-xs"
+                />
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  isLoading={isCreatingCategory}
+                  onClick={handleCreateCategory}
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
+              >
+                <option value="">No Category Selected</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <Input

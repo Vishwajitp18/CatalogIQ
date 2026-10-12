@@ -54,22 +54,23 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [editingProduct, setEditingProduct] = useState(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  // Load Brands and Categories once
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const [bData, cData] = await Promise.all([
-          catalogApi.getBrands(),
-          catalogApi.getCategories(),
-        ])
-        setBrands(bData)
-        setCategories(cData)
-      } catch (err) {
-        console.warn('Metadata fetch failed:', err)
-      }
+  // Load Brands and Categories
+  const fetchMetadata = useCallback(async () => {
+    try {
+      const [bData, cData] = await Promise.all([
+        catalogApi.getBrands(),
+        catalogApi.getCategories(),
+      ])
+      setBrands(bData)
+      setCategories(cData)
+    } catch (err) {
+      console.warn('Metadata fetch failed:', err)
     }
-    fetchMetadata()
   }, [])
+
+  useEffect(() => {
+    fetchMetadata()
+  }, [fetchMetadata])
 
   // Fetch standard catalog
   const fetchCatalog = useCallback(
@@ -109,8 +110,23 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     }
   }, [filters, isAiActive, fetchCatalog])
 
+  const [aiNotification, setAiNotification] = useState(null)
+
   // Handle AI Search Execution
   const handleAiSearch = async (query) => {
+    setAiNotification(null)
+
+    if (!isAuthenticated) {
+      setAiNotification({
+        type: 'warning',
+        message:
+          'Please sign in to use Natural Language AI search. You can click "Fill Demo" on the Login page for 1-click access!',
+      })
+      // Fallback: search via standard keyword search
+      handleFilterChange({ search: query })
+      return
+    }
+
     try {
       setAiLoading(true)
       setAiQuery(query)
@@ -118,17 +134,31 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
       const data = await aiApi.search({
         query,
-        page: 1,
-        page_size: 12,
+        limit: 20,
       })
 
       setProducts(data.results || [])
-      setTotalCount(data.total_count || 0)
-      setTotalPages(data.total_pages || 1)
-      setCurrentPage(data.page || 1)
+      setTotalCount(data.count ?? data.total_count ?? (data.results?.length || 0))
+      setTotalPages(1)
+      setCurrentPage(1)
       setAiInterpretation(data.interpretation || null)
     } catch (err) {
-      console.error('AI Search failed:', err)
+      console.warn('AI Search notice:', err)
+      const statusCode = err.response?.status
+      const msg = err.response?.data?.error?.message || err.response?.data?.detail || ''
+      if (statusCode === 401) {
+        setAiNotification({
+          type: 'warning',
+          message: 'Your session has expired. Please sign in to run AI searches.',
+        })
+      } else {
+        setAiNotification({
+          type: 'info',
+          message: `AI inference service note: ${msg || 'Code ' + statusCode}. Switched to keyword search for "${query}".`,
+        })
+      }
+      setIsAiActive(false)
+      handleFilterChange({ search: query })
     } finally {
       setAiLoading(false)
     }
@@ -139,6 +169,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     setIsAiActive(false)
     setAiInterpretation(null)
     setAiQuery('')
+    setAiNotification(null)
     fetchCatalog(1)
   }
 
@@ -191,6 +222,24 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
           </p>
 
           <div className="pt-2">
+            {aiNotification && (
+              <div
+                className={`mb-3 p-3 rounded-xl border text-xs flex items-center justify-between gap-2 animate-in fade-in duration-200 ${
+                  aiNotification.type === 'warning'
+                    ? 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+                    : 'bg-purple-950/40 border-purple-500/30 text-purple-300'
+                }`}
+              >
+                <span>{aiNotification.message}</span>
+                <button
+                  type="button"
+                  onClick={() => setAiNotification(null)}
+                  className="text-xs hover:underline opacity-80 shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             <AiSearchBar
               onSearch={handleAiSearch}
               onClear={handleClearAiSearch}
@@ -442,6 +491,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         product={editingProduct}
         brands={brands}
         categories={categories}
+        onRefreshMetadata={fetchMetadata}
         onSaved={() => {
           if (isAiActive) {
             handleAiSearch(aiQuery)

@@ -1,7 +1,30 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Database, Server, Cpu, GitFork } from 'lucide-react'
+import { healthApi } from '../../api/client'
 
 export const Footer = () => {
+  const [healthStatus, setHealthStatus] = useState('checking')
+
+  useEffect(() => {
+    let mounted = true
+    const check = async () => {
+      try {
+        const data = await healthApi.checkReady()
+        if (mounted) {
+          setHealthStatus(data.database === 'connected' ? 'connected' : 'degraded')
+        }
+      } catch {
+        if (mounted) setHealthStatus('disconnected')
+      }
+    }
+    check()
+    const timer = setInterval(check, 45000)
+    return () => {
+      mounted = false
+      clearInterval(timer)
+    }
+  }, [])
+
   return (
     <footer className="mt-auto border-t border-white/[0.07] bg-slate-950/60 backdrop-blur-md py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,8 +41,25 @@ export const Footer = () => {
               <span>Django 5.1 REST</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-400">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  healthStatus === 'connected'
+                    ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+                    : healthStatus === 'checking'
+                    ? 'bg-amber-400'
+                    : 'bg-rose-500'
+                }`}
+              />
               <Database className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Supabase PostgreSQL 17</span>
+              <span>
+                Supabase Postgres 17 (
+                {healthStatus === 'connected'
+                  ? 'Healthy'
+                  : healthStatus === 'checking'
+                  ? 'Connecting...'
+                  : 'Offline'}
+                )
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-purple-400">
               <Cpu className="w-3.5 h-3.5" />
