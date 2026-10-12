@@ -1,0 +1,122 @@
+from unittest.mock import patch
+
+import pytest
+from rest_framework.test import APIClient
+
+from apps.accounts.services.sessions import create_user_session
+from apps.catalog.models import Product
+from apps.genai.providers.base import (
+    ProviderBadOutput,
+    ProviderNotConfigured,
+    ProviderUnavailable,
+)
+from tests.factories import BrandFactory, CategoryFactory, ProductFactory, UserFactory
+
+
+@pytest.fixture
+def client():
+    return APIClient()
+
+
+def auth_client_for(user):
+    c = APIClient()
+    session, access, _ = create_user_session(user)
+    c.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+    return c
+
+
+@pytest.mark.django_db
+class TestGenAIFeatures:
+    def test_description_generator_draft_success(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        initial_count = Product.objects.count()
+        payload = {
+            "name": "Wireless Over-Ear Headphones",
+            "brand": "Sony",
+            "category": "Audio",
+            "key_features": ["30 hour battery", "Active noise cancellation"],
+            "tone": "professional",
+        }
+
+        # Anonymous rejected
+        assert client.post("/api/v1/ai/product-description/", payload).status_code == 401
+
+        # Authenticated succeeds
+        res = authed.post("/api/v1/ai/product-description/", payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert "description" in data
+        assert "tags" in data
+        assert isinstance(data["tags"], list)
+        assert len(data["description"]) > 10
+
+        # AI draft does NOT persist to DB
+        assert Product.objects.count() == initial_count
+
+    def test_description_generator_validation_error(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        # Bad tone enum
+        res = authed.post(
+            "/api/v1/ai/product-description/",
+            {"name": "Headphones", "brand": "Sony", "category": "Audio", "tone": "invalid_tone"},
+        )
+        assert res.status_code == 400
+        assert res.json()["error"]["code"] == "validation_error"
+
+    def test_natural_language_search_success(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        b = BrandFactory(name="Sony", slug="sony")
+        c = CategoryFactory(name="Audio", slug="audio")
+        ProductFactory(
+            name="Sony Noise Canceling Headphones", brand=b, category=c, tags=["wireless"]
+        )
+
+        # Anonymous rejected
+        assert (
+            client.post("/api/v1/ai/search/", {"query": "wireless headphones"}).status_code == 401
+        )
+
+        # Authenticated succeeds
+        res = authed.post(
+            "/api/v1/ai/search/", {"query": "wireless headphones under 5000", "limit": 10}
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["query"] == "wireless headphones under 5000"
+        assert "interpretation" in data
+        assert "results" in data
+        assert "notes" in data["interpretation"]
+
+    def test_ai_provider_error_translation(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+        payload = {"name": "Test", "brand": "TestBrand", "category": "TestCat"}
+
+        # 503 ProviderNotConfigured
+        with patch("apps.genai.services.get_provider") as mock_prov:
+            mock_prov.return_value.generate_json.side_effect = ProviderNotConfigured(
+                "API key missing"
+            )
+            res = authed.post("/api/v1/ai/product-description/", payload)
+            assert res.status_code == 503
+            assert res.json()["error"]["code"] == "ai_not_configured"
+
+        # 503 ProviderUnavailable (Timeout / 5xx)
+        with patch("apps.genai.services.get_provider") as mock_prov:
+            mock_prov.return_value.generate_json.side_effect = ProviderUnavailable("Groq timeout")
+            res = authed.post("/api/v1/ai/product-description/", payload)
+            assert res.status_code == 503
+            assert res.json()["error"]["code"] == "ai_unavailable"
+
+        # 502 ProviderBadOutput
+        with patch("apps.genai.services.get_provider") as mock_prov:
+            mock_prov.return_value.generate_json.side_effect = ProviderBadOutput("Invalid json")
+            res = authed.post("/api/v1/ai/product-description/", payload)
+            assert res.status_code == 502
+            assert res.json()["error"]["code"] == "ai_invalid_output"

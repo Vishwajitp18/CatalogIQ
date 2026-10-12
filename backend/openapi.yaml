@@ -1,0 +1,1095 @@
+openapi: 3.0.3
+info:
+  title: CatalogIQ API
+  version: 1.0.0
+  description: Product Management and AI-Powered Search Platform REST API
+paths:
+  /api/health/:
+    get:
+      operationId: api_health_retrieve
+      description: Returns 200 if the backend process is alive.
+      summary: Liveness probe
+      tags:
+      - Health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/health/ready/:
+    get:
+      operationId: api_health_ready_retrieve
+      description: Returns 200 if the database is reachable, 503 otherwise.
+      summary: Readiness probe
+      tags:
+      - Health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/ai/product-description/:
+    post:
+      operationId: ai_product_description_create
+      description: Generates a factual product description and suggested tag keywords.
+        Does not persist to the catalog.
+      summary: Generate product description & tags draft
+      tags:
+      - GenAI
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDescriptionRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductDescriptionRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductDescriptionRequestRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDescriptionResponse'
+          description: ''
+        '400':
+          description: Validation error
+        '502':
+          description: AI output validation failure
+        '503':
+          description: AI provider unavailable or unconfigured
+  /api/v1/ai/search/:
+    post:
+      operationId: ai_search_create
+      description: Translates a natural language user query into validated catalog
+        criteria and returns matched products.
+      summary: Natural language catalog search
+      tags:
+      - GenAI
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NaturalLanguageSearchRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NaturalLanguageSearchRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NaturalLanguageSearchRequestRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NaturalLanguageSearchResponse'
+          description: ''
+        '400':
+          description: Validation error
+        '502':
+          description: AI output validation failure
+        '503':
+          description: AI provider unavailable or unconfigured
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Verifies credentials and returns access and refresh tokens.
+      summary: User login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          description: Invalid credentials
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Revokes the presented refresh token and its session immediately.
+      summary: Logout current session
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/logout-all/:
+    post:
+      operationId: auth_logout_all_create
+      description: Revokes all active sessions for the current authenticated user
+        across all devices.
+      summary: Logout all devices
+      tags:
+      - Authentication
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Retrieves profile data for the authenticated user.
+      summary: Current user profile
+      tags:
+      - Authentication
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/password/change/:
+    post:
+      operationId: auth_password_change_create
+      description: Verifies existing password, sets new password, and revokes all
+        other sessions.
+      summary: Change password
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: Password validation error
+  /api/v1/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: Presents current refresh token to receive a fresh access token
+        and rotated refresh token.
+      summary: Refresh access token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '401':
+          description: Invalid, expired or reused token
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Creates a new account and establishes an active login session.
+      summary: Register user account
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/auth/sessions/:
+    get:
+      operationId: auth_sessions_list
+      description: Returns all active login sessions and devices associated with the
+        authenticated user.
+      summary: List active sessions
+      tags:
+      - Authentication
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSession'
+          description: ''
+  /api/v1/auth/sessions/{session_id}/:
+    delete:
+      operationId: auth_sessions_destroy
+      description: Revokes a specific session ID owned by the user.
+      summary: Revoke single session
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Authentication
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          description: Session not found
+  /api/v1/brands/:
+    get:
+      operationId: brands_list
+      description: Public unpaginated list of all product brands sorted alphabetically.
+      summary: List all brands
+      tags:
+      - Catalog
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
+    post:
+      operationId: brands_create
+      description: Creates a new brand. Authenticated users only.
+      summary: Create brand
+      tags:
+      - Catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BrandCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BrandCreateRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/categories/:
+    get:
+      operationId: categories_list
+      description: Public unpaginated list of all product categories sorted alphabetically.
+      summary: List all categories
+      tags:
+      - Catalog
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+    post:
+      operationId: categories_create
+      description: Creates a new category. Authenticated users only.
+      summary: Create category
+      tags:
+      - Catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/products/:
+    get:
+      operationId: products_list
+      description: Publicly query the product catalog with multi-term search, category/brand
+        filters, price bounds, sorting, and pagination.
+      summary: List active products
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: array
+          items:
+            type: string
+        description: Filter by brand slug (repeatable)
+      - in: query
+        name: category
+        schema:
+          type: array
+          items:
+            type: string
+        description: Filter by category slug (repeatable)
+      - in: query
+        name: max_price
+        schema:
+          type: number
+          format: double
+        description: Maximum price filter (inclusive)
+      - in: query
+        name: min_price
+        schema:
+          type: number
+          format: double
+        description: Minimum price filter (inclusive)
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Sort order: name, -name, price, -price, created_at, -created_at
+          (default: -created_at)'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20, max: 100)'
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search term across name, description, brand, category, and tags
+      tags:
+      - Catalog
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductReadList'
+          description: ''
+    post:
+      operationId: products_create
+      description: Creates a new catalog product. Authenticated user is recorded as
+        creator.
+      summary: Create product
+      tags:
+      - Catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRead'
+          description: ''
+        '400':
+          description: Validation error
+  /api/v1/products/{id}/:
+    get:
+      operationId: products_retrieve
+      description: Public detail view for an active product.
+      summary: Retrieve product detail
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Catalog
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRead'
+          description: ''
+        '404':
+          description: Product not found
+    put:
+      operationId: products_update
+      description: Replaces all editable product attributes. Creator or staff only.
+      summary: Update product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductWriteRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRead'
+          description: ''
+        '403':
+          description: Permission denied
+    patch:
+      operationId: products_partial_update
+      description: Updates specific attributes on an existing product. Creator or
+        staff only.
+      summary: Partial update product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductWriteRequest'
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRead'
+          description: ''
+        '403':
+          description: Permission denied
+    delete:
+      operationId: products_destroy
+      description: Soft deletes the product (sets is_active=False). Creator or staff
+        only. Inactive products return 404.
+      summary: Soft delete product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Catalog
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          description: Permission denied
+components:
+  schemas:
+    Brand:
+      type: object
+      description: Read representation of Brand.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    BrandCreateRequest:
+      type: object
+      description: Write representation for creating a brand.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+      required:
+      - name
+    Category:
+      type: object
+      description: Read representation of Category.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    CategoryCreateRequest:
+      type: object
+      description: Write representation for creating a category.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+      required:
+      - name
+    LoginRequest:
+      type: object
+      description: Credentials verification serializer.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    LogoutRequest:
+      type: object
+      description: Revokes session associated with the provided refresh token.
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    NaturalLanguageSearchRequestRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 300
+        limit:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 20
+      required:
+      - query
+    NaturalLanguageSearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        interpretation:
+          $ref: '#/components/schemas/SearchInterpretationDetail'
+        count:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductRead'
+      required:
+      - count
+      - interpretation
+      - query
+      - results
+    PaginatedProductReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductRead'
+    PasswordChangeRequest:
+      type: object
+      description: Verifies existing password and sets a new password.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - new_password
+      - old_password
+    PatchedProductWriteRequest:
+      type: object
+      description: Write representation for creating and updating Products.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        brand_id:
+          type: integer
+        category_id:
+          type: integer
+        description:
+          type: string
+          default: ''
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        image_url:
+          type: string
+          default: ''
+          maxLength: 2048
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+          maxItems: 10
+    ProductDescriptionRequestRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        brand:
+          type: string
+          minLength: 1
+          maxLength: 120
+        category:
+          type: string
+          minLength: 1
+          maxLength: 120
+        key_features:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 120
+          maxItems: 10
+        tone:
+          allOf:
+          - $ref: '#/components/schemas/ToneEnum'
+          default: professional
+      required:
+      - brand
+      - category
+      - name
+    ProductDescriptionResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+      - description
+      - tags
+    ProductRead:
+      type: object
+      description: Full read representation of Product with nested Brand/Category
+        and can_edit flag.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        brand:
+          allOf:
+          - $ref: '#/components/schemas/Brand'
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Category'
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        image_url:
+          type: string
+          format: uri
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 40
+          readOnly: true
+        can_edit:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - brand
+      - can_edit
+      - category
+      - created_at
+      - description
+      - id
+      - image_url
+      - name
+      - price
+      - tags
+      - updated_at
+    ProductWriteRequest:
+      type: object
+      description: Write representation for creating and updating Products.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        brand_id:
+          type: integer
+        category_id:
+          type: integer
+        description:
+          type: string
+          default: ''
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        image_url:
+          type: string
+          default: ''
+          maxLength: 2048
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+          maxItems: 10
+      required:
+      - brand_id
+      - category_id
+      - name
+      - price
+    RegisterRequest:
+      type: object
+      description: User registration serializer.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        full_name:
+          type: string
+          maxLength: 150
+      required:
+      - email
+      - password
+    SearchInterpretationDetail:
+      type: object
+      properties:
+        search_terms:
+          type: array
+          items:
+            type: string
+        brand:
+          type: object
+          additionalProperties: {}
+          nullable: true
+        category:
+          type: object
+          additionalProperties: {}
+          nullable: true
+        min_price:
+          type: string
+          nullable: true
+        max_price:
+          type: string
+          nullable: true
+        sort_by:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+      required:
+      - brand
+      - category
+      - max_price
+      - min_price
+      - notes
+      - search_terms
+      - sort_by
+    TokenRefreshRequest:
+      type: object
+      description: Rotates refresh token and returns a new access/refresh pair.
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    ToneEnum:
+      enum:
+      - professional
+      - friendly
+      - technical
+      type: string
+      description: |-
+        * `professional` - professional
+        * `friendly` - friendly
+        * `technical` - technical
+    User:
+      type: object
+      description: Public safe representation of a user profile.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        is_staff:
+          type: boolean
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - email
+      - full_name
+      - id
+      - is_staff
+    UserSession:
+      type: object
+      description: Device session representation.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_agent:
+          type: string
+          readOnly: true
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_used_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_current:
+          type: boolean
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - ip_address
+      - is_current
+      - last_used_at
+      - user_agent
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Access Token. Prefix with 'Bearer '.
