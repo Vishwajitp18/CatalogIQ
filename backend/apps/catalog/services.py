@@ -11,6 +11,7 @@ def create_product(
     brand: Brand,
     category: Category,
     price: Decimal,
+    stock: int = 0,
     description: str = "",
     image_url: str = "",
     tags: list[str] | None = None,
@@ -31,6 +32,7 @@ def create_product(
         brand=brand,
         category=category,
         price=price,
+        stock=max(0, int(stock or 0)),
         description=description.strip(),
         image_url=image_url.strip(),
         tags=clean_tags[:10],
@@ -49,6 +51,7 @@ def update_product(
     brand: Brand | None = None,
     category: Category | None = None,
     price: Decimal | None = None,
+    stock: int | None = None,
     description: str | None = None,
     image_url: str | None = None,
     tags: list[str] | None = None,
@@ -62,6 +65,8 @@ def update_product(
         product.category = category
     if price is not None:
         product.price = price
+    if stock is not None:
+        product.stock = max(0, int(stock))
     if description is not None:
         product.description = description.strip()
     if image_url is not None:

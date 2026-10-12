@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Sparkles, Layers, Shield, FileCode2, LogOut, User, Plus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../ui/Button'
@@ -8,8 +8,18 @@ import { Badge } from '../ui/Badge'
 export const Navbar = ({ onOpenCreateProduct }) => {
   const { user, isAuthenticated, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const isActive = (path) => location.pathname === path
+
+  const handleOpenCreateProduct = () => {
+    if (location.pathname !== '/') {
+      navigate('/', { state: { openCreate: true } })
+    }
+    if (onOpenCreateProduct) {
+      onOpenCreateProduct()
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-2xl bg-slate-950/75 border-b border-white/[0.08]">
@@ -78,7 +88,7 @@ export const Navbar = ({ onOpenCreateProduct }) => {
                   variant="ai"
                   size="sm"
                   icon={Plus}
-                  onClick={onOpenCreateProduct}
+                  onClick={handleOpenCreateProduct}
                   className="hidden sm:inline-flex"
                 >
                   Add Product

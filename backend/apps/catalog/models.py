@@ -145,6 +145,11 @@ class Product(TimeStampedModel):
         blank=True,
         related_name="created_products",
     )
+    stock = models.PositiveIntegerField(
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Available inventory units",
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:

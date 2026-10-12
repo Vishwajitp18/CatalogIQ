@@ -297,24 +297,35 @@ class Command(BaseCommand):
             for item in PRODUCTS_DATA:
                 brand = brand_map[item["brand"]]
                 category = category_map[item["category"]]
-                product, was_created = Product.objects.get_or_create(
-                    name=item["name"],
-                    defaults={
-                        "brand": brand,
-                        "category": category,
-                        "description": item["description"],
-                        "price": item["price"],
-                        "image_url": item["image_url"],
-                        "tags": item["tags"],
-                        "created_by": admin_user,
-                        "is_active": True,
-                    },
-                )
-                if not was_created and product.created_by is None:
-                    product.created_by = admin_user
-                    product.save(update_fields=["created_by"])
-                if was_created:
+                item_stock = item.get("stock", 25)
+                product = Product.objects.filter(name=item["name"]).first()
+                if not product:
+                    product = Product.objects.create(
+                        name=item["name"],
+                        brand=brand,
+                        category=category,
+                        description=item["description"],
+                        price=item["price"],
+                        stock=item_stock,
+                        image_url=item["image_url"],
+                        tags=item["tags"],
+                        created_by=admin_user,
+                        is_active=True,
+                    )
                     created_count += 1
+                else:
+                    update_fields = []
+                    if product.created_by is None:
+                        product.created_by = admin_user
+                        update_fields.append("created_by")
+                    if product.stock == 0:
+                        product.stock = item_stock
+                        update_fields.append("stock")
+                    if update_fields:
+                        product.save(update_fields=update_fields)
+
+            # Ensure any other products in DB that have 0 stock get realistic stock
+            Product.objects.filter(stock=0).update(stock=18)
 
 
             self.stdout.write(

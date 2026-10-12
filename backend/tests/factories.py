@@ -67,5 +67,6 @@ class ProductFactory(factory.django.DjangoModelFactory):
     price = Decimal("1999.00")
     image_url = "https://example.com/test.jpg"
     tags = ["test", "demo"]
+    stock = 15
     created_by = factory.SubFactory(UserFactory)
     is_active = True

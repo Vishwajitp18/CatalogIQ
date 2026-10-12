@@ -96,6 +96,7 @@ class TestCatalogAPI:
             "category_id": c.id,
             "description": "Ergonomic wireless mouse",
             "price": "8999.00",
+            "stock": 10,
             "image_url": "https://example.com/mouse.jpg",
             "tags": ["wireless", "mouse"],
         }
@@ -109,10 +110,12 @@ class TestCatalogAPI:
         assert res.status_code == 201
         data = res.json()
         assert data["name"] == "MX Master 3S"
+        assert data["stock"] == 10
         assert data["can_edit"] is True
 
         prod = Product.objects.get(id=data["id"])
         assert prod.created_by == user
+        assert prod.stock == 10
 
     def test_can_edit_flag_semantics(self, client):
         creator = UserFactory()
@@ -140,13 +143,14 @@ class TestCatalogAPI:
     def test_product_update_permissions(self, client):
         creator = UserFactory()
         other_user = UserFactory()
-        prod = ProductFactory(created_by=creator, price=Decimal("1000.00"))
+        prod = ProductFactory(created_by=creator, price=Decimal("1000.00"), stock=5)
 
         patch_payload = {
             "name": prod.name,
             "brand_id": prod.brand.id,
             "category_id": prod.category.id,
             "price": "1200.00",
+            "stock": 25,
         }
 
         # Other user forbidden
@@ -157,6 +161,9 @@ class TestCatalogAPI:
         res_creator = auth_client_for(creator).patch(f"/api/v1/products/{prod.id}/", patch_payload)
         assert res_creator.status_code == 200
         assert res_creator.json()["price"] == "1200.00"
+        assert res_creator.json()["stock"] == 25
+        prod.refresh_from_db()
+        assert prod.stock == 25
 
     def test_soft_delete(self, client):
         creator = UserFactory()

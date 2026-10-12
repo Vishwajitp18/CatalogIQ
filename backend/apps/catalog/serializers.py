@@ -76,6 +76,7 @@ class ProductReadSerializer(serializers.ModelSerializer):
             "category",
             "description",
             "price",
+            "stock",
             "image_url",
             "tags",
             "is_active",
@@ -109,6 +110,7 @@ class ProductWriteSerializer(serializers.Serializer):
     )
     description = serializers.CharField(required=False, allow_blank=True, default="")
     price = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0.00"))
+    stock = serializers.IntegerField(required=False, default=0, min_value=0)
     image_url = serializers.CharField(required=False, allow_blank=True, default="", max_length=2048)
     tags = serializers.ListField(
         child=serializers.CharField(max_length=40),

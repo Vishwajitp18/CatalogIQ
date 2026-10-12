@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   Grid,
   List,
@@ -56,10 +57,23 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiQuery, setAiQuery] = useState('')
 
+  const location = useLocation()
+
   // Modals
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [editingProduct, setEditingProduct] = useState(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+
+  // Sync external create product trigger (from Navbar across routes or prop)
+  useEffect(() => {
+    if (isCreateOpen || location.state?.openCreate) {
+      setEditingProduct(null)
+      setIsFormOpen(true)
+      if (location.state?.openCreate) {
+        window.history.replaceState({}, document.title)
+      }
+    }
+  }, [isCreateOpen, location.state])
 
   // Load Brands and Categories
   const fetchMetadata = useCallback(async () => {
@@ -639,6 +653,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         isOpen={isFormOpen || isCreateOpen}
         onClose={() => {
           setIsFormOpen(false)
+          setEditingProduct(null)
           if (onCloseCreate) onCloseCreate()
         }}
         product={editingProduct}
@@ -646,6 +661,9 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         categories={categories}
         onRefreshMetadata={fetchMetadata}
         onSaved={() => {
+          setIsFormOpen(false)
+          setEditingProduct(null)
+          if (onCloseCreate) onCloseCreate()
           if (isAiActive) {
             handleAiSearch(aiQuery)
           } else {
