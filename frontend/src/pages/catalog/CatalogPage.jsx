@@ -174,10 +174,22 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   }
 
   const handleFilterChange = (newFilters) => {
+    if (isAiActive) {
+      setIsAiActive(false)
+      setAiInterpretation(null)
+      setAiQuery('')
+      setAiNotification(null)
+    }
     setFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
   const handleResetFilters = () => {
+    if (isAiActive) {
+      setIsAiActive(false)
+      setAiInterpretation(null)
+      setAiQuery('')
+      setAiNotification(null)
+    }
     setFilters({
       search: '',
       brand: '',

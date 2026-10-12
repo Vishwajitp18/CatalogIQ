@@ -75,7 +75,7 @@ class ProductListCreateView(APIView):
         qs = apply_price_filter(qs, min_p, max_p)
 
         # 3. Brand & Category slug filters (repeatable)
-        filterset = ProductFilter(request.GET, queryset=qs)
+        filterset = ProductFilter(request.GET, queryset=qs, request=request)
         if not filterset.is_valid():
             raise exceptions.ValidationError(filterset.errors)
         qs = filterset.qs
