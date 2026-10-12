@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, Database, Server, Cpu, Github } from 'lucide-react'
+import { Sparkles, Database, Server, Cpu, GitFork } from 'lucide-react'
 
 export const Footer = () => {
   return (
@@ -34,7 +34,7 @@ export const Footer = () => {
               rel="noreferrer"
               className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
             >
-              <Github className="w-4 h-4" />
+              <GitFork className="w-4 h-4 text-purple-400" />
               <span>GitHub</span>
             </a>
           </div>
