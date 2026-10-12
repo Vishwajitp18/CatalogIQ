@@ -122,7 +122,7 @@ export const SessionsPage = () => {
     setPasswordLoading(true)
     try {
       await authApi.changePassword({
-        current_password: currentPassword,
+        old_password: currentPassword,
         new_password: newPassword,
       })
       const successMsg = 'Password changed successfully. All other active sessions have been revoked.'
@@ -180,6 +180,7 @@ export const SessionsPage = () => {
             icon={Trash2}
             onClick={handleRevokeAll}
             isLoading={actionLoading === 'all'}
+            disabled={isLoading || !sessions.some((s) => !s.is_current)}
           >
             Revoke All Other Sessions
           </Button>
@@ -210,48 +211,6 @@ export const SessionsPage = () => {
           </button>
         </div>
       )}
-
-      {/* Security Architecture Bento Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <BentoCard highlight className="p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <RotateCw className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Token Rotation
-            </span>
-          </div>
-          <p className="text-xl font-bold text-white">Opaque Hash Rotation</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Every token refresh issues a new opaque secret and revokes the predecessor with a 10s grace window.
-          </p>
-        </BentoCard>
-
-        <BentoCard highlight className="p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Sliding Expiration
-            </span>
-          </div>
-          <p className="text-xl font-bold text-white">14 Days Idle / 30 Max</p>
-          <p className="text-xs text-slate-400 mt-1">
-            Inactive sessions expire automatically. Active sessions have an absolute 30-day ceiling.
-          </p>
-        </BentoCard>
-
-        <BentoCard highlight className="p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Theft Detection
-            </span>
-          </div>
-          <p className="text-xl font-bold text-white">Instant Invalidation</p>
-          <p className="text-xs text-slate-400 mt-1">
-            If a compromised token is reused outside the grace period, the entire session family is severed.
-          </p>
-        </BentoCard>
-      </div>
 
       {/* Sessions List */}
       <div className="space-y-4">
@@ -299,43 +258,60 @@ export const SessionsPage = () => {
                       <Icon className="w-6 h-6" />
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-white text-sm">
                           {browser} on {os}
                         </span>
-                        {session.is_current && (
-                          <Badge variant="ai" className="text-[11px]">
-                            Current Session
-                          </Badge>
+                        {session.is_current ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-500/30 text-emerald-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Current session
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-400 border border-white/10">
+                            Active
+                          </span>
                         )}
-                        <span className="text-xs text-slate-500">
-                          Rotations: {session.rotation_count}
-                        </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-400">
+                        <span className="flex items-center gap-1.5">
                           <Globe className="w-3.5 h-3.5 text-slate-500" />
-                          IP: {session.ip_address || '127.0.0.1'}
+                          IP: <strong className="text-slate-300 font-medium">{session.ip_address || '127.0.0.1'}</strong>
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-slate-500" />
-                          Last active:{' '}
-                          {session.last_seen_at
-                            ? new Date(session.last_seen_at).toLocaleString()
-                            : 'Just now'}
+                          Signed in:{' '}
+                          <span className="text-slate-300">
+                            {session.created_at
+                              ? new Date(session.created_at).toLocaleString(undefined, {
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short',
+                                })
+                              : '—'}
+                          </span>
                         </span>
-                        <span className="flex items-center gap-1 text-slate-500">
-                          Expires:{' '}
-                          {new Date(session.expires_at).toLocaleDateString()}
+                        <span className="flex items-center gap-1.5">
+                          <Shield className="w-3.5 h-3.5 text-slate-500" />
+                          Last active:{' '}
+                          <span className={session.is_current ? 'text-emerald-400 font-medium' : 'text-slate-300'}>
+                            {session.is_current
+                              ? 'Active now'
+                              : session.last_used_at
+                              ? new Date(session.last_used_at).toLocaleString(undefined, {
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short',
+                                })
+                              : '—'}
+                          </span>
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="sm:self-center shrink-0 w-full sm:w-auto flex justify-end">
-                    {!session.is_current && (
+                    {!session.is_current ? (
                       <Button
                         variant="secondary"
                         size="sm"
@@ -345,6 +321,10 @@ export const SessionsPage = () => {
                       >
                         Revoke
                       </Button>
+                    ) : (
+                      <span className="text-xs text-slate-500 italic px-2">
+                        This device
+                      </span>
                     )}
                   </div>
                 </BentoCard>

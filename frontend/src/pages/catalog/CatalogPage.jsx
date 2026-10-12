@@ -26,11 +26,11 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
 
   // Catalog State
+  const PAGE_SIZE = 12
   const [products, setProducts] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(24)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const sentinelRef = useRef(null)
@@ -91,7 +91,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
   // Fetch standard catalog with optional append mode (for infinite scroll)
   const fetchCatalog = useCallback(
-    async (page = 1, append = false, customPageSize = pageSize) => {
+    async (page = 1, append = false) => {
       try {
         if (append) {
           setIsLoadingMore(true)
@@ -101,7 +101,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
         const params = {
           page,
-          page_size: customPageSize,
+          page_size: PAGE_SIZE,
           ordering: filters.ordering,
         }
         if (filters.search) params.search = filters.search
@@ -126,7 +126,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
         const count = data.count ?? incoming.length
         setTotalCount(count)
-        setTotalPages(data.total_pages || Math.ceil(count / customPageSize) || 1)
+        setTotalPages(data.total_pages || Math.ceil(count / PAGE_SIZE) || 1)
         setCurrentPage(data.current_page || page)
       } catch (err) {
         console.error('Failed to load products:', err)
@@ -136,7 +136,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         setIsLoadingMore(false)
       }
     },
-    [filters, pageSize, showError]
+    [filters, showError]
   )
 
   // Effect to load products when filters change (if not in AI mode)
@@ -586,95 +586,27 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             </div>
           )}
 
-          {/* Pagination & Infinite Scroll Controls */}
-          <div className="pt-8 border-t border-white/[0.08] space-y-6">
-            {/* Catalog Progress Bar & Count */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1.5 w-full sm:w-auto">
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <span>
-                    Showing <strong className="text-white font-semibold">{products.length}</strong> of{' '}
-                    <strong className="text-white font-semibold">{totalCount}</strong> products
-                  </span>
-                  {totalCount > 0 && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950/50 border border-purple-500/20 text-purple-300 font-mono">
-                      {Math.round((products.length / totalCount) * 100)}%
-                    </span>
-                  )}
+          {/* Production Scrollable Pagination Sentinel */}
+          {!isAiActive && (
+            <div className="pt-6 pb-2 flex flex-col items-center justify-center space-y-3">
+              {isLoadingMore && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs shadow-lg animate-in fade-in duration-200">
+                  <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                  <span>Loading more products...</span>
                 </div>
-                {/* Visual Progress Bar */}
-                <div className="w-full sm:w-64 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 via-violet-500 to-cyan-400 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${totalCount > 0 ? Math.min(100, (products.length / totalCount) * 100) : 0}%`,
-                    }}
-                  />
-                </div>
-              </div>
+              )}
 
-              {/* View & Batch Size Controls */}
-              {/* Batch Size Selector */}
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <span className="hidden sm:inline font-medium">Batch Size:</span>
-                <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5">
-                  {[12, 24, 48, 100].map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => {
-                        setPageSize(size)
-                        fetchCatalog(1, false, size)
-                      }}
-                      className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
-                        pageSize === size
-                          ? 'bg-purple-600 text-white font-medium shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      {size === 100 ? 'All' : size}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {products.length < totalCount && (
+                <div ref={sentinelRef} className="h-10 w-full pointer-events-none" />
+              )}
+
+              {products.length >= totalCount && totalCount > 0 && !isLoading && (
+                <p className="text-xs text-slate-500 tracking-wide text-center pt-2">
+                  Showing all {totalCount} products
+                </p>
+              )}
             </div>
-
-            {/* Continuous Scroll Actions & Sentinel */}
-            {!isAiActive && (
-              <div className="flex flex-col items-center justify-center pt-2 space-y-3">
-                {isLoadingMore && (
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs shadow-lg animate-in fade-in duration-200">
-                    <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
-                    <span>Loading more items from catalog...</span>
-                  </div>
-                )}
-
-                {products.length < totalCount ? (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      isLoading={isLoadingMore}
-                      icon={RefreshCw}
-                      onClick={() => fetchCatalog(currentPage + 1, true)}
-                      className="border-purple-500/30 hover:border-purple-500/50 text-xs px-5 py-2 shadow-sm"
-                    >
-                      Load More Products ({totalCount - products.length} remaining)
-                    </Button>
-                    {/* Intersection Observer Sentinel */}
-                    <div ref={sentinelRef} className="h-10 w-full pointer-events-none" />
-                  </>
-                ) : (
-                  totalCount > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-emerald-400/90 bg-emerald-950/20 border border-emerald-500/20 px-4 py-2 rounded-full">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>All {totalCount} catalog products loaded</span>
-                    </div>
-                  )
-                )}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
