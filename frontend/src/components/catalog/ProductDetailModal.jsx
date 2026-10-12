@@ -24,6 +24,50 @@ export const ProductDetailModal = ({
       title={product.name}
       subtitle={`SKU: ${product.sku || 'N/A'}`}
       maxWidth="max-w-2xl"
+      footer={
+        <div className="w-full flex items-center justify-between">
+          {isAuthenticated ? (
+            <Button
+              variant="danger"
+              size="sm"
+              icon={Trash2}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Are you sure you want to soft delete "${product.name}"?`
+                  )
+                ) {
+                  onDelete(product.id)
+                  onClose()
+                }
+              }}
+            >
+              Delete Product
+            </Button>
+          ) : (
+            <div />
+          )}
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              Close
+            </Button>
+            {isAuthenticated && (
+              <Button
+                variant="primary"
+                size="sm"
+                icon={Edit3}
+                onClick={() => {
+                  onClose()
+                  onEdit(product)
+                }}
+              >
+                Edit Product
+              </Button>
+            )}
+          </div>
+        </div>
+      }
     >
       <div className="space-y-6">
         {/* Product Image Banner */}
@@ -45,7 +89,7 @@ export const ProductDetailModal = ({
           <div>
             <span className="text-xs text-slate-400">Price</span>
             <div className="text-3xl font-bold text-white tabular-nums">
-              ${parseFloat(product.price || 0).toFixed(2)}
+              ₹{parseFloat(product.price || 0).toFixed(2)}
             </div>
           </div>
 
@@ -103,50 +147,6 @@ export const ProductDetailModal = ({
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-emerald-400" />
             <span>ID: {product.id.slice(0, 8)}...</span>
-          </div>
-        </div>
-
-        {/* Sticky Actions Footer */}
-        <div className="sticky -bottom-5 sm:-bottom-6 bg-slate-950/95 backdrop-blur-md -mx-5 sm:-mx-6 px-5 sm:px-6 py-3.5 border-t border-white/[0.08] flex items-center justify-between z-10 shadow-lg">
-          {isAuthenticated ? (
-            <Button
-              variant="danger"
-              size="sm"
-              icon={Trash2}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `Are you sure you want to soft delete "${product.name}"?`
-                  )
-                ) {
-                  onDelete(product.id)
-                  onClose()
-                }
-              }}
-            >
-              Delete Product
-            </Button>
-          ) : (
-            <div />
-          )}
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              Close
-            </Button>
-            {isAuthenticated && (
-              <Button
-                variant="primary"
-                size="sm"
-                icon={Edit3}
-                onClick={() => {
-                  onClose()
-                  onEdit(product)
-                }}
-              >
-                Edit Product
-              </Button>
-            )}
           </div>
         </div>
       </div>

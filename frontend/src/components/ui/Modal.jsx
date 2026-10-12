@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react'
 import { X } from 'lucide-react'
 
-export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = 'max-w-2xl' }) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  subtitle,
+  children,
+  footer,
+  maxWidth = 'max-w-2xl',
+}) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
@@ -36,7 +44,7 @@ export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = '
           animate-in zoom-in-95 duration-200 overflow-hidden
         `}
       >
-        <div className="flex items-start justify-between px-5 sm:px-6 py-4 border-b border-white/[0.08] shrink-0 bg-slate-950/40">
+        <div className="flex items-start justify-between px-5 sm:px-6 py-4 border-b border-white/[0.08] shrink-0 bg-white/[0.02]">
           <div>
             {title && (
               <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight">
@@ -56,6 +64,12 @@ export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = '
         </div>
 
         <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
+
+        {footer && (
+          <div className="px-5 sm:px-6 py-3.5 border-t border-white/[0.08] shrink-0 flex items-center justify-end gap-3 bg-white/[0.02]">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   )

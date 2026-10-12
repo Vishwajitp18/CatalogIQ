@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles, ArrowRight, X, Cpu, Tag, DollarSign, BrainCircuit } from 'lucide-react'
+import { Sparkles, ArrowRight, X, Cpu, Tag, IndianRupee, BrainCircuit } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
 
@@ -13,9 +13,9 @@ export const AiSearchBar = ({
   const [query, setQuery] = useState('')
 
   const suggestions = [
-    'Nike shoes under $150',
+    'Nike shoes under ₹3000',
     'Noise canceling headphones',
-    'Apple gadgets under $1000',
+    'Apple gadgets under ₹50000',
     'Eco-friendly organic cotton apparel',
     'Sony gaming accessories',
   ]
@@ -43,7 +43,7 @@ export const AiSearchBar = ({
 
             <input
               type="text"
-              placeholder="Ask in natural language (e.g., 'Find running shoes from Nike under $150')..."
+              placeholder="Ask in natural language (e.g., 'Find running shoes from Nike under ₹3000')..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none"
@@ -147,12 +147,12 @@ export const AiSearchBar = ({
 
               {(interpretation.min_price != null || interpretation.max_price != null) && (
                 <Badge variant="success" className="gap-1">
-                  <DollarSign className="w-3 h-3" />
+                  <IndianRupee className="w-3 h-3" />
                   Price:
                   <strong className="text-white">
-                    {interpretation.min_price != null ? `$${interpretation.min_price}` : '$0'}
+                    {interpretation.min_price != null ? `₹${interpretation.min_price}` : '₹0'}
                     {' - '}
-                    {interpretation.max_price != null ? `$${interpretation.max_price}` : 'No limit'}
+                    {interpretation.max_price != null ? `₹${interpretation.max_price}` : 'No limit'}
                   </strong>
                 </Badge>
               )}

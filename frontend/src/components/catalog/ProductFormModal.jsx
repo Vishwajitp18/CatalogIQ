@@ -161,7 +161,7 @@ export const ProductFormModal = ({
       }
 
       setAiSuccessMessage(
-        `✨ AI drafted ${tone} marketing description and extracted ${data.tags?.length || 0} SEO tags!`
+        `AI drafted ${tone} marketing description and extracted ${data.tags?.length || 0} SEO tags!`
       )
     } catch (err) {
       const msg =
@@ -225,8 +225,24 @@ export const ProductFormModal = ({
           : 'Create a catalog item with AI-powered copy drafting'
       }
       maxWidth="max-w-2xl"
+      footer={
+        <>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="product-form"
+            variant="primary"
+            size="sm"
+            isLoading={isSaving}
+          >
+            {isEditing ? 'Save Changes' : 'Create Product'}
+          </Button>
+        </>
+      }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -357,7 +373,7 @@ export const ProductFormModal = ({
           </div>
 
           <Input
-            label="Price (USD) *"
+            label="Price (INR ₹) *"
             type="number"
             step="0.01"
             min="0"
@@ -519,21 +535,6 @@ export const ProductFormModal = ({
             />
             <span>Active listing (visible in public catalog)</span>
           </label>
-        </div>
-
-        {/* Sticky footer actions */}
-        <div className="sticky -bottom-5 sm:-bottom-6 bg-slate-950/95 backdrop-blur-md -mx-5 sm:-mx-6 px-5 sm:px-6 py-3.5 border-t border-white/[0.08] flex items-center justify-end gap-3 z-10 shadow-lg">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="sm"
-            isLoading={isSaving}
-          >
-            {isEditing ? 'Save Changes' : 'Create Product'}
-          </Button>
         </div>
       </form>
     </Modal>

@@ -97,7 +97,7 @@ export const CatalogFilters = ({
 
       {/* Price Range */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-slate-400 block">Price Range ($)</label>
+        <label className="text-xs font-medium text-slate-400 block">Price Range (₹)</label>
         <div className="grid grid-cols-2 gap-2">
           <input
             type="number"

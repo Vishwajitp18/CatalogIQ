@@ -108,7 +108,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
         <div>
           <span className="text-[11px] text-slate-500 block">Price</span>
           <span className="text-xl font-bold text-white tabular-nums">
-            ${parseFloat(product.price || 0).toFixed(2)}
+            ₹{parseFloat(product.price || 0).toFixed(2)}
           </span>
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Package, Tag, DollarSign, Sparkles } from 'lucide-react'
+import { Package, Tag, IndianRupee, Sparkles } from 'lucide-react'
 import { BentoCard } from '../ui/BentoCard'
 
 export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categories = [] }) => {
@@ -49,14 +49,14 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400">Page Average Price</span>
           <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <DollarSign className="w-4 h-4" />
+            <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="mt-3">
           <span className="text-2xl font-bold tracking-tight text-white tabular-nums">
-            ${avgPrice}
+            ₹{avgPrice}
           </span>
-          <span className="text-xs text-slate-500 ml-2">USD</span>
+          <span className="text-xs text-slate-500 ml-2">INR</span>
         </div>
       </BentoCard>
 

@@ -425,7 +425,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                           {p.category?.name || '—'}
                         </td>
                         <td className="p-3.5 font-semibold text-white tabular-nums">
-                          ${parseFloat(p.price || 0).toFixed(2)}
+                          ₹{parseFloat(p.price || 0).toFixed(2)}
                         </td>
                         <td className="p-3.5 text-slate-400 tabular-nums">
                           {p.stock ?? 0}
