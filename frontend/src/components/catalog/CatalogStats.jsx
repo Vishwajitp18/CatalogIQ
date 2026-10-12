@@ -77,3 +77,4 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
     </div>
   )
 }
+

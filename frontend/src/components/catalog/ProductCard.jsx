@@ -123,3 +123,4 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
     </BentoCard>
   )
 }
+

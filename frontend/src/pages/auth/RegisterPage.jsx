@@ -128,3 +128,4 @@ export const RegisterPage = () => {
     </div>
   )
 }
+

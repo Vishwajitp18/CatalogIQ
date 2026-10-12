@@ -161,3 +161,4 @@ export const AiSearchBar = ({
     </div>
   )
 }
+

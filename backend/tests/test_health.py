@@ -13,4 +13,3 @@ def test_health_live(api_client):
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
     assert "X-Request-ID" in response.headers
-

@@ -184,3 +184,4 @@ export const aiApi = {
     return res.data
   },
 }
+

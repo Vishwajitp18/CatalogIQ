@@ -305,3 +305,4 @@ export const SessionsPage = () => {
     </div>
   )
 }
+

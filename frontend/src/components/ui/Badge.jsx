@@ -19,3 +19,4 @@ export const Badge = ({ children, variant = 'neutral', className = '', ...props 
     </span>
   )
 }
+
