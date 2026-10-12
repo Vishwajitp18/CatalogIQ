@@ -39,27 +39,27 @@ export const ToastItem = ({ toast, onDismiss }) => {
   const { id, type = 'info', title, message, duration = 6000 } = toast
   const style = TOAST_STYLES[type] || TOAST_STYLES.info
   const Icon = TOAST_ICONS[type] || TOAST_ICONS.info
-  const [progress, setProgress] = useState(100)
+  const [progressWidth, setProgressWidth] = useState('100%')
 
+  // Auto-dismiss cleanly outside render cycle
   useEffect(() => {
     if (!duration || duration <= 0) return
 
-    const interval = 50
-    const step = (interval / duration) * 100
+    const timer = setTimeout(() => {
+      onDismiss(id)
+    }, duration)
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev <= step) {
-          clearInterval(timer)
-          onDismiss(id)
-          return 0
-        }
-        return prev - step
-      })
-    }, interval)
-
-    return () => clearInterval(timer)
+    return () => clearTimeout(timer)
   }, [id, duration, onDismiss])
+
+  // Smooth CSS progress bar
+  useEffect(() => {
+    if (!duration || duration <= 0) return
+    const frame = requestAnimationFrame(() => {
+      setProgressWidth('0%')
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [duration])
 
   return (
     <div
@@ -108,10 +108,13 @@ export const ToastItem = ({ toast, onDismiss }) => {
       </div>
 
       {duration > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/[0.06]">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/[0.06] overflow-hidden">
           <div
-            className={`h-full transition-all duration-75 ease-linear ${style.progress}`}
-            style={{ width: `${progress}%` }}
+            className={`h-full ${style.progress}`}
+            style={{
+              width: progressWidth,
+              transition: `width ${duration}ms linear`,
+            }}
           />
         </div>
       )}
