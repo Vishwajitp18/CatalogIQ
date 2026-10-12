@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { LoginPage } from './pages/auth/LoginPage'
@@ -15,8 +16,9 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <div className="min-h-screen flex flex-col bg-[#06080F] text-slate-100 antialiased selection:bg-purple-500/30 selection:text-white">
+      <ToastProvider>
+        <AuthProvider>
+          <div className="min-h-screen flex flex-col bg-[#06080F] text-slate-100 antialiased selection:bg-purple-500/30 selection:text-white">
           <Navbar onOpenCreateProduct={() => setIsCreateModalOpen(true)} />
           <main className="flex-1">
             <Routes>
@@ -45,7 +47,8 @@ function App() {
           <Footer />
         </div>
       </AuthProvider>
-    </BrowserRouter>
+    </ToastProvider>
+  </BrowserRouter>
   )
 }
 

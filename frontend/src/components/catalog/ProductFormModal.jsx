@@ -5,6 +5,8 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Badge } from '../ui/Badge'
 import { catalogApi, aiApi } from '../../api/client'
+import { useToast } from '../../context/ToastContext'
+import { parseApiError } from '../../utils/errorParser'
 
 export const ProductFormModal = ({
   isOpen,
@@ -15,7 +17,9 @@ export const ProductFormModal = ({
   onSaved,
   onRefreshMetadata,
 }) => {
+  const { showError, showSuccess } = useToast()
   const isEditing = Boolean(product?.id)
+
 
   const [name, setName] = useState('')
   const [sku, setSku] = useState('')
@@ -163,14 +167,11 @@ export const ProductFormModal = ({
       setAiSuccessMessage(
         `AI drafted ${tone} marketing description and extracted ${data.tags?.length || 0} SEO tags!`
       )
+      showSuccess(`AI drafted ${tone} description and extracted ${data.tags?.length || 0} SEO tags!`)
     } catch (err) {
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.error?.message ||
-        err.response?.data?.detail ||
-        (typeof err.response?.data === 'string' ? err.response.data : null) ||
-        'Failed to generate description with AI. Please check server logs.'
-      setError(msg)
+      const parsed = parseApiError(err, 'Failed to generate description with AI.')
+      setError(parsed.message)
+      showError(err, 'AI Copywriter Error')
     } finally {
       setIsGeneratingAi(false)
     }
@@ -197,18 +198,18 @@ export const ProductFormModal = ({
 
       if (isEditing) {
         await catalogApi.updateProduct(product.id, payload)
+        showSuccess(`"${name.trim()}" updated successfully.`)
       } else {
         await catalogApi.createProduct(payload)
+        showSuccess(`"${name.trim()}" created successfully.`)
       }
 
       onSaved()
       onClose()
     } catch (err) {
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.detail ||
-        'Failed to save product. Please verify all fields.'
-      setError(msg)
+      const parsed = parseApiError(err, 'Failed to save product.')
+      setError(parsed.message)
+      showError(err, isEditing ? 'Failed to Update Product' : 'Failed to Create Product')
     } finally {
       setIsSaving(false)
     }

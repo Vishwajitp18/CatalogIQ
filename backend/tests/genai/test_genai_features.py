@@ -128,6 +128,61 @@ class TestGenAIFeatures:
         assert "results" in data
         assert "notes" in data["interpretation"]
 
+    def test_natural_language_search_generic_stopwords_and_fallback(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        b = BrandFactory(name="Apple", slug="apple")
+        c = CategoryFactory(name="Wearables", slug="wearables")
+        ProductFactory(
+            name="Apple Watch Series 9 GPS 45mm",
+            brand=b,
+            category=c,
+            price=41900.00,
+            tags=["smartwatch", "fitness"],
+        )
+
+        # Mock provider returning generic stopword 'gadgets' in search_terms
+        with patch("apps.genai.services.get_provider") as mock_prov:
+            mock_prov.return_value.generate_json.return_value = {
+                "search_terms": ["gadgets"],
+                "brand": "Apple",
+                "category": None,
+                "min_price": None,
+                "max_price": 50000.0,
+                "sort_by": "relevance",
+            }
+            res = authed.post(
+                "/api/v1/ai/search/", {"query": "Apple gadgets under 50000", "limit": 10}
+            )
+            assert res.status_code == 200
+            data = res.json()
+            assert data["count"] == 1
+            assert data["results"][0]["name"] == "Apple Watch Series 9 GPS 45mm"
+            # gadgets should have been stripped from search_terms
+            assert "gadgets" not in data["interpretation"]["search_terms"]
+
+        # Mock provider returning a non-matching keyword, verifying relaxed fallback
+        with patch("apps.genai.services.get_provider") as mock_prov:
+            mock_prov.return_value.generate_json.return_value = {
+                "search_terms": ["unobtainable_keyword_xyz"],
+                "brand": "Apple",
+                "category": None,
+                "min_price": None,
+                "max_price": 50000.0,
+                "sort_by": "relevance",
+            }
+            res = authed.post(
+                "/api/v1/ai/search/", {"query": "Apple unobtainable_keyword_xyz under 50000"}
+            )
+            assert res.status_code == 200
+            data = res.json()
+            # Relaxed fallback returns Apple product under 50000
+            assert data["count"] == 1
+            assert data["results"][0]["name"] == "Apple Watch Series 9 GPS 45mm"
+            assert any("Relaxed keyword search" in note for note in data["interpretation"]["notes"])
+
+
     def test_ai_provider_error_translation(self, client):
         user = UserFactory()
         authed = auth_client_for(user)

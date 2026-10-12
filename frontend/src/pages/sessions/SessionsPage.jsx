@@ -15,12 +15,14 @@ import {
 } from 'lucide-react'
 import { authApi } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 
 export const SessionsPage = () => {
   const { user } = useAuth()
+  const { showError, showSuccess } = useToast()
   const [sessions, setSessions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(null)
@@ -47,9 +49,11 @@ export const SessionsPage = () => {
     setActionLoading(sessionId)
     try {
       await authApi.revokeSession(sessionId)
+      showSuccess('Session revoked successfully.')
       setMessage({ type: 'success', text: 'Session revoked successfully.' })
       await fetchSessions()
-    } catch {
+    } catch (err) {
+      showError(err, 'Failed to Revoke Session')
       setMessage({ type: 'error', text: 'Failed to revoke session.' })
     } finally {
       setActionLoading(null)
@@ -66,12 +70,15 @@ export const SessionsPage = () => {
     setActionLoading('all')
     try {
       const res = await authApi.logoutAll()
+      const successText = `Revoked ${res.revoked_count || 'all'} sessions across your devices.`
+      showSuccess(successText)
       setMessage({
         type: 'success',
-        text: `Revoked ${res.revoked_count || 'all'} sessions across your devices.`,
+        text: successText,
       })
       await fetchSessions()
-    } catch {
+    } catch (err) {
+      showError(err, 'Failed to Revoke All Sessions')
       setMessage({ type: 'error', text: 'Failed to revoke all sessions.' })
     } finally {
       setActionLoading(null)
@@ -118,16 +125,18 @@ export const SessionsPage = () => {
         current_password: currentPassword,
         new_password: newPassword,
       })
-      setPasswordSuccess(
-        'Password changed successfully. All other active sessions have been revoked.'
-      )
+      const successMsg = 'Password changed successfully. All other active sessions have been revoked.'
+      setPasswordSuccess(successMsg)
+      showSuccess(successMsg)
       setCurrentPassword('')
       setNewPassword('')
       await fetchSessions()
     } catch (err) {
+      showError(err, 'Failed to Change Password')
       const msg =
         err.response?.data?.errors?.[0]?.message ||
         err.response?.data?.current_password?.[0] ||
+        err.response?.data?.error?.message ||
         err.response?.data?.detail ||
         'Failed to change password. Please verify your current password.'
       setPasswordError(msg)

@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Grid,
   List,
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Plus,
   RefreshCw,
   AlertCircle,
+  ArrowUp,
+  CheckCircle2,
+  Layers,
+  Infinity as InfinityIcon,
 } from 'lucide-react'
 import { catalogApi, aiApi } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { Button } from '../../components/ui/Button'
 import { CatalogStats } from '../../components/catalog/CatalogStats'
 import { CatalogFilters } from '../../components/catalog/CatalogFilters'
@@ -22,6 +26,8 @@ import { ProductFormModal } from '../../components/catalog/ProductFormModal'
 
 export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const { isAuthenticated } = useAuth()
+  const { showError, showSuccess, showWarning, showInfo } = useToast()
+
 
   // Catalog State
   const [products, setProducts] = useState([])
@@ -30,6 +36,9 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(24)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [paginationMode, setPaginationMode] = useState('scroll') // 'scroll' (infinite) | 'paged'
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const sentinelRef = useRef(null)
   const [brands, setBrands] = useState([])
   const [categories, setCategories] = useState([])
 
@@ -68,25 +77,36 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
       setCategories(cData)
     } catch (err) {
       console.warn('Metadata fetch failed:', err)
+      showError(err, 'Failed to Load Catalog Categories')
     }
-  }, [])
+  }, [showError])
 
   useEffect(() => {
     fetchMetadata()
   }, [fetchMetadata])
 
-  // Fetch standard catalog
+  // Track window scroll for Back to Top floating button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Fetch standard catalog with optional append mode (for infinite scroll)
   const fetchCatalog = useCallback(
-    async (page = 1, append = false) => {
+    async (page = 1, append = false, customPageSize = pageSize) => {
       try {
         if (append) {
           setIsLoadingMore(true)
         } else {
           setIsLoading(true)
         }
+
         const params = {
           page,
-          page_size: pageSize,
+          page_size: customPageSize,
           ordering: filters.ordering,
         }
         if (filters.search) params.search = filters.search
@@ -98,24 +118,30 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
         const data = await catalogApi.getProducts(params)
         const incoming = data.results || []
+
         if (append) {
-          setProducts((prev) => [...prev, ...incoming])
+          setProducts((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id))
+            const uniqueIncoming = incoming.filter((p) => !existingIds.has(p.id))
+            return [...prev, ...uniqueIncoming]
+          })
         } else {
           setProducts(incoming)
         }
-        const count = data.count || 0
+
+        const count = data.count ?? incoming.length
         setTotalCount(count)
-        const computedPages = data.total_pages || Math.ceil(count / pageSize) || 1
-        setTotalPages(computedPages)
+        setTotalPages(data.total_pages || Math.ceil(count / customPageSize) || 1)
         setCurrentPage(data.current_page || page)
       } catch (err) {
         console.error('Failed to load products:', err)
+        showError(err, 'Failed to Load Products')
       } finally {
         setIsLoading(false)
         setIsLoadingMore(false)
       }
     },
-    [filters, pageSize]
+    [filters, pageSize, showError]
   )
 
   // Effect to load products when filters change (if not in AI mode)
@@ -123,7 +149,47 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     if (!isAiActive) {
       fetchCatalog(1, false)
     }
-  }, [filters, pageSize, isAiActive, fetchCatalog])
+  }, [filters, isAiActive, fetchCatalog])
+
+  // IntersectionObserver for Infinite Scroll
+  useEffect(() => {
+    if (isAiActive || paginationMode !== 'scroll') return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0]
+        if (
+          target.isIntersecting &&
+          !isLoading &&
+          !isLoadingMore &&
+          currentPage < totalPages &&
+          products.length < totalCount
+        ) {
+          fetchCatalog(currentPage + 1, true)
+        }
+      },
+      { threshold: 0.1, rootMargin: '250px' }
+    )
+
+    const currentSentinel = sentinelRef.current
+    if (currentSentinel) {
+      observer.observe(currentSentinel)
+    }
+
+    return () => {
+      if (currentSentinel) observer.unobserve(currentSentinel)
+    }
+  }, [
+    isAiActive,
+    paginationMode,
+    isLoading,
+    isLoadingMore,
+    currentPage,
+    totalPages,
+    products.length,
+    totalCount,
+    fetchCatalog,
+  ])
 
   const [aiNotification, setAiNotification] = useState(null)
 
@@ -185,7 +251,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     setAiInterpretation(null)
     setAiQuery('')
     setAiNotification(null)
-    fetchCatalog(1)
+    fetchCatalog(1, false)
   }
 
   const handleFilterChange = (newFilters) => {
@@ -216,22 +282,17 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     })
   }
 
-  const handleLoadMore = () => {
-    if (currentPage < totalPages && !isLoadingMore) {
-      fetchCatalog(currentPage + 1, true)
-    }
-  }
-
   const handleDeleteProduct = async (id) => {
     try {
       await catalogApi.deleteProduct(id)
+      showSuccess('Product removed from catalog.')
       if (isAiActive) {
         handleAiSearch(aiQuery)
       } else {
-        fetchCatalog(currentPage)
+        fetchCatalog(1, false)
       }
-    } catch (_err) {
-      alert('Failed to delete product. Please try again.')
+    } catch (err) {
+      showError(err, 'Failed to Delete Product')
     }
   }
 
@@ -310,32 +371,14 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         <div className="lg:col-span-3 space-y-6">
           {/* Controls Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-white/[0.08]">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">
                 {isAiActive ? 'AI Search Results' : 'Catalog Products'}
               </span>
-              <span className="text-xs text-slate-400">
-                (Showing {products.length} of {totalCount} items)
-              </span>
+              <span className="text-xs text-slate-400">({totalCount} found)</span>
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Page Size Selector */}
-              {!isAiActive && (
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <span className="hidden sm:inline">Per page:</span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
-                  >
-                    <option value={12}>12</option>
-                    <option value={24}>24</option>
-                    <option value={48}>48</option>
-                  </select>
-                </div>
-              )}
-
               {/* View Toggle */}
               <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-white/10">
                 <button
@@ -427,7 +470,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                       <th className="p-3.5 font-medium">Brand</th>
                       <th className="p-3.5 font-medium">Category</th>
                       <th className="p-3.5 font-medium">Price</th>
-                      <th className="p-3.5 font-medium">Tags</th>
+                      <th className="p-3.5 font-medium">Stock</th>
                       <th className="p-3.5 font-medium">Status</th>
                       <th className="p-3.5 font-medium text-right">Actions</th>
                     </tr>
@@ -466,26 +509,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         <td className="p-3.5 font-semibold text-white tabular-nums">
                           ₹{parseFloat(p.price || 0).toFixed(2)}
                         </td>
-                        <td className="p-3.5 text-slate-400">
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {p.tags && p.tags.length > 0 ? (
-                              p.tags.slice(0, 2).map((t, idx) => (
-                                <span
-                                  key={idx}
-                                  className="text-[10px] px-1.5 py-0.5 rounded bg-purple-950/40 text-purple-300 border border-purple-500/20"
-                                >
-                                  #{t}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="text-slate-500 text-[11px]">—</span>
-                            )}
-                            {p.tags && p.tags.length > 2 && (
-                              <span className="text-[10px] text-slate-500">
-                                +{p.tags.length - 2}
-                              </span>
-                            )}
-                          </div>
+                        <td className="p-3.5 text-slate-400 tabular-nums">
+                          {p.stock ?? 0}
                         </td>
                         <td className="p-3.5">
                           <span
@@ -511,15 +536,27 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                             View
                           </button>
                           {isAuthenticated && (
-                            <button
-                              onClick={() => {
-                                setEditingProduct(p)
-                                setIsFormOpen(true)
-                              }}
-                              className="text-purple-400 hover:text-purple-300 px-2 py-1 rounded"
-                            >
-                              Edit
-                            </button>
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingProduct(p)
+                                  setIsFormOpen(true)
+                                }}
+                                className="text-purple-400 hover:text-purple-300 px-2 py-1 rounded"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Are you sure you want to soft delete "${p.name}"?`)) {
+                                    handleDeleteProduct(p.id)
+                                  }
+                                }}
+                                className="text-rose-400 hover:text-rose-300 px-2 py-1 rounded"
+                              >
+                                Delete
+                              </button>
+                            </>
                           )}
                         </td>
                       </tr>
@@ -530,72 +567,206 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             </div>
           )}
 
-          {/* Load More Button for Continuous Scrolling */}
-          {products.length < totalCount && !isAiActive && (
-            <div className="flex flex-col items-center justify-center pt-6 pb-2">
-              <Button
-                variant="secondary"
-                size="md"
-                isLoading={isLoadingMore}
-                onClick={handleLoadMore}
-                icon={ChevronDown}
-                className="px-6 py-2.5 rounded-xl text-xs font-semibold shadow-lg hover:border-purple-500/40"
-              >
-                Load More Products ({totalCount - products.length} remaining)
-              </Button>
-              <span className="text-[11px] text-slate-500 mt-2">
-                Showing {products.length} of {totalCount} items
-              </span>
-            </div>
-          )}
+          {/* Pagination & Infinite Scroll Controls */}
+          <div className="pt-8 border-t border-white/[0.08] space-y-6">
+            {/* Catalog Progress Bar & Count */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5 w-full sm:w-auto">
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <span>
+                    Showing <strong className="text-white font-semibold">{products.length}</strong> of{' '}
+                    <strong className="text-white font-semibold">{totalCount}</strong> products
+                  </span>
+                  {totalCount > 0 && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950/50 border border-purple-500/20 text-purple-300 font-mono">
+                      {Math.round((products.length / totalCount) * 100)}%
+                    </span>
+                  )}
+                </div>
+                {/* Visual Progress Bar */}
+                <div className="w-full sm:w-64 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-white/5">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 via-violet-500 to-cyan-400 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${totalCount > 0 ? Math.min(100, (products.length / totalCount) * 100) : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
 
-          {/* Numbered Page Navigation Bar */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/[0.08]">
-              <span className="text-xs text-slate-400">
-                Page <strong className="text-white">{currentPage}</strong> of{' '}
-                <strong className="text-white">{totalPages}</strong> ({totalCount} total items)
-              </span>
-
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={currentPage <= 1 || isLoading}
-                  onClick={() => fetchCatalog(currentPage - 1, false)}
-                  icon={ChevronLeft}
-                >
-                  Prev
-                </Button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              {/* View & Batch Size Controls */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Mode Selector */}
+                <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5 text-xs">
                   <button
-                    key={pageNum}
-                    onClick={() => fetchCatalog(pageNum, false)}
-                    className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
-                      pageNum === currentPage
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    type="button"
+                    onClick={() => {
+                      setPaginationMode('scroll')
+                      fetchCatalog(1, false)
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                      paginationMode === 'scroll'
+                        ? 'bg-purple-600 text-white font-medium shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
                     }`}
+                    title="Infinite continuous scroll"
                   >
-                    {pageNum}
+                    <InfinityIcon className="w-3.5 h-3.5" />
+                    <span>Scroll Mode</span>
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPaginationMode('paged')
+                      fetchCatalog(1, false)
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                      paginationMode === 'paged'
+                        ? 'bg-purple-600 text-white font-medium shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="Traditional page navigation"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Page Mode</span>
+                  </button>
+                </div>
 
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={currentPage >= totalPages || isLoading}
-                  onClick={() => fetchCatalog(currentPage + 1, false)}
-                  icon={ChevronRight}
-                >
-                  Next
-                </Button>
+                {/* Batch Size Selector */}
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <span className="hidden sm:inline">Per Batch:</span>
+                  <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5">
+                    {[12, 24, 48, 100].map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => {
+                          setPageSize(size)
+                          fetchCatalog(1, false, size)
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
+                          pageSize === size
+                            ? 'bg-white/15 text-white font-medium'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {size === 100 ? 'All' : size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Scroll Mode Actions & Sentinel */}
+            {paginationMode === 'scroll' && !isAiActive && (
+              <div className="flex flex-col items-center justify-center pt-2 space-y-3">
+                {isLoadingMore && (
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs shadow-lg animate-in fade-in duration-200">
+                    <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                    <span>Loading more items from catalog...</span>
+                  </div>
+                )}
+
+                {products.length < totalCount ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      isLoading={isLoadingMore}
+                      icon={RefreshCw}
+                      onClick={() => fetchCatalog(currentPage + 1, true)}
+                      className="border-purple-500/30 hover:border-purple-500/50 text-xs px-5 py-2 shadow-sm"
+                    >
+                      Load More Products ({totalCount - products.length} remaining)
+                    </Button>
+                    {/* Intersection Observer Sentinel */}
+                    <div ref={sentinelRef} className="h-10 w-full pointer-events-none" />
+                  </>
+                ) : (
+                  totalCount > 0 && (
+                    <div className="flex items-center gap-2 text-xs text-emerald-400/90 bg-emerald-950/20 border border-emerald-500/20 px-4 py-2 rounded-full">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>All {totalCount} catalog products loaded</span>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Classic Page Mode Controls */}
+            {paginationMode === 'paged' && totalPages > 1 && (
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-slate-400">
+                  Page <strong className="text-white">{currentPage}</strong> of{' '}
+                  <strong className="text-white">{totalPages}</strong>
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={currentPage <= 1 || isLoading}
+                    onClick={() => fetchCatalog(currentPage - 1, false)}
+                    icon={ChevronLeft}
+                  >
+                    Prev
+                  </Button>
+
+                  {/* Page pills (up to 5) */}
+                  <div className="hidden sm:flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+                      .filter((p) => Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages)
+                      .map((p, i, arr) => {
+                        const prevPage = arr[i - 1]
+                        const isGap = prevPage && p - prevPage > 1
+
+                        return (
+                          <React.Fragment key={p}>
+                            {isGap && <span className="text-xs text-slate-600 px-1">...</span>}
+                            <button
+                              type="button"
+                              onClick={() => fetchCatalog(p, false)}
+                              className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors ${
+                                currentPage === p
+                                  ? 'bg-purple-600 text-white shadow-sm'
+                                  : 'text-slate-400 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          </React.Fragment>
+                        )
+                      })}
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={currentPage >= totalPages || isLoading}
+                    onClick={() => fetchCatalog(currentPage + 1, false)}
+                    icon={ChevronRight}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Floating Back to Top Button */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-40 p-3 rounded-2xl bg-purple-600/90 hover:bg-purple-500 text-white shadow-xl shadow-purple-950/50 backdrop-blur-md border border-purple-400/30 transition-all duration-300 hover:scale-105 group"
+          title="Back to top"
+        >
+          <ArrowUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+        </button>
+      )}
 
       {/* Product Detail Modal */}
       <ProductDetailModal
@@ -624,7 +795,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
           if (isAiActive) {
             handleAiSearch(aiQuery)
           } else {
-            fetchCatalog(currentPage)
+            fetchCatalog(1, false)
           }
         }}
       />
