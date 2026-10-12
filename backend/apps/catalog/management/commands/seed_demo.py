@@ -8,8 +8,15 @@ from apps.catalog.models import Brand, Category, Product
 
 User = get_user_model()
 
+ADMIN_USER_EMAIL = "admin@catalogiq.com"
+ADMIN_USER_PASSWORD = "AdminPass123!"
+
 DEMO_USER_EMAIL = "demo@catalogiq.com"
 DEMO_USER_PASSWORD = "DemoPass123!"
+
+STANDARD_USER_EMAIL = "user@catalogiq.com"
+STANDARD_USER_PASSWORD = "UserPass123!"
+
 
 BRANDS_DATA = [
     "Sony",
@@ -225,8 +232,24 @@ class Command(BaseCommand):
         self.stdout.write("Seeding demo data...")
 
         with transaction.atomic():
-            # 1. Demo User
-            user, created = User.objects.get_or_create(
+            # 1. Admin User (Role: admin, full system rights)
+            admin_user, admin_created = User.objects.get_or_create(
+                email=ADMIN_USER_EMAIL,
+                defaults={
+                    "full_name": "CatalogIQ Administrator",
+                    "is_active": True,
+                    "is_staff": True,
+                    "is_superuser": True,
+                },
+            )
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.set_password(ADMIN_USER_PASSWORD)
+            admin_user.save()
+            self.stdout.write(self.style.SUCCESS(f"Configured Admin user: {ADMIN_USER_EMAIL}"))
+
+            # 2. Demo User (Role: admin, convenience reviewer)
+            demo_user, _ = User.objects.get_or_create(
                 email=DEMO_USER_EMAIL,
                 defaults={
                     "full_name": "Demo Reviewer",
@@ -234,12 +257,26 @@ class Command(BaseCommand):
                     "is_staff": True,
                 },
             )
-            if created:
-                user.set_password(DEMO_USER_PASSWORD)
-                user.save()
-                self.stdout.write(self.style.SUCCESS(f"Created demo user: {DEMO_USER_EMAIL}"))
-            else:
-                self.stdout.write(f"Demo user exists: {DEMO_USER_EMAIL}")
+            demo_user.is_staff = True
+            demo_user.set_password(DEMO_USER_PASSWORD)
+            demo_user.save()
+
+            # 3. Standard User (Role: user, owner-isolated rights)
+            std_user, _ = User.objects.get_or_create(
+                email=STANDARD_USER_EMAIL,
+                defaults={
+                    "full_name": "Standard Shopper",
+                    "is_active": True,
+                    "is_staff": False,
+                    "is_superuser": False,
+                },
+            )
+            std_user.is_staff = False
+            std_user.is_superuser = False
+            std_user.set_password(STANDARD_USER_PASSWORD)
+            std_user.save()
+            self.stdout.write(self.style.SUCCESS(f"Configured Standard user: {STANDARD_USER_EMAIL}"))
+
 
             # 2. Brands
             brand_map = {}
@@ -269,12 +306,16 @@ class Command(BaseCommand):
                         "price": item["price"],
                         "image_url": item["image_url"],
                         "tags": item["tags"],
-                        "created_by": user,
+                        "created_by": admin_user,
                         "is_active": True,
                     },
                 )
+                if not was_created and product.created_by is None:
+                    product.created_by = admin_user
+                    product.save(update_fields=["created_by"])
                 if was_created:
                     created_count += 1
+
 
             self.stdout.write(
                 self.style.SUCCESS(

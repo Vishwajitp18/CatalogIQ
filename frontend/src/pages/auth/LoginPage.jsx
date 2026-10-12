@@ -36,9 +36,15 @@ export const LoginPage = () => {
     }
   }
 
-  const handleFillDemo = () => {
-    setEmail('demo@catalogiq.com')
-    setPassword('DemoPass123!')
+  const handleFillAdmin = () => {
+    setEmail('admin@catalogiq.com')
+    setPassword('AdminPass123!')
+    setError('')
+  }
+
+  const handleFillUser = () => {
+    setEmail('user@catalogiq.com')
+    setPassword('UserPass123!')
     setError('')
   }
 
@@ -51,7 +57,7 @@ export const LoginPage = () => {
 
       <div className="w-full max-w-md relative z-10">
         <BentoCard highlight glowing className="p-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 p-[1px] mx-auto mb-4 shadow-xl shadow-purple-500/20">
               <div className="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-purple-400" />
@@ -65,19 +71,37 @@ export const LoginPage = () => {
             </p>
           </div>
 
-          {/* Quick Demo Fill Pill */}
-          <div className="mb-6 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-purple-300">
-              <KeyRound className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>Reviewer quick demo login available</span>
+          {/* Role-Based Quick Demo Pills */}
+          <div className="mb-6 p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/20 space-y-2.5">
+            <div className="flex items-center justify-between text-xs text-purple-300">
+              <div className="flex items-center gap-1.5 font-medium">
+                <KeyRound className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span>Quick Role Demo Logins</span>
+              </div>
+              <span className="text-[10px] text-slate-400">1-click fill</span>
             </div>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="text-xs font-semibold text-white bg-purple-600/80 hover:bg-purple-500 px-2.5 py-1 rounded-lg transition-colors shadow-sm"
-            >
-              Fill Demo
-            </button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleFillAdmin}
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold bg-purple-600/80 hover:bg-purple-500 text-white transition-all shadow-sm group"
+                title="Admin: All rights across the catalog"
+              >
+                <span>👑 Admin</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleFillUser}
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition-all shadow-sm group"
+                title="Standard User: Owns only their products, read-only on others"
+              >
+                <span>👤 Standard User</span>
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-400 text-center">
+              Admin has all catalog rights • Standard User has owner-isolated rights
+            </p>
           </div>
 
           {error && (

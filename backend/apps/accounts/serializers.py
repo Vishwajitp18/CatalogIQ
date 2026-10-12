@@ -8,12 +8,25 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Public safe representation of a user profile."""
+    """Public safe representation of a user profile with role information."""
+
+    role = serializers.CharField(read_only=True)
+    is_admin = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "email", "full_name", "is_staff", "date_joined"]
+        fields = [
+            "id",
+            "email",
+            "full_name",
+            "role",
+            "is_admin",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+        ]
         read_only_fields = fields
+
 
 
 class RegisterSerializer(serializers.Serializer):

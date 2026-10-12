@@ -38,6 +38,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.email:
             self.email = self.email.lower().strip()
 
+    @property
+    def role(self) -> str:
+        return "admin" if (self.is_staff or self.is_superuser) else "user"
+
+    @property
+    def is_admin(self) -> bool:
+        return bool(self.is_staff or self.is_superuser)
+
 
 class UserSession(models.Model):
     """Persisted refresh session tracking tokens, rotation, theft detection, and active devices."""

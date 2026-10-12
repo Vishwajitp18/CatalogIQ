@@ -17,8 +17,9 @@ ALLOWED_ORDERINGS = {
 
 
 def visible_products() -> QuerySet[Product]:
-    """Base selector returning active products with brand and category pre-fetched."""
-    return Product.objects.filter(is_active=True).select_related("brand", "category")
+    """Base selector returning active products with brand, category, and creator pre-fetched."""
+    return Product.objects.filter(is_active=True).select_related("brand", "category", "created_by")
+
 
 
 def apply_search(qs: QuerySet[Product], search_text: str | None) -> QuerySet[Product]:

@@ -91,10 +91,14 @@ export const Navbar = ({ onOpenCreateProduct }) => {
                   <span className="max-w-[120px] truncate font-medium">
                     {user?.full_name || user?.email}
                   </span>
-                  {user?.is_staff && (
-                    <Badge variant="warning" className="px-1.5 py-0 text-[10px]">
-                      Admin
-                    </Badge>
+                  {user?.role === 'admin' || user?.is_staff || user?.is_superuser ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-950/80 border border-purple-500/40 text-purple-300 shadow-sm">
+                      👑 Admin
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 border border-white/10 text-slate-300">
+                      Standard User
+                    </span>
                   )}
                 </div>
 

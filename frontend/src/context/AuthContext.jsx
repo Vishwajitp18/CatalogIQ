@@ -95,9 +95,14 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const isAdmin = Boolean(user?.role === 'admin' || user?.is_staff || user?.is_superuser)
+  const userRole = user ? (user.role || (user.is_staff ? 'admin' : 'user')) : null
+
   const value = {
     user,
     isAuthenticated: !!user,
+    isAdmin,
+    userRole,
     isLoading,
     login,
     register,
@@ -105,6 +110,7 @@ export const AuthProvider = ({ children }) => {
     logoutAll,
     refreshUser,
   }
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

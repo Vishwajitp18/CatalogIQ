@@ -1,5 +1,5 @@
 import React from 'react'
-import { Edit3, Trash2, Calendar, PackageCheck, Layers } from 'lucide-react'
+import { Edit3, Trash2, Calendar, PackageCheck, Layers, Lock, Shield, User } from 'lucide-react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
@@ -12,10 +12,12 @@ export const ProductDetailModal = ({
   onEdit,
   onDelete,
 }) => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isAdmin } = useAuth()
   if (!product) return null
 
   const isActive = product.is_active !== false
+  const canEdit = product.can_edit !== false
+
 
   return (
     <Modal
@@ -70,6 +72,47 @@ export const ProductDetailModal = ({
       }
     >
       <div className="space-y-6">
+        {/* Role & Access Rights Banner */}
+        {isAuthenticated && (
+          isAdmin ? (
+            <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 text-xs flex items-center justify-between gap-3 text-purple-300">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>
+                  Admin Privileges: You have full rights to edit, update, or soft-delete this product.
+                </span>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 shrink-0">
+                Admin Full Access
+              </span>
+            </div>
+          ) : !canEdit ? (
+            <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-xs flex items-center justify-between gap-3 text-amber-300">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>
+                  Read-Only: Created by <strong className="text-amber-200">{product.created_by_email || 'admin@catalogiq.com'}</strong>. Only the creator or an Administrator can modify it.
+                </span>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 shrink-0">
+                Protected
+              </span>
+            </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-xs flex items-center justify-between gap-3 text-emerald-300">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>
+                  Owner Access: You created this item and have full rights to manage it.
+                </span>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 shrink-0">
+                Your Item
+              </span>
+            </div>
+          )
+        )}
+
         {/* Product Image Banner */}
         {product.image_url && (
           <div className="w-full h-60 rounded-2xl overflow-hidden bg-slate-900/90 border border-white/10 relative shadow-lg">
@@ -133,19 +176,23 @@ export const ProductDetailModal = ({
         )}
 
         {/* Meta Specs Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-400 pt-2 border-t border-white/[0.08]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-400 pt-2 border-t border-white/[0.08]">
           <div className="flex items-center gap-2">
             <PackageCheck className="w-4 h-4 text-purple-400" />
-            <span>Stock: {product.stock ?? 0} units</span>
+            <span>Stock: {product.stock ?? 0}</span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-cyan-400" />
-            <span>
-              Added: {new Date(product.created_at).toLocaleDateString()}
+            <span>Added: {new Date(product.created_at).toLocaleDateString()}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-emerald-400" />
+            <span className="truncate" title={product.created_by_email}>
+              By: {product.created_by_email?.split('@')[0] || 'admin'}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-400" />
+            <Layers className="w-4 h-4 text-amber-400" />
             <span>ID: {product.id.slice(0, 8)}...</span>
           </div>
         </div>

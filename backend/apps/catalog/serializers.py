@@ -59,12 +59,13 @@ class CategoryCreateSerializer(serializers.Serializer):
 
 
 class ProductReadSerializer(serializers.ModelSerializer):
-    """Full read representation of Product with nested Brand/Category and can_edit flag."""
+    """Full read representation of Product with nested Brand/Category, creator email, and can_edit flag."""
 
     brand = BrandSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     price = serializers.DecimalField(max_digits=12, decimal_places=2, coerce_to_string=True)
     can_edit = serializers.SerializerMethodField()
+    created_by_email = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -79,6 +80,7 @@ class ProductReadSerializer(serializers.ModelSerializer):
             "tags",
             "is_active",
             "can_edit",
+            "created_by_email",
             "created_at",
             "updated_at",
         ]
@@ -88,7 +90,13 @@ class ProductReadSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.user or not request.user.is_authenticated:
             return False
-        return bool(request.user.is_staff or (obj.created_by_id == request.user.id))
+        return bool(
+            request.user.is_staff or request.user.is_superuser or (obj.created_by_id == request.user.id)
+        )
+
+    def get_created_by_email(self, obj: Product) -> str:
+        return obj.created_by.email if obj.created_by else "admin@catalogiq.com"
+
 
 
 class ProductWriteSerializer(serializers.Serializer):

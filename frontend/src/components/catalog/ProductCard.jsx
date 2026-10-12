@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { Eye, Edit3, Trash2, Package } from 'lucide-react'
+import { Eye, Edit3, Trash2, Package, Lock, Shield } from 'lucide-react'
 import { BentoCard } from '../ui/BentoCard'
 import { Badge } from '../ui/Badge'
 import { useAuth } from '../../context/AuthContext'
 
 export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isAdmin } = useAuth()
   const [imageError, setImageError] = useState(false)
   const isActive = product.is_active !== false
+  const canEdit = product.can_edit !== false
+
 
   return (
     <BentoCard
@@ -54,7 +56,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* Brand & Category Badges */}
+        {/* Brand, Category & Access Status Badges */}
         <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
           {product.brand ? (
             <Badge variant="brand">{product.brand.name}</Badge>
@@ -62,6 +64,32 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
           {product.category ? (
             <Badge variant="neutral">{product.category.name}</Badge>
           ) : null}
+          {isAuthenticated && (
+            isAdmin ? (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300 font-medium"
+                title="Admin Privileges: Full rights to modify or delete this item"
+              >
+                <Shield className="w-2.5 h-2.5 text-purple-400" />
+                <span>Admin Rights</span>
+              </span>
+            ) : !canEdit ? (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-slate-900 border border-white/10 text-slate-400 font-medium"
+                title={`Created by ${product.created_by_email || 'Admin'}. Read-only for standard users.`}
+              >
+                <Lock className="w-2.5 h-2.5 text-slate-500" />
+                <span>Read-Only</span>
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-medium"
+                title="You created this product"
+              >
+                <span>Your Item</span>
+              </span>
+            )
+          )}
         </div>
 
         {/* Title & SKU */}
@@ -127,8 +155,18 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
               <button
                 type="button"
                 onClick={() => onEdit(product)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors"
-                title="Edit product"
+                className={`p-1.5 rounded-lg transition-colors ${
+                  canEdit
+                    ? 'text-slate-400 hover:text-purple-300 hover:bg-purple-500/10'
+                    : 'text-slate-500 hover:text-amber-400 hover:bg-amber-500/10'
+                }`}
+                title={
+                  canEdit
+                    ? isAdmin
+                      ? 'Admin: Edit product (Full Rights)'
+                      : 'Edit your product'
+                    : `Read-only: Created by ${product.created_by_email || 'Admin'}`
+                }
               >
                 <Edit3 className="w-4 h-4" />
               </button>
@@ -143,8 +181,18 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                     onDelete(product.id)
                   }
                 }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                title="Delete product"
+                className={`p-1.5 rounded-lg transition-colors ${
+                  canEdit
+                    ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'
+                    : 'text-slate-500 hover:text-rose-400 hover:bg-rose-500/10'
+                }`}
+                title={
+                  canEdit
+                    ? isAdmin
+                      ? 'Admin: Delete product (Full Rights)'
+                      : 'Delete your product'
+                    : `Read-only: Created by ${product.created_by_email || 'Admin'}`
+                }
               >
                 <Trash2 className="w-4 h-4" />
               </button>

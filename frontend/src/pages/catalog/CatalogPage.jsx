@@ -25,7 +25,7 @@ import { ProductDetailModal } from '../../components/catalog/ProductDetailModal'
 import { ProductFormModal } from '../../components/catalog/ProductFormModal'
 
 export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isAdmin, user } = useAuth()
   const { showError, showSuccess, showWarning, showInfo } = useToast()
 
 
@@ -535,29 +535,54 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                           >
                             View
                           </button>
-                          {isAuthenticated && (
-                            <>
-                              <button
-                                onClick={() => {
-                                  setEditingProduct(p)
-                                  setIsFormOpen(true)
-                                }}
-                                className="text-purple-400 hover:text-purple-300 px-2 py-1 rounded"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (window.confirm(`Are you sure you want to soft delete "${p.name}"?`)) {
-                                    handleDeleteProduct(p.id)
+                          {isAuthenticated && (() => {
+                            const canEdit = p.can_edit ?? (isAdmin || (user && p.created_by_email === user.email))
+                            return (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setEditingProduct(p)
+                                    setIsFormOpen(true)
+                                  }}
+                                  className={`px-2 py-1 rounded ${
+                                    canEdit
+                                      ? 'text-purple-400 hover:text-purple-300'
+                                      : 'text-slate-500 hover:text-amber-300'
+                                  }`}
+                                  title={
+                                    canEdit
+                                      ? isAdmin
+                                        ? 'Admin: Edit product (Full Rights)'
+                                        : 'Edit your product'
+                                      : `Read-only: Created by ${p.created_by_email || 'Admin'}`
                                   }
-                                }}
-                                className="text-rose-400 hover:text-rose-300 px-2 py-1 rounded"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to soft delete "${p.name}"?`)) {
+                                      handleDeleteProduct(p.id)
+                                    }
+                                  }}
+                                  className={`px-2 py-1 rounded ${
+                                    canEdit
+                                      ? 'text-rose-400 hover:text-rose-300'
+                                      : 'text-slate-500 hover:text-rose-300'
+                                  }`}
+                                  title={
+                                    canEdit
+                                      ? isAdmin
+                                        ? 'Admin: Delete product (Full Rights)'
+                                        : 'Delete your product'
+                                      : `Read-only: Created by ${p.created_by_email || 'Admin'}`
+                                  }
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )
+                          })()}
                         </td>
                       </tr>
                     ))}
