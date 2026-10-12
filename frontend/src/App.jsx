@@ -8,6 +8,8 @@ import { RegisterPage } from './pages/auth/RegisterPage'
 import { SessionsPage } from './pages/sessions/SessionsPage'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 
+import { CatalogPage } from './pages/catalog/CatalogPage'
+
 function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
@@ -31,9 +33,10 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <div className="max-w-7xl mx-auto px-4 py-12 text-center text-slate-400">
-                    <p>Catalog Explorer loading...</p>
-                  </div>
+                  <CatalogPage
+                    isCreateOpen={isCreateModalOpen}
+                    onCloseCreate={() => setIsCreateModalOpen(false)}
+                  />
                 }
               />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, Database, Server, Cpu, GitFork } from 'lucide-react'
+import { Database, Server, Cpu, GitFork } from 'lucide-react'
 
 export const Footer = () => {
   return (
