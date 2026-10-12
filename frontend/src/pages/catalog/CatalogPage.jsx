@@ -5,6 +5,7 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Plus,
   RefreshCw,
   AlertCircle,
@@ -27,6 +28,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(24)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [brands, setBrands] = useState([])
   const [categories, setCategories] = useState([])
 
@@ -74,12 +77,16 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
   // Fetch standard catalog
   const fetchCatalog = useCallback(
-    async (page = 1) => {
+    async (page = 1, append = false) => {
       try {
-        setIsLoading(true)
+        if (append) {
+          setIsLoadingMore(true)
+        } else {
+          setIsLoading(true)
+        }
         const params = {
           page,
-          page_size: 12,
+          page_size: pageSize,
           ordering: filters.ordering,
         }
         if (filters.search) params.search = filters.search
@@ -90,25 +97,33 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         if (filters.is_active) params.is_active = filters.is_active
 
         const data = await catalogApi.getProducts(params)
-        setProducts(data.results || [])
-        setTotalCount(data.count || 0)
-        setTotalPages(data.total_pages || 1)
+        const incoming = data.results || []
+        if (append) {
+          setProducts((prev) => [...prev, ...incoming])
+        } else {
+          setProducts(incoming)
+        }
+        const count = data.count || 0
+        setTotalCount(count)
+        const computedPages = data.total_pages || Math.ceil(count / pageSize) || 1
+        setTotalPages(computedPages)
         setCurrentPage(data.current_page || page)
       } catch (err) {
         console.error('Failed to load products:', err)
       } finally {
         setIsLoading(false)
+        setIsLoadingMore(false)
       }
     },
-    [filters]
+    [filters, pageSize]
   )
 
   // Effect to load products when filters change (if not in AI mode)
   useEffect(() => {
     if (!isAiActive) {
-      fetchCatalog(1)
+      fetchCatalog(1, false)
     }
-  }, [filters, isAiActive, fetchCatalog])
+  }, [filters, pageSize, isAiActive, fetchCatalog])
 
   const [aiNotification, setAiNotification] = useState(null)
 
@@ -201,6 +216,12 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     })
   }
 
+  const handleLoadMore = () => {
+    if (currentPage < totalPages && !isLoadingMore) {
+      fetchCatalog(currentPage + 1, true)
+    }
+  }
+
   const handleDeleteProduct = async (id) => {
     try {
       await catalogApi.deleteProduct(id)
@@ -289,14 +310,32 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         <div className="lg:col-span-3 space-y-6">
           {/* Controls Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-white/[0.08]">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">
                 {isAiActive ? 'AI Search Results' : 'Catalog Products'}
               </span>
-              <span className="text-xs text-slate-400">({totalCount} found)</span>
+              <span className="text-xs text-slate-400">
+                (Showing {products.length} of {totalCount} items)
+              </span>
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Page Size Selector */}
+              {!isAiActive && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <span className="hidden sm:inline">Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                  >
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                  </select>
+                </div>
+              )}
+
               {/* View Toggle */}
               <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-white/10">
                 <button
@@ -388,7 +427,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                       <th className="p-3.5 font-medium">Brand</th>
                       <th className="p-3.5 font-medium">Category</th>
                       <th className="p-3.5 font-medium">Price</th>
-                      <th className="p-3.5 font-medium">Stock</th>
+                      <th className="p-3.5 font-medium">Tags</th>
                       <th className="p-3.5 font-medium">Status</th>
                       <th className="p-3.5 font-medium text-right">Actions</th>
                     </tr>
@@ -427,8 +466,26 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         <td className="p-3.5 font-semibold text-white tabular-nums">
                           ₹{parseFloat(p.price || 0).toFixed(2)}
                         </td>
-                        <td className="p-3.5 text-slate-400 tabular-nums">
-                          {p.stock ?? 0}
+                        <td className="p-3.5 text-slate-400">
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {p.tags && p.tags.length > 0 ? (
+                              p.tags.slice(0, 2).map((t, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-purple-950/40 text-purple-300 border border-purple-500/20"
+                                >
+                                  #{t}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-500 text-[11px]">—</span>
+                            )}
+                            {p.tags && p.tags.length > 2 && (
+                              <span className="text-[10px] text-slate-500">
+                                +{p.tags.length - 2}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="p-3.5">
                           <span
@@ -473,29 +530,63 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             </div>
           )}
 
-          {/* Pagination */}
+          {/* Load More Button for Continuous Scrolling */}
+          {products.length < totalCount && !isAiActive && (
+            <div className="flex flex-col items-center justify-center pt-6 pb-2">
+              <Button
+                variant="secondary"
+                size="md"
+                isLoading={isLoadingMore}
+                onClick={handleLoadMore}
+                icon={ChevronDown}
+                className="px-6 py-2.5 rounded-xl text-xs font-semibold shadow-lg hover:border-purple-500/40"
+              >
+                Load More Products ({totalCount - products.length} remaining)
+              </Button>
+              <span className="text-[11px] text-slate-500 mt-2">
+                Showing {products.length} of {totalCount} items
+              </span>
+            </div>
+          )}
+
+          {/* Numbered Page Navigation Bar */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/[0.08]">
               <span className="text-xs text-slate-400">
                 Page <strong className="text-white">{currentPage}</strong> of{' '}
-                <strong className="text-white">{totalPages}</strong>
+                <strong className="text-white">{totalPages}</strong> ({totalCount} total items)
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="secondary"
                   size="sm"
                   disabled={currentPage <= 1 || isLoading}
-                  onClick={() => fetchCatalog(currentPage - 1)}
+                  onClick={() => fetchCatalog(currentPage - 1, false)}
                   icon={ChevronLeft}
                 >
                   Prev
                 </Button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => fetchCatalog(pageNum, false)}
+                    className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                      pageNum === currentPage
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
                 <Button
                   variant="secondary"
                   size="sm"
                   disabled={currentPage >= totalPages || isLoading}
-                  onClick={() => fetchCatalog(currentPage + 1)}
+                  onClick={() => fetchCatalog(currentPage + 1, false)}
                   icon={ChevronRight}
                 >
                   Next
