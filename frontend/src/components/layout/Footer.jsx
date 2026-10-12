@@ -11,7 +11,8 @@ export const Footer = () => {
       try {
         const data = await healthApi.checkReady()
         if (mounted) {
-          setHealthStatus(data.database === 'connected' ? 'connected' : 'degraded')
+          const isHealthy = data.database === 'connected' || data.status === 'ready'
+          setHealthStatus(isHealthy ? 'connected' : 'degraded')
         }
       } catch {
         if (mounted) setHealthStatus('disconnected')

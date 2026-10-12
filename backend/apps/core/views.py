@@ -39,7 +39,7 @@ class HealthReadyView(APIView):
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1;")
                 cursor.fetchone()
-            return Response({"status": "ready"}, status=status.HTTP_200_OK)
+            return Response({"status": "ready", "database": "connected"}, status=status.HTTP_200_OK)
         except Exception as exc:
             return Response(
                 {"status": "unhealthy", "database": "disconnected", "detail": str(exc)},

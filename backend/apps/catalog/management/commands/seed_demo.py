@@ -9,7 +9,7 @@ from apps.catalog.models import Brand, Category, Product
 User = get_user_model()
 
 DEMO_USER_EMAIL = "demo@catalogiq.com"
-DEMO_USER_PASSWORD = "CatalogIQPassword123!"
+DEMO_USER_PASSWORD = "DemoPass123!"
 
 BRANDS_DATA = [
     "Sony",
