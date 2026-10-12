@@ -72,11 +72,26 @@ export const ToastItem = ({ toast, onDismiss }) => {
         </div>
 
         <div className="flex-1 min-w-0 pr-2">
-          {title && (
-            <h4 className={`text-sm font-semibold tracking-tight leading-snug mb-0.5 ${style.title}`}>
-              {title}
-            </h4>
-          )}
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            {toast.status && (
+              <span
+                className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold tracking-wider uppercase ${
+                  type === 'error'
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    : type === 'warning'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                }`}
+              >
+                HTTP {toast.status}
+              </span>
+            )}
+            {title && (
+              <h4 className={`text-sm font-semibold tracking-tight leading-snug ${style.title}`}>
+                {title}
+              </h4>
+            )}
+          </div>
           <p className="text-xs leading-relaxed opacity-90 break-words whitespace-pre-line text-slate-300">
             {message}
           </p>

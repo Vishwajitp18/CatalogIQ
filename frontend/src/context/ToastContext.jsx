@@ -11,9 +11,9 @@ export const ToastProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
-  const showToast = useCallback(({ type = 'info', title, message, duration = 6000 }) => {
+  const showToast = useCallback(({ type = 'info', title, message, status = null, code = null, duration = 6000 }) => {
     const id = crypto.randomUUID()
-    const newToast = { id, type, title, message, duration }
+    const newToast = { id, type, title, message, status, code, duration }
     setToasts((prev) => [...prev, newToast])
     return id
   }, [])
@@ -25,7 +25,9 @@ export const ToastProvider = ({ children }) => {
         type: 'error',
         title: parsed.title || fallbackTitle,
         message: parsed.message,
-        duration: 8000, // Longer display for errors so users can read the reason
+        status: parsed.status,
+        code: parsed.code,
+        duration: 9000, // Longer display for errors so users can read the reason
       })
     },
     [showToast]

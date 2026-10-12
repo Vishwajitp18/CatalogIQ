@@ -3,15 +3,11 @@ import {
   Grid,
   List,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
   Plus,
   RefreshCw,
   AlertCircle,
   ArrowUp,
   CheckCircle2,
-  Layers,
-  Infinity as InfinityIcon,
 } from 'lucide-react'
 import { catalogApi, aiApi } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
@@ -36,7 +32,6 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(24)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [paginationMode, setPaginationMode] = useState('scroll') // 'scroll' (infinite) | 'paged'
   const [showBackToTop, setShowBackToTop] = useState(false)
   const sentinelRef = useRef(null)
   const [brands, setBrands] = useState([])
@@ -151,9 +146,9 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     }
   }, [filters, isAiActive, fetchCatalog])
 
-  // IntersectionObserver for Infinite Scroll
+  // IntersectionObserver for Infinite Continuous Scroll
   useEffect(() => {
-    if (isAiActive || paginationMode !== 'scroll') return
+    if (isAiActive) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -168,7 +163,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
           fetchCatalog(currentPage + 1, true)
         }
       },
-      { threshold: 0.1, rootMargin: '250px' }
+      { threshold: 0.1, rootMargin: '300px' }
     )
 
     const currentSentinel = sentinelRef.current
@@ -181,7 +176,6 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     }
   }, [
     isAiActive,
-    paginationMode,
     isLoading,
     isLoadingMore,
     currentPage,
@@ -620,71 +614,33 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
               </div>
 
               {/* View & Batch Size Controls */}
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Mode Selector */}
-                <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaginationMode('scroll')
-                      fetchCatalog(1, false)
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                      paginationMode === 'scroll'
-                        ? 'bg-purple-600 text-white font-medium shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                    title="Infinite continuous scroll"
-                  >
-                    <InfinityIcon className="w-3.5 h-3.5" />
-                    <span>Scroll Mode</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaginationMode('paged')
-                      fetchCatalog(1, false)
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
-                      paginationMode === 'paged'
-                        ? 'bg-purple-600 text-white font-medium shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                    title="Traditional page navigation"
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>Page Mode</span>
-                  </button>
-                </div>
-
-                {/* Batch Size Selector */}
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <span className="hidden sm:inline">Per Batch:</span>
-                  <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5">
-                    {[12, 24, 48, 100].map((size) => (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => {
-                          setPageSize(size)
-                          fetchCatalog(1, false, size)
-                        }}
-                        className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
-                          pageSize === size
-                            ? 'bg-white/15 text-white font-medium'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        {size === 100 ? 'All' : size}
-                      </button>
-                    ))}
-                  </div>
+              {/* Batch Size Selector */}
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <span className="hidden sm:inline font-medium">Batch Size:</span>
+                <div className="flex items-center rounded-xl bg-slate-900/80 border border-white/10 p-0.5">
+                  {[12, 24, 48, 100].map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setPageSize(size)
+                        fetchCatalog(1, false, size)
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
+                        pageSize === size
+                          ? 'bg-purple-600 text-white font-medium shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {size === 100 ? 'All' : size}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Scroll Mode Actions & Sentinel */}
-            {paginationMode === 'scroll' && !isAiActive && (
+            {/* Continuous Scroll Actions & Sentinel */}
+            {!isAiActive && (
               <div className="flex flex-col items-center justify-center pt-2 space-y-3">
                 {isLoadingMore && (
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs shadow-lg animate-in fade-in duration-200">
@@ -716,65 +672,6 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                     </div>
                   )
                 )}
-              </div>
-            )}
-
-            {/* Classic Page Mode Controls */}
-            {paginationMode === 'paged' && totalPages > 1 && (
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-slate-400">
-                  Page <strong className="text-white">{currentPage}</strong> of{' '}
-                  <strong className="text-white">{totalPages}</strong>
-                </span>
-
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={currentPage <= 1 || isLoading}
-                    onClick={() => fetchCatalog(currentPage - 1, false)}
-                    icon={ChevronLeft}
-                  >
-                    Prev
-                  </Button>
-
-                  {/* Page pills (up to 5) */}
-                  <div className="hidden sm:flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, idx) => idx + 1)
-                      .filter((p) => Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages)
-                      .map((p, i, arr) => {
-                        const prevPage = arr[i - 1]
-                        const isGap = prevPage && p - prevPage > 1
-
-                        return (
-                          <React.Fragment key={p}>
-                            {isGap && <span className="text-xs text-slate-600 px-1">...</span>}
-                            <button
-                              type="button"
-                              onClick={() => fetchCatalog(p, false)}
-                              className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors ${
-                                currentPage === p
-                                  ? 'bg-purple-600 text-white shadow-sm'
-                                  : 'text-slate-400 hover:text-white hover:bg-white/10'
-                              }`}
-                            >
-                              {p}
-                            </button>
-                          </React.Fragment>
-                        )
-                      })}
-                  </div>
-
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={currentPage >= totalPages || isLoading}
-                    onClick={() => fetchCatalog(currentPage + 1, false)}
-                    icon={ChevronRight}
-                  >
-                    Next
-                  </Button>
-                </div>
               </div>
             )}
           </div>

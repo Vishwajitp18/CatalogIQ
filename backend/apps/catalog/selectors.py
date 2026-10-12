@@ -22,8 +22,76 @@ def visible_products() -> QuerySet[Product]:
 
 
 
+COMMON_SYNONYMS: dict[str, list[str]] = {
+    "laptop": ["notebook"],
+    "laptops": ["notebooks"],
+    "notebook": ["laptop"],
+    "notebooks": ["laptops"],
+    "sneaker": ["shoe", "running", "footwear"],
+    "sneakers": ["shoes", "running", "footwear"],
+    "shoe": ["sneaker", "footwear"],
+    "shoes": ["sneakers", "footwear"],
+    "earphone": ["earbud"],
+    "earphones": ["earbuds"],
+    "earbud": ["earphone"],
+    "earbuds": ["earphones"],
+    "headphone": ["headset"],
+    "headphones": ["headsets"],
+    "watch": ["smartwatch"],
+    "watches": ["smartwatches"],
+    "smartwatch": ["watch"],
+    "smartwatches": ["watches"],
+    "mouse": ["mice"],
+    "mice": ["mouse"],
+    "keyboard": ["keypad"],
+    "keyboards": ["keypads"],
+    "hoodie": ["pullover", "sweatshirt"],
+    "hoodies": ["pullovers", "sweatshirts"],
+    "tee": ["t-shirt", "tshirt", "shirt"],
+    "tees": ["t-shirt", "tshirt", "shirts"],
+    "shirt": ["t-shirt", "tshirt", "tee"],
+    "shirts": ["t-shirt", "tshirt", "tees"],
+}
+
+
+def get_term_variants(term: str) -> set[str]:
+    """Generates singular/plural and synonym variants for a search term."""
+    lower = term.lower().strip()
+    variants = {term, lower}
+    if lower.endswith("ies") and len(lower) > 4:
+        variants.add(lower[:-3] + "y")
+    elif lower.endswith("es") and len(lower) > 3:
+        variants.add(lower[:-2])
+    elif lower.endswith("s") and len(lower) > 2 and not lower.endswith("ss"):
+        variants.add(lower[:-1])
+    else:
+        variants.add(lower + "s")
+
+    for v in list(variants):
+        if v in COMMON_SYNONYMS:
+            variants.update(COMMON_SYNONYMS[v])
+
+    return {v for v in variants if v}
+
+
+def _build_term_q(term: str, is_sqlite: bool) -> Q:
+    variants = get_term_variants(term)
+    combined = Q()
+    for v in variants:
+        tag_q = Q(tags__icontains=v) if is_sqlite else Q(tags__contains=[v])
+        combined |= (
+            Q(name__icontains=v)
+            | Q(description__icontains=v)
+            | Q(brand__name__icontains=v)
+            | Q(category__name__icontains=v)
+            | tag_q
+        )
+    return combined
+
+
 def apply_search(qs: QuerySet[Product], search_text: str | None) -> QuerySet[Product]:
-    """Applies multi-term whitespace-split AND search across name, description, brand, category, tags.
+    """Applies multi-term search with variant and synonym expansion across name, description, brand, category, tags.
+    If strict AND across all terms yields 0 results, gracefully relaxes to an OR search across terms.
     Sanitizes length: max 200 chars, max 8 terms.
     """
     if not search_text:
@@ -31,21 +99,25 @@ def apply_search(qs: QuerySet[Product], search_text: str | None) -> QuerySet[Pro
 
     clean_text = search_text.strip()[:200]
     terms = [term.strip() for term in clean_text.split() if term.strip()][:8]
+    if not terms:
+        return qs
 
     is_sqlite = connection.vendor == "sqlite"
-    for term in terms:
-        lower_term = term.lower()
-        tag_q = Q(tags__icontains=lower_term) if is_sqlite else Q(tags__contains=[lower_term])
-        term_q = (
-            Q(name__icontains=term)
-            | Q(description__icontains=term)
-            | Q(brand__name__icontains=term)
-            | Q(category__name__icontains=term)
-            | tag_q
-        )
-        qs = qs.filter(term_q)
 
-    return qs
+    # 1. Try conjunction (AND) across all terms
+    and_qs = qs
+    for term in terms:
+        and_qs = and_qs.filter(_build_term_q(term, is_sqlite))
+
+    if and_qs.exists() or len(terms) == 1:
+        return and_qs
+
+    # 2. If multi-term AND returns 0 (e.g. 'mouse and keyboard'), relax to disjunction (OR)
+    or_q = Q()
+    for term in terms:
+        or_q |= _build_term_q(term, is_sqlite)
+
+    return qs.filter(or_q)
 
 
 def apply_price_filter(
