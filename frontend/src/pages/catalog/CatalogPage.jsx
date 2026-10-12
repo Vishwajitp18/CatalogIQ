@@ -399,8 +399,24 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         key={p.id}
                         className="hover:bg-white/[0.02] transition-colors"
                       >
-                        <td className="p-3.5 font-medium text-white max-w-xs truncate">
-                          {p.name}
+                        <td className="p-3.5 font-medium text-white max-w-xs">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-900 border border-white/10 shrink-0 flex items-center justify-center">
+                              {p.image_url ? (
+                                <img
+                                  src={p.image_url}
+                                  alt={p.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none'
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-[9px] text-slate-500 font-mono">N/A</span>
+                              )}
+                            </div>
+                            <span className="truncate">{p.name}</span>
+                          </div>
                         </td>
                         <td className="p-3.5 text-slate-300">
                           {p.brand?.name || '—'}
@@ -416,10 +432,19 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         </td>
                         <td className="p-3.5">
                           <span
-                            className={`inline-block w-2 h-2 rounded-full ${
-                              p.is_active ? 'bg-emerald-400' : 'bg-rose-500'
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                              p.is_active !== false
+                                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                                : 'bg-rose-950/60 text-rose-300 border-rose-500/30'
                             }`}
-                          />
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                p.is_active !== false ? 'bg-emerald-400' : 'bg-rose-500'
+                              }`}
+                            />
+                            <span>{p.is_active !== false ? 'Active' : 'Inactive'}</span>
+                          </span>
                         </td>
                         <td className="p-3.5 text-right space-x-1">
                           <button

@@ -19,6 +19,7 @@ export const ProductFormModal = ({
 
   const [name, setName] = useState('')
   const [sku, setSku] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [brandId, setBrandId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [price, setPrice] = useState('')
@@ -83,6 +84,7 @@ export const ProductFormModal = ({
     if (product) {
       setName(product.name || '')
       setSku(product.sku || '')
+      setImageUrl(product.image_url || '')
       setBrandId(product.brand?.id || '')
       setCategoryId(product.category?.id || '')
       setPrice(product.price ? String(product.price) : '')
@@ -94,6 +96,7 @@ export const ProductFormModal = ({
     } else {
       setName('')
       setSku('')
+      setImageUrl('')
       setBrandId(brands[0]?.id || '')
       setCategoryId(categories[0]?.id || '')
       setPrice('')
@@ -170,6 +173,7 @@ export const ProductFormModal = ({
       const payload = {
         name: name.trim(),
         sku: sku.trim() || undefined,
+        image_url: imageUrl.trim() || '',
         brand_id: brandId || null,
         category_id: categoryId || null,
         price: parseFloat(price) || 0,
@@ -359,6 +363,29 @@ export const ProductFormModal = ({
             value={stock}
             onChange={(e) => setStock(e.target.value)}
           />
+
+          <div className="sm:col-span-2">
+            <Input
+              label="Image URL"
+              type="url"
+              placeholder="https://images.unsplash.com/..."
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+            {imageUrl && (
+              <div className="mt-2 flex items-center gap-3 p-2 rounded-xl bg-white/[0.02] border border-white/10">
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="w-12 h-12 object-cover rounded-lg border border-white/10"
+                  onError={(e) => (e.target.style.display = 'none')}
+                />
+                <span className="text-[11px] text-slate-400 truncate">
+                  Image preview attached
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* AI Copywriter Studio Box */}

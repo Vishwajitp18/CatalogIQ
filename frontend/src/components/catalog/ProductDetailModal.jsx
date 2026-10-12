@@ -15,6 +15,8 @@ export const ProductDetailModal = ({
   const { isAuthenticated } = useAuth()
   if (!product) return null
 
+  const isActive = product.is_active !== false
+
   return (
     <Modal
       isOpen={isOpen}
@@ -24,6 +26,20 @@ export const ProductDetailModal = ({
       maxWidth="max-w-2xl"
     >
       <div className="space-y-6">
+        {/* Product Image Banner */}
+        {product.image_url && (
+          <div className="w-full h-60 rounded-2xl overflow-hidden bg-slate-900/90 border border-white/10 relative shadow-lg">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                e.target.style.display = 'none'
+              }}
+            />
+          </div>
+        )}
+
         {/* Top Price & Status Row */}
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
           <div>
@@ -40,8 +56,8 @@ export const ProductDetailModal = ({
             {product.category && (
               <Badge variant="ai">{product.category.name}</Badge>
             )}
-            <Badge variant={product.is_active ? 'success' : 'danger'}>
-              {product.is_active ? 'Active' : 'Inactive / Soft Deleted'}
+            <Badge variant={isActive ? 'success' : 'danger'}>
+              {isActive ? 'Active' : 'Inactive / Soft Deleted'}
             </Badge>
           </div>
         </div>

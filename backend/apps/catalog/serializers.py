@@ -77,6 +77,7 @@ class ProductReadSerializer(serializers.ModelSerializer):
             "price",
             "image_url",
             "tags",
+            "is_active",
             "can_edit",
             "created_at",
             "updated_at",

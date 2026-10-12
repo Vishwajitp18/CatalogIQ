@@ -1,35 +1,67 @@
-import React from 'react'
-import { Eye, Edit3, Trash2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Eye, Edit3, Trash2, Package } from 'lucide-react'
 import { BentoCard } from '../ui/BentoCard'
 import { Badge } from '../ui/Badge'
 import { useAuth } from '../../context/AuthContext'
 
 export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
   const { isAuthenticated } = useAuth()
+  const [imageError, setImageError] = useState(false)
+  const isActive = product.is_active !== false
 
   return (
     <BentoCard
       highlight
-      className="group flex flex-col justify-between p-5 hover:border-purple-500/30 transition-all duration-300"
+      className="group flex flex-col justify-between p-5 hover:border-purple-500/30 transition-all duration-300 overflow-hidden"
     >
       <div>
-        {/* Top Badges */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {product.brand ? (
-              <Badge variant="brand">{product.brand.name}</Badge>
-            ) : null}
-            {product.category ? (
-              <Badge variant="neutral">{product.category.name}</Badge>
-            ) : null}
-          </div>
+        {/* Product Image Showcase */}
+        <div
+          onClick={() => onView(product)}
+          className="relative w-full h-44 rounded-xl overflow-hidden bg-slate-900/90 border border-white/[0.08] mb-3.5 cursor-pointer group/img"
+        >
+          {product.image_url && !imageError ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              onError={() => setImageError(true)}
+              className="w-full h-full object-cover object-center group-hover/img:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-950/20 via-slate-900/60 to-cyan-950/20 text-slate-500">
+              <Package className="w-8 h-8 group-hover/img:text-purple-400 group-hover/img:scale-110 transition-all" />
+              <span className="text-[10px] mt-1 text-slate-500 font-mono">CatalogIQ</span>
+            </div>
+          )}
 
-          <span
-            className={`w-2 h-2 rounded-full shrink-0 ${
-              product.is_active ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-rose-500'
-            }`}
-            title={product.is_active ? 'Active' : 'Inactive'}
-          />
+          {/* Active Status Badge in Top-Right Corner */}
+          <div className="absolute top-2.5 right-2.5">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-md border ${
+                isActive
+                  ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.25)]'
+                  : 'bg-rose-950/70 text-rose-300 border-rose-500/30'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isActive ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-rose-500'
+                }`}
+              />
+              <span>{isActive ? 'Active' : 'Inactive'}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Brand & Category Badges */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+          {product.brand ? (
+            <Badge variant="brand">{product.brand.name}</Badge>
+          ) : null}
+          {product.category ? (
+            <Badge variant="neutral">{product.category.name}</Badge>
+          ) : null}
         </div>
 
         {/* Title & SKU */}
