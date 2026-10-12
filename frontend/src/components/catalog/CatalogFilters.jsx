@@ -222,3 +222,6 @@ export const CatalogFilters = ({
     </div>
   )
 }
+
+
+

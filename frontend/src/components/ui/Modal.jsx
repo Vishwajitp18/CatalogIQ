@@ -21,7 +21,7 @@ export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = '
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-hidden">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
@@ -31,20 +31,20 @@ export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = '
       {/* Modal Dialog */}
       <div
         className={`
-          relative w-full ${maxWidth} rounded-3xl glass-panel p-6 sm:p-8 z-10 my-8
+          relative w-full ${maxWidth} max-h-[92vh] flex flex-col rounded-3xl glass-panel z-10
           border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)]
-          animate-in zoom-in-95 duration-200
+          animate-in zoom-in-95 duration-200 overflow-hidden
         `}
       >
-        <div className="flex items-start justify-between pb-5 border-b border-white/[0.08]">
+        <div className="flex items-start justify-between px-5 sm:px-6 py-4 border-b border-white/[0.08] shrink-0 bg-slate-950/40">
           <div>
             {title && (
-              <h3 className="text-xl font-semibold text-white tracking-tight">
+              <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight">
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="text-sm text-slate-400 mt-1">{subtitle}</p>
+              <p className="text-xs sm:text-sm text-slate-400 mt-0.5">{subtitle}</p>
             )}
           </div>
           <button
@@ -55,7 +55,7 @@ export const Modal = ({ isOpen, onClose, title, subtitle, children, maxWidth = '
           </button>
         </div>
 
-        <div className="mt-6">{children}</div>
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
       </div>
     </div>
   )

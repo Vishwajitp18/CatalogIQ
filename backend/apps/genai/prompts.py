@@ -1,7 +1,39 @@
+TONE_STYLE_GUIDES = {
+    "professional": (
+        "Tone style: PROFESSIONAL & POLISHED. Authoritative, business-ready, clear sentence structure, "
+        "highlighting dependability, build quality, and real-world utility."
+    ),
+    "friendly": (
+        "Tone style: FRIENDLY & CONVERSATIONAL. Warm, approachable, engaging, speaking directly to the buyer "
+        "('you will love...', 'makes everyday tasks effortless') with an inviting and relatable voice."
+    ),
+    "technical": (
+        "Tone style: TECHNICAL & PRECISE. Metric-focused, objective, analytical, highlighting specifications, "
+        "engineering precision, hardware mechanics, and measurable performance capabilities."
+    ),
+    "energetic": (
+        "Tone style: ENERGETIC & PUNCHY. Dynamic, vibrant, high-tempo, action-oriented, inspiring enthusiasm "
+        "('Elevate your daily routine...', 'Power through any challenge with peak performance')."
+    ),
+    "minimalist": (
+        "Tone style: MINIMALIST & CRISP. Understated, razor-sharp, zero fluff, strictly concise sentences, "
+        "focusing purely on core essence and sleek utility."
+    ),
+    "luxury": (
+        "Tone style: LUXURY & SOPHISTICATED. Opulent, artisanal, evocative, emphasizing uncompromising craftsmanship, "
+        "exclusivity, tactile refinement, and timeless elegance."
+    ),
+}
+
+
 def build_description_system_prompt(tone: str = "professional") -> str:
+    clean_tone = (tone or "professional").strip().lower()
+    style_instruction = TONE_STYLE_GUIDES.get(clean_tone, TONE_STYLE_GUIDES["professional"])
+
     return (
         "You are an expert e-commerce catalog copywriter.\n"
-        f"Your task is to write a compelling product description and generate relevant tags in a {tone} tone.\n\n"
+        f"Your task is to write a compelling product description and generate relevant tags.\n"
+        f"{style_instruction}\n\n"
         "STRICT CONSTRAINTS:\n"
         "1. Base your writing ONLY on the supplied product facts. Do NOT invent specifications, warranties, certifications, safety claims, or prices.\n"
         "2. The description must be between 10 and 1200 characters.\n"

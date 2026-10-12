@@ -106,9 +106,9 @@ export const ProductDetailModal = ({
           </div>
         </div>
 
-        {/* Actions Footer */}
-        {isAuthenticated && (
-          <div className="flex items-center justify-between pt-4 border-t border-white/[0.08]">
+        {/* Sticky Actions Footer */}
+        <div className="sticky -bottom-5 sm:-bottom-6 bg-slate-950/95 backdrop-blur-md -mx-5 sm:-mx-6 px-5 sm:px-6 py-3.5 border-t border-white/[0.08] flex items-center justify-between z-10 shadow-lg">
+          {isAuthenticated ? (
             <Button
               variant="danger"
               size="sm"
@@ -126,11 +126,15 @@ export const ProductDetailModal = ({
             >
               Delete Product
             </Button>
+          ) : (
+            <div />
+          )}
 
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                Close
-              </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              Close
+            </Button>
+            {isAuthenticated && (
               <Button
                 variant="primary"
                 size="sm"
@@ -142,9 +146,9 @@ export const ProductDetailModal = ({
               >
                 Edit Product
               </Button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </Modal>
   )

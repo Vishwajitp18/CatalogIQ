@@ -131,16 +131,23 @@ export const ProductFormModal = ({
     const brandObj = brands.find((b) => b.id === brandId)
     const categoryObj = categories.find((c) => c.id === categoryId)
 
+    const keyFeatures = bullets
+      .split(/[\n,]+/)
+      .map((s) => s.replace(/^[-•* \t]+/, '').trim())
+      .filter(Boolean)
+      .slice(0, 10)
+
     setError('')
     setIsGeneratingAi(true)
     setAiSuccessMessage('')
 
     try {
       const data = await aiApi.generateDescription({
-        name,
-        brand: brandObj?.name || '',
-        category: categoryObj?.name || '',
-        bullet_points: bullets,
+        name: name.trim(),
+        brand: brandObj?.name || 'Catalog Item',
+        category: categoryObj?.name || 'General',
+        key_features: keyFeatures,
+        bullet_points: bullets.trim(),
         tone: tone.toLowerCase(),
       })
 
@@ -153,12 +160,17 @@ export const ProductFormModal = ({
         setTags(merged)
       }
 
-      setAiSuccessMessage('✨ AI drafted marketing description and extracted SEO tags!')
-    } catch (err) {
-      setError(
-        err.response?.data?.errors?.[0]?.message ||
-          'Failed to generate description with AI. Please check server logs.'
+      setAiSuccessMessage(
+        `✨ AI drafted ${tone} marketing description and extracted ${data.tags?.length || 0} SEO tags!`
       )
+    } catch (err) {
+      const msg =
+        err.response?.data?.errors?.[0]?.message ||
+        err.response?.data?.error?.message ||
+        err.response?.data?.detail ||
+        (typeof err.response?.data === 'string' ? err.response.data : null) ||
+        'Failed to generate description with AI. Please check server logs.'
+      setError(msg)
     } finally {
       setIsGeneratingAi(false)
     }
@@ -212,25 +224,25 @@ export const ProductFormModal = ({
           ? 'Update product details or enhance copy with AI'
           : 'Create a catalog item with AI-powered copy drafting'
       }
-      maxWidth="max-w-3xl"
+      maxWidth="max-w-2xl"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {aiSuccessMessage && (
-          <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-xs flex items-center gap-2">
             <Check className="w-4 h-4 shrink-0 text-purple-400" />
             <span>{aiSuccessMessage}</span>
           </div>
         )}
 
         {/* Basic Information */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Product Name *"
             required
@@ -389,11 +401,11 @@ export const ProductFormModal = ({
         </div>
 
         {/* AI Copywriter Studio Box */}
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/30 to-indigo-950/30 border border-purple-500/20 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/30 to-indigo-950/30 border border-purple-500/20 space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span className="text-[11px] font-semibold text-purple-200 uppercase tracking-wider">
                 AI Copywriter Studio (Groq Qwen 27B)
               </span>
             </div>
@@ -402,9 +414,11 @@ export const ProductFormModal = ({
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="text-xs rounded-lg glass-input px-2 py-1 bg-slate-900 border-white/10 text-slate-300"
+                className="text-xs rounded-lg glass-input px-2.5 py-1 bg-slate-900 border-white/10 text-slate-200 focus:outline-none focus:border-purple-500"
               >
                 <option value="Professional">Tone: Professional</option>
+                <option value="Friendly">Tone: Friendly</option>
+                <option value="Technical">Tone: Technical</option>
                 <option value="Energetic">Tone: Energetic</option>
                 <option value="Minimalist">Tone: Minimalist</option>
                 <option value="Luxury">Tone: Luxury</option>
@@ -428,26 +442,26 @@ export const ProductFormModal = ({
             placeholder="Optional raw feature bullets (e.g. '30-hour battery, active noise cancellation, lightweight foldable frame')..."
             value={bullets}
             onChange={(e) => setBullets(e.target.value)}
-            className="w-full rounded-xl glass-input px-3.5 py-2 text-xs placeholder-slate-500 bg-slate-950/60"
+            className="w-full rounded-xl glass-input px-3 py-1.5 text-xs placeholder-slate-500 bg-slate-950/60"
           />
         </div>
 
         {/* Description Field */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <label className="block text-xs font-medium text-slate-300">
             Marketing Description
           </label>
           <textarea
-            rows="4"
+            rows="3"
             placeholder="Rich product description..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm placeholder-slate-500"
+            className="w-full rounded-xl glass-input px-3 py-2 text-xs placeholder-slate-500 leading-relaxed"
           />
         </div>
 
         {/* Tags management */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className="block text-xs font-medium text-slate-300">
             Product Tags
           </label>
@@ -463,7 +477,7 @@ export const ProductFormModal = ({
                   handleAddTag()
                 }
               }}
-              className="w-full rounded-xl glass-input px-3.5 py-2 text-xs placeholder-slate-500"
+              className="w-full rounded-xl glass-input px-3 py-1.5 text-xs placeholder-slate-500"
             />
             <Button
               type="button"
@@ -477,9 +491,9 @@ export const ProductFormModal = ({
           </div>
 
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
               {tags.map((t, idx) => (
-                <Badge key={idx} variant="ai" className="gap-1 pr-1.5">
+                <Badge key={idx} variant="ai" className="gap-1 pr-1.5 text-[11px] py-0.5">
                   <span>{t}</span>
                   <button
                     type="button"
@@ -495,7 +509,7 @@ export const ProductFormModal = ({
         </div>
 
         {/* Active status */}
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2 pt-1">
           <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
             <input
               type="checkbox"
@@ -507,14 +521,15 @@ export const ProductFormModal = ({
           </label>
         </div>
 
-        {/* Footer actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.08]">
-          <Button type="button" variant="ghost" onClick={onClose}>
+        {/* Sticky footer actions */}
+        <div className="sticky -bottom-5 sm:-bottom-6 bg-slate-950/95 backdrop-blur-md -mx-5 sm:-mx-6 px-5 sm:px-6 py-3.5 border-t border-white/[0.08] flex items-center justify-end gap-3 z-10 shadow-lg">
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             Cancel
           </Button>
           <Button
             type="submit"
             variant="primary"
+            size="sm"
             isLoading={isSaving}
           >
             {isEditing ? 'Save Changes' : 'Create Product'}

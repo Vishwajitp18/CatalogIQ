@@ -55,6 +55,41 @@ class TestGenAIFeatures:
         # AI draft does NOT persist to DB
         assert Product.objects.count() == initial_count
 
+    def test_description_generator_all_supported_tones(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        for tone_name in ["professional", "Friendly", "TECHNICAL", "Energetic", "minimalist", "luxury"]:
+            payload = {
+                "name": "Wireless Over-Ear Headphones",
+                "brand": "Sony",
+                "category": "Audio",
+                "key_features": ["30 hour battery", "Active noise cancellation"],
+                "tone": tone_name,
+            }
+            res = authed.post("/api/v1/ai/product-description/", payload)
+            assert res.status_code == 200, f"Failed for tone {tone_name}: {res.json()}"
+            data = res.json()
+            assert "description" in data
+            assert "tags" in data
+
+    def test_description_generator_bullet_points_parsing(self, client):
+        user = UserFactory()
+        authed = auth_client_for(user)
+
+        payload = {
+            "name": "Wireless Over-Ear Headphones",
+            "brand": "Sony",
+            "category": "Audio",
+            "bullet_points": "30-hour battery\n• Active noise cancellation\n* Lightweight foldable frame",
+            "tone": "luxury",
+        }
+        res = authed.post("/api/v1/ai/product-description/", payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert "description" in data
+        assert "tags" in data
+
     def test_description_generator_validation_error(self, client):
         user = UserFactory()
         authed = auth_client_for(user)
