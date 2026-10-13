@@ -426,20 +426,20 @@ export const ProductFormModal = ({
             borderColor: 'var(--border-strong)',
           }}
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-0.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
                 AI Copywriter Studio (Groq Qwen 27B)
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Select
                 size="sm"
                 value={tone}
                 onChange={(val) => setTone(val)}
-                className="w-44"
+                className="w-36 sm:w-40 shrink-0"
                 options={[
                   { value: 'Professional', label: 'Tone: Professional' },
                   { value: 'Friendly', label: 'Tone: Friendly' },
@@ -452,11 +452,12 @@ export const ProductFormModal = ({
 
               <Button
                 type="button"
-                variant="ai"
+                variant="primary"
                 size="sm"
                 icon={Wand2}
                 isLoading={isGeneratingAi}
                 onClick={handleGenerateAiDescription}
+                className="shrink-0 whitespace-nowrap h-[32px]"
               >
                 Draft with AI
               </Button>
