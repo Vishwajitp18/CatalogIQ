@@ -5,6 +5,13 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
+    // Only trust cached user if at least one token exists
+    const hasToken =
+      localStorage.getItem('access_token') || localStorage.getItem('refresh_token')
+    if (!hasToken) {
+      localStorage.removeItem('user')
+      return null
+    }
     const saved = localStorage.getItem('user')
     return saved ? JSON.parse(saved) : null
   })
@@ -12,15 +19,40 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('access_token')
-      if (token) {
+      const accessToken = localStorage.getItem('access_token')
+      const refreshToken = localStorage.getItem('refresh_token')
+
+      if (accessToken) {
         try {
           const profile = await authApi.getMe()
           setUser(profile)
           localStorage.setItem('user', JSON.stringify(profile))
         } catch {
-          // Handled by client refresh or unauthorized event
+          // Handled by axios response interceptor which attempts refresh.
+          // If refresh also failed, storage was cleared and auth:unauthorized dispatched.
+          setUser(null)
+          localStorage.removeItem('user')
         }
+      } else if (refreshToken) {
+        // Access token missing/expired but refresh token exists: perform silent refresh
+        try {
+          const refreshData = await authApi.refresh(refreshToken)
+          localStorage.setItem('access_token', refreshData.access)
+          if (refreshData.refresh) {
+            localStorage.setItem('refresh_token', refreshData.refresh)
+          }
+          const profile = await authApi.getMe()
+          setUser(profile)
+          localStorage.setItem('user', JSON.stringify(profile))
+        } catch {
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          localStorage.removeItem('user')
+          setUser(null)
+        }
+      } else {
+        localStorage.removeItem('user')
+        setUser(null)
       }
       setIsLoading(false)
     }
@@ -29,6 +61,9 @@ export const AuthProvider = ({ children }) => {
 
     const handleUnauthorized = () => {
       setUser(null)
+      localStorage.removeItem('user')
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
     }
 
     window.addEventListener('auth:unauthorized', handleUnauthorized)

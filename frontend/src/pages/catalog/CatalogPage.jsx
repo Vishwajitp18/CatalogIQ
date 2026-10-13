@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Grid,
   List,
@@ -23,6 +23,7 @@ import { ProductFormModal } from '../../components/catalog/ProductFormModal'
 export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const { isAuthenticated, isAdmin, user } = useAuth()
   const { showError, showSuccess } = useToast()
+  const navigate = useNavigate()
 
   // Catalog State
   const PAGE_SIZE = 12
@@ -200,6 +201,17 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   // Natural Language AI Search Handler
   const handleAiSearch = async (queryText) => {
     if (!queryText.trim()) return
+
+    if (!isAuthenticated) {
+      navigate('/login', {
+        state: {
+          from: location,
+          message: 'Please sign in to use AI-powered natural language search.',
+        },
+      })
+      return
+    }
+
     setAiLoading(true)
     setIsAiActive(true)
     setAiQuery(queryText)
@@ -418,19 +430,26 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                 </button>
               </div>
 
-              {isAuthenticated && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon={Plus}
-                  onClick={() => {
-                    setEditingProduct(null)
-                    setIsFormOpen(true)
-                  }}
-                >
-                  New Product
-                </Button>
-              )}
+              <Button
+                variant="primary"
+                size="sm"
+                icon={Plus}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    navigate('/login', {
+                      state: {
+                        from: { pathname: '/', search: '', state: { openCreate: true } },
+                        message: 'Please sign in to add a product to the catalog.',
+                      },
+                    })
+                    return
+                  }
+                  setEditingProduct(null)
+                  setIsFormOpen(true)
+                }}
+              >
+                New Product
+              </Button>
             </div>
           </div>
 

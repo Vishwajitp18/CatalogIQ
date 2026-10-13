@@ -15,6 +15,16 @@ export const Navbar = ({ onOpenCreateProduct }) => {
   const isActive = (path) => location.pathname === path
 
   const handleOpenCreateProduct = () => {
+    if (!isAuthenticated) {
+      navigate('/login', {
+        state: {
+          from: { pathname: '/', search: '', state: { openCreate: true } },
+          message: 'Please sign in to add a product to the catalog.',
+        },
+      })
+      setMobileMenuOpen(false)
+      return
+    }
     if (location.pathname !== '/') {
       navigate('/', { state: { openCreate: true } })
     }
@@ -51,19 +61,17 @@ export const Navbar = ({ onOpenCreateProduct }) => {
               <span>Catalog</span>
             </Link>
 
-            {isAuthenticated && (
-              <Link
-                to="/sessions"
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                  isActive('/sessions')
-                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-sm'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
-                }`}
-              >
-                <Shield className="w-4 h-4" />
-                <span>Security & Sessions</span>
-              </Link>
-            )}
+            <Link
+              to="/sessions"
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                isActive('/sessions')
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Security & Sessions</span>
+            </Link>
 
             <a
               href="http://localhost:8000/api/docs/"
@@ -181,20 +189,18 @@ export const Navbar = ({ onOpenCreateProduct }) => {
               <span>Catalog</span>
             </Link>
 
-            {isAuthenticated && (
-              <Link
-                to="/sessions"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium ${
-                  isActive('/sessions')
-                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
-                }`}
-              >
-                <Shield className="w-4 h-4" />
-                <span>Security & Sessions</span>
-              </Link>
-            )}
+            <Link
+              to="/sessions"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium ${
+                isActive('/sessions')
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Security & Sessions</span>
+            </Link>
 
             <a
               href="http://localhost:8000/api/docs/"
@@ -207,7 +213,7 @@ export const Navbar = ({ onOpenCreateProduct }) => {
               <span>Swagger API</span>
             </a>
 
-            {isAuthenticated && onOpenCreateProduct && (
+            {onOpenCreateProduct && (
               <div className="pt-2">
                 <Button
                   variant="ai"

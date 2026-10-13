@@ -9,14 +9,26 @@ export const ProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <RefreshCw className="w-8 h-8 animate-spin text-purple-400" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
+        <RefreshCw className="w-8 h-8 animate-spin text-[var(--accent)]" />
+        <span className="text-xs font-medium text-[var(--text-muted)] animate-pulse">
+          Verifying authentication...
+        </span>
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return (
+      <Navigate
+        to="/login"
+        state={{
+          from: location,
+          message: 'Please sign in to access this section.',
+        }}
+        replace
+      />
+    )
   }
 
   return children

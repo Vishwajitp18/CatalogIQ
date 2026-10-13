@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, ArrowRight, KeyRound } from 'lucide-react'
+import { Mail, Lock, ArrowRight, KeyRound, ShieldAlert } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
@@ -8,15 +8,47 @@ import { Input } from '../../components/ui/Input'
 import { BrandLogo } from '../../components/brand/BrandLogo'
 
 export const LoginPage = () => {
-  const { login } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from?.pathname || '/'
+
+  // Calculate redirect destination from state or search param (?redirect=... or ?next=...)
+  const searchParams = new URLSearchParams(location.search)
+  const redirectParam = searchParams.get('redirect') || searchParams.get('next')
+
+  const targetFrom = location.state?.from
+  let redirectDestination = '/'
+  if (typeof targetFrom === 'string') {
+    redirectDestination = targetFrom
+  } else if (targetFrom?.pathname) {
+    redirectDestination =
+      targetFrom.pathname + (targetFrom.search || '') + (targetFrom.hash || '')
+  } else if (redirectParam) {
+    redirectDestination = redirectParam
+  }
+
+  // Preserve modal opening or special states
+  const redirectState = useMemo(() => {
+    return location.state?.openCreate || targetFrom?.state?.openCreate
+      ? { openCreate: true }
+      : targetFrom?.state || undefined
+  }, [location.state?.openCreate, targetFrom?.state])
+
+  const noticeMessage =
+    location.state?.message ||
+    (redirectParam ? 'Please sign in to access the requested page.' : null)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      navigate(redirectDestination, { replace: true, state: redirectState })
+    }
+  }, [isAuthenticated, authLoading, navigate, redirectDestination, redirectState])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -25,7 +57,7 @@ export const LoginPage = () => {
 
     try {
       await login(email, password)
-      navigate(from, { replace: true })
+      navigate(redirectDestination, { replace: true, state: redirectState })
     } catch (err) {
       const msg =
         err.response?.data?.errors?.[0]?.message ||
@@ -62,6 +94,24 @@ export const LoginPage = () => {
               Sign in to manage and enrich your product catalog
             </p>
           </div>
+
+          {/* Contextual Notice Banner (when redirected from a protected route or expired session) */}
+          {noticeMessage && (
+            <div
+              className="mb-5 p-3.5 rounded-xl border flex items-start gap-2.5 text-xs animate-in fade-in duration-200"
+              style={{
+                backgroundColor: 'var(--accent-soft)',
+                borderColor: 'var(--border-strong)',
+                color: 'var(--text)',
+              }}
+            >
+              <ShieldAlert className="w-4 h-4 text-[var(--accent)] shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                <span className="font-semibold text-[var(--accent)]">Authentication Required: </span>
+                <span>{noticeMessage}</span>
+              </div>
+            </div>
+          )}
 
           {/* Quick Demo Login Pills */}
           <div
@@ -154,6 +204,7 @@ export const LoginPage = () => {
             <span>Don't have an account yet? </span>
             <Link
               to="/register"
+              state={location.state}
               className="font-medium text-[var(--accent)] hover:underline ml-1"
             >
               Create account
