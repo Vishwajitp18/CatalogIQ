@@ -3,6 +3,7 @@ import { Sparkles, Plus, X, AlertCircle, Wand2, Check } from 'lucide-react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
+import { Select } from '../ui/Select'
 import { Badge } from '../ui/Badge'
 import { catalogApi, aiApi } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
@@ -308,18 +309,15 @@ export const ProductFormModal = ({
                 </Button>
               </div>
             ) : (
-              <select
+              <Select
                 value={brandId}
-                onChange={(e) => setBrandId(e.target.value)}
-                className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)]"
-              >
-                <option value="">No Brand Selected</option>
-                {brands.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setBrandId(val)}
+                placeholder="No Brand Selected"
+                options={[
+                  { value: '', label: 'No Brand Selected' },
+                  ...brands.map((b) => ({ value: String(b.id), label: b.name })),
+                ]}
+              />
             )}
           </div>
 
@@ -358,18 +356,15 @@ export const ProductFormModal = ({
                 </Button>
               </div>
             ) : (
-              <select
+              <Select
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)]"
-              >
-                <option value="">No Category Selected</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setCategoryId(val)}
+                placeholder="No Category Selected"
+                options={[
+                  { value: '', label: 'No Category Selected' },
+                  ...categories.map((c) => ({ value: String(c.id), label: c.name })),
+                ]}
+              />
             )}
           </div>
 
@@ -440,18 +435,20 @@ export const ProductFormModal = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <select
+              <Select
+                size="sm"
                 value={tone}
-                onChange={(e) => setTone(e.target.value)}
-                className="text-xs rounded-lg theme-input px-2.5 py-1 bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)]"
-              >
-                <option value="Professional">Tone: Professional</option>
-                <option value="Friendly">Tone: Friendly</option>
-                <option value="Technical">Tone: Technical</option>
-                <option value="Energetic">Tone: Energetic</option>
-                <option value="Minimalist">Tone: Minimalist</option>
-                <option value="Luxury">Tone: Luxury</option>
-              </select>
+                onChange={(val) => setTone(val)}
+                className="w-44"
+                options={[
+                  { value: 'Professional', label: 'Tone: Professional' },
+                  { value: 'Friendly', label: 'Tone: Friendly' },
+                  { value: 'Technical', label: 'Tone: Technical' },
+                  { value: 'Energetic', label: 'Tone: Energetic' },
+                  { value: 'Minimalist', label: 'Tone: Minimalist' },
+                  { value: 'Luxury', label: 'Tone: Luxury' },
+                ]}
+              />
 
               <Button
                 type="button"

@@ -1,5 +1,6 @@
 import React from 'react'
 import { X, SlidersHorizontal, Search } from 'lucide-react'
+import { Select } from '../ui/Select'
 
 export const CatalogFilters = ({
   filters,
@@ -83,25 +84,20 @@ export const CatalogFilters = ({
       </div>
 
       {/* Sorting */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium block" style={{ color: 'var(--text-muted)' }}>
-          Sort By
-        </label>
-        <div className="relative">
-          <select
-            value={filters.ordering || '-created_at'}
-            onChange={(e) => onChange({ ordering: e.target.value })}
-            className="w-full rounded-xl theme-input px-3 py-2 text-xs bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)]"
-          >
-            <option value="-created_at">Newest First</option>
-            <option value="created_at">Oldest First</option>
-            <option value="price">Price: Low to High</option>
-            <option value="-price">Price: High to Low</option>
-            <option value="name">Name: A to Z</option>
-            <option value="-name">Name: Z to A</option>
-          </select>
-        </div>
-      </div>
+      <Select
+        label="Sort By"
+        size="sm"
+        value={filters.ordering || '-created_at'}
+        onChange={(val) => onChange({ ordering: val })}
+        options={[
+          { value: '-created_at', label: 'Newest First' },
+          { value: 'created_at', label: 'Oldest First' },
+          { value: 'price', label: 'Price: Low to High' },
+          { value: '-price', label: 'Price: High to Low' },
+          { value: 'name', label: 'Name: A to Z' },
+          { value: '-name', label: 'Name: Z to A' },
+        ]}
+      />
 
       {/* Price Range */}
       <div className="space-y-1.5">
