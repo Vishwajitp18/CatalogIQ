@@ -39,14 +39,14 @@ export const Input = ({
             transition-all duration-150
             focus:outline-none
             ${Icon ? 'pl-10' : ''}
-            ${error ? 'border-rose-500/60 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20' : ''}
+            ${error ? 'border-[var(--danger-border)] focus:border-[var(--danger)] focus:ring-2 focus:ring-[var(--danger)]/20' : ''}
             ${className}
           `}
           {...props}
         />
       </div>
       {error && (
-        <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
+        <p className="text-xs text-[var(--danger-text)] mt-1 flex items-center gap-1 font-medium">
           <span>{error}</span>
         </p>
       )}

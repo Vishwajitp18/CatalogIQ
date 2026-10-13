@@ -126,7 +126,7 @@ export const Navbar = ({ onOpenCreateProduct }) => {
                 onClick={logout}
                 title="Sign out"
                 aria-label="Sign out"
-                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-colors"
+                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger-text)] hover:bg-[var(--danger-bg)] border border-transparent hover:border-[var(--danger-border)] transition-colors"
               >
                 <LogOut className="w-4 h-4" />
               </button>

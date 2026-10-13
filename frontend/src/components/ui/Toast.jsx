@@ -10,26 +10,26 @@ const TOAST_ICONS = {
 
 const TOAST_STYLES = {
   error: {
-    container: 'bg-[var(--surface)] border-rose-500/40 text-rose-200 shadow-xl shadow-rose-950/20',
-    iconBg: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
-    title: 'text-rose-100',
-    progress: 'bg-rose-500',
+    container: 'bg-[var(--surface)] border-[var(--danger-border)] text-[var(--text)] shadow-2xl',
+    iconBg: 'bg-[var(--danger-bg)] text-[var(--danger-text)] border border-[var(--danger-border)]',
+    title: 'text-[var(--danger-text)]',
+    progress: 'bg-[var(--danger)]',
   },
   warning: {
-    container: 'bg-[var(--surface)] border-amber-500/40 text-amber-200 shadow-xl shadow-amber-950/20',
-    iconBg: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
-    title: 'text-amber-100',
-    progress: 'bg-amber-500',
+    container: 'bg-[var(--surface)] border-[var(--warning-border)] text-[var(--text)] shadow-2xl',
+    iconBg: 'bg-[var(--warning-bg)] text-[var(--warning-text)] border border-[var(--warning-border)]',
+    title: 'text-[var(--warning-text)]',
+    progress: 'bg-[var(--warning)]',
   },
   success: {
-    container: 'bg-[var(--surface)] border-emerald-500/40 text-emerald-200 shadow-xl shadow-emerald-950/20',
-    iconBg: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
-    title: 'text-emerald-100',
-    progress: 'bg-emerald-500',
+    container: 'bg-[var(--surface)] border-[var(--success-border)] text-[var(--text)] shadow-2xl',
+    iconBg: 'bg-[var(--success-bg)] text-[var(--success-text)] border border-[var(--success-border)]',
+    title: 'text-[var(--success-text)]',
+    progress: 'bg-[var(--success)]',
   },
   info: {
-    container: 'bg-[var(--surface)] border-[var(--border-strong)] text-[var(--text)] shadow-xl shadow-emerald-950/20',
-    iconBg: 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]',
+    container: 'bg-[var(--surface)] border-[var(--brand-border)] text-[var(--text)] shadow-2xl',
+    iconBg: 'bg-[var(--brand-bg)] text-[var(--brand-text)] border border-[var(--brand-border)]',
     title: 'text-[var(--text)]',
     progress: 'bg-[var(--accent)]',
   },
@@ -77,10 +77,10 @@ export const ToastItem = ({ toast, onDismiss }) => {
               <span
                 className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold tracking-wider uppercase ${
                   type === 'error'
-                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    ? 'bg-[var(--danger-bg)] text-[var(--danger-text)] border border-[var(--danger-border)]'
                     : type === 'warning'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    ? 'bg-[var(--warning-bg)] text-[var(--warning-text)] border border-[var(--warning-border)]'
+                    : 'bg-[var(--success-bg)] text-[var(--success-text)] border border-[var(--success-border)]'
                 }`}
               >
                 HTTP {toast.status}
@@ -103,7 +103,7 @@ export const ToastItem = ({ toast, onDismiss }) => {
         <button
           type="button"
           onClick={() => onDismiss(id)}
-          className="text-slate-400 hover:text-white rounded-lg p-1 transition-colors shrink-0"
+          className="text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-muted)] rounded-lg p-1 transition-colors shrink-0"
           aria-label="Dismiss notification"
         >
           <X className="w-4 h-4" />

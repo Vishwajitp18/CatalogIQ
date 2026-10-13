@@ -109,7 +109,7 @@ export const LoginPage = () => {
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+            <div className="mb-6 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-center gap-2 animate-in fade-in duration-150">
               <span>{error}</span>
             </div>
           )}

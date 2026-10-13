@@ -15,7 +15,7 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Total Catalog</span>
-          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2 rounded-xl bg-[var(--surface-muted)] text-[var(--accent)] border border-[var(--border)]">
             <Package className="w-4 h-4" />
           </div>
         </div>
@@ -31,7 +31,7 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Brands & Categories</span>
-          <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+          <div className="p-2 rounded-xl bg-[var(--brand-bg)] text-[var(--brand-text)] border border-[var(--brand-border)]">
             <Tag className="w-4 h-4" />
           </div>
         </div>
@@ -51,7 +51,7 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Page Average Price</span>
-          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2 rounded-xl bg-[var(--surface-muted)] text-[var(--accent)] border border-[var(--border)]">
             <IndianRupee className="w-4 h-4" />
           </div>
         </div>

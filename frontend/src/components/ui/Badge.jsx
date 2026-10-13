@@ -11,15 +11,15 @@ export const Badge = ({
     neutral:
       'bg-[var(--surface-muted)] text-[var(--text-muted)] border-[var(--border)]',
     ai:
-      'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--border-strong)] shadow-[0_0_10px_var(--glow)]',
+      'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--border-strong)] shadow-[0_0_8px_var(--glow)]',
     success:
-      'bg-emerald-950/40 text-emerald-300 dark:text-emerald-300 border-emerald-500/30',
+      'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]',
     warning:
-      'bg-amber-950/40 text-amber-300 dark:text-amber-300 border-amber-500/30',
+      'bg-[var(--warning-bg)] text-[var(--warning-text)] border-[var(--warning-border)]',
     danger:
-      'bg-rose-950/40 text-rose-300 dark:text-rose-300 border-rose-500/30',
+      'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]',
     brand:
-      'bg-teal-950/40 text-teal-300 dark:text-teal-300 border-teal-500/30',
+      'bg-[var(--brand-bg)] text-[var(--brand-text)] border-[var(--brand-border)]',
   }
 
   const sizeStyles = {

@@ -80,7 +80,7 @@ export const BrandLogo = ({
           <span className={`font-bold tracking-tight leading-none ${current.text}`} style={{ color: 'var(--text)' }}>
             Catalog<span className="brand-gradient-text ml-0.5">IQ</span>
           </span>
-          <span className="text-[10px] tracking-wider font-mono uppercase text-slate-500 dark:text-emerald-500/70 mt-0.5 hidden sm:block">
+          <span className="text-[10px] tracking-wider font-mono uppercase text-[var(--text-subtle)] mt-0.5 hidden sm:block">
             Product Intelligence
           </span>
         </div>
@@ -90,7 +90,7 @@ export const BrandLogo = ({
 
   if (asLink) {
     return (
-      <Link to="/" className="inline-flex focus:outline-none focus:ring-2 focus:ring-emerald-500/40 rounded-xl">
+      <Link to="/" className="inline-flex focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 rounded-xl">
         {content}
       </Link>
     )

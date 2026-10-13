@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @layer base {
   :root,
   [data-theme="dark"] {
@@ -20,10 +22,31 @@
     --accent-foreground: #03231D;
     --accent-soft: #103A30;
     --glow: rgba(20, 220, 166, 0.16);
+
+    /* Feedback tokens - Dark */
     --success: #55D6A4;
+    --success-bg: rgba(19, 123, 85, 0.25);
+    --success-text: #55D6A4;
+    --success-border: rgba(85, 214, 164, 0.35);
+
     --warning: #F4C66A;
+    --warning-bg: rgba(244, 198, 106, 0.18);
+    --warning-text: #F4C66A;
+    --warning-border: rgba(244, 198, 106, 0.35);
+
     --danger: #FF7777;
+    --danger-bg: rgba(255, 119, 119, 0.18);
+    --danger-text: #FF8888;
+    --danger-border: rgba(255, 119, 119, 0.35);
+
     --info: #7CCBFF;
+    --info-bg: rgba(124, 203, 255, 0.18);
+    --info-text: #7CCBFF;
+    --info-border: rgba(124, 203, 255, 0.35);
+
+    --brand-bg: rgba(53, 224, 193, 0.15);
+    --brand-text: #35E0C1;
+    --brand-border: rgba(53, 224, 193, 0.35);
 
     /* Semantic mappings */
     --card-bg: #0D201B;
@@ -31,8 +54,11 @@
     --card-hover-border: #356255;
     --input-bg: #0A1916;
     --input-border: #244139;
-    --header-bg: rgba(6, 17, 15, 0.82);
+    --header-bg: rgba(6, 17, 15, 0.88);
     --modal-backdrop: rgba(3, 10, 8, 0.82);
+
+    --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+    --panel-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
   }
 
   [data-theme="light"] {
@@ -45,18 +71,39 @@
     --border: #D5E5DE;
     --border-strong: #A9C8BA;
     --text: #10251F;
-    --text-muted: #526B61;
-    --text-subtle: #71877E;
+    --text-muted: #4B6359;
+    --text-subtle: #6D827A;
     --accent: #087F69;
     --accent-hover: #066A58;
     --accent-pressed: #045747;
     --accent-foreground: #FFFFFF;
     --accent-soft: #DDF6ED;
     --glow: rgba(15, 160, 119, 0.10);
+
+    /* Feedback tokens - Light */
     --success: #137B55;
+    --success-bg: #E6F7F0;
+    --success-text: #0D6845;
+    --success-border: #A3E3CA;
+
     --warning: #8B5C08;
+    --warning-bg: #FEF7EA;
+    --warning-text: #8C5808;
+    --warning-border: #F7D794;
+
     --danger: #B42332;
+    --danger-bg: #FDF0F0;
+    --danger-text: #B91C1C;
+    --danger-border: #FCA5A5;
+
     --info: #145E96;
+    --info-bg: #EDF7FE;
+    --info-text: #0369A1;
+    --info-border: #BAE6FD;
+
+    --brand-bg: #DDF6ED;
+    --brand-text: #087F69;
+    --brand-border: #A9C8BA;
 
     /* Semantic mappings */
     --card-bg: #FFFFFF;
@@ -64,8 +111,11 @@
     --card-hover-border: #A9C8BA;
     --input-bg: #FFFFFF;
     --input-border: #D5E5DE;
-    --header-bg: rgba(255, 255, 255, 0.88);
-    --modal-backdrop: rgba(16, 37, 31, 0.6);
+    --header-bg: rgba(255, 255, 255, 0.92);
+    --modal-backdrop: rgba(16, 37, 31, 0.45);
+
+    --card-shadow: 0 2px 8px -2px rgba(16, 37, 31, 0.06), 0 1px 3px rgba(16, 37, 31, 0.04);
+    --panel-shadow: 0 12px 28px -6px rgba(16, 37, 31, 0.08), 0 2px 6px rgba(16, 37, 31, 0.04);
   }
 
   body {
@@ -76,7 +126,7 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -106,12 +156,12 @@
     radial-gradient(ellipse at 20% 0%, var(--glow), transparent 48%),
     linear-gradient(
       to right,
-      color-mix(in srgb, var(--border) 45%, transparent) 1px,
+      color-mix(in srgb, var(--border) 50%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--border) 45%, transparent) 1px,
+      color-mix(in srgb, var(--border) 50%, transparent) 1px,
       transparent 1px
     );
 }
@@ -127,8 +177,8 @@
   [data-theme="light"] .theme-canvas {
     background-image:
       radial-gradient(ellipse at 20% 0%, var(--glow), transparent 48%),
-      linear-gradient(to right, rgba(213, 229, 222, 0.6) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(213, 229, 222, 0.6) 1px, transparent 1px);
+      linear-gradient(to right, rgba(213, 229, 222, 0.7) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(213, 229, 222, 0.7) 1px, transparent 1px);
   }
 }
 
@@ -138,7 +188,7 @@
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 1rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--panel-shadow);
 }
 
 .surface-card {
@@ -146,6 +196,7 @@
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 0.875rem;
+  box-shadow: var(--card-shadow);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

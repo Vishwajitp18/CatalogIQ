@@ -86,26 +86,26 @@ export const ProductDetailModal = ({
               </span>
             </div>
           ) : !canEdit ? (
-            <div className="p-3.5 rounded-xl bg-amber-950/25 border border-amber-500/30 text-xs flex items-center justify-between gap-3 text-amber-300">
+            <div className="p-3.5 rounded-xl bg-[var(--warning-bg)] border border-[var(--warning-border)] text-xs flex items-center justify-between gap-3 text-[var(--warning-text)]">
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                <Lock className="w-4 h-4 text-[var(--warning-text)] shrink-0" />
                 <span>
-                  Read-Only: Created by <strong className="text-amber-200">{product.created_by_email || 'admin@catalogiq.com'}</strong>. Only the creator or an Administrator can modify it.
+                  Read-Only: Created by <strong className="font-semibold">{product.created_by_email || 'admin@catalogiq.com'}</strong>. Only the creator or an Administrator can modify it.
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 shrink-0">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--warning-bg)] border border-[var(--warning-border)] text-[var(--warning-text)] shrink-0">
                 Protected
               </span>
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs flex items-center justify-between gap-3 text-emerald-300">
+            <div className="p-3.5 rounded-xl bg-[var(--success-bg)] border border-[var(--success-border)] text-xs flex items-center justify-between gap-3 text-[var(--success-text)]">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-emerald-400 shrink-0" />
+                <User className="w-4 h-4 text-[var(--success-text)] shrink-0" />
                 <span>
                   Owner Access: You created this item and have full rights to manage it.
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 shrink-0">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--success-bg)] border border-[var(--success-border)] text-[var(--success-text)] shrink-0">
                 Your Item
               </span>
             </div>
@@ -200,17 +200,17 @@ export const ProductDetailModal = ({
             <span>Stock: {product.stock ?? 0}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-teal-400" />
+            <Calendar className="w-4 h-4 text-[var(--accent)]" />
             <span>Added: {new Date(product.created_at).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-emerald-400" />
+            <User className="w-4 h-4 text-[var(--brand-text)]" />
             <span className="truncate" title={product.created_by_email}>
               By: {product.created_by_email?.split('@')[0] || 'admin'}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-amber-400" />
+            <Layers className="w-4 h-4 text-[var(--text-subtle)]" />
             <span>ID: {product.id.slice(0, 8)}...</span>
           </div>
         </div>

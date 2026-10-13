@@ -189,8 +189,8 @@ export const SessionsPage = () => {
         <div
           className={`p-4 rounded-xl border text-sm flex items-center justify-between transition-all ${
             message.type === 'success'
-              ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
-              : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
+              ? 'bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]'
+              : 'bg-[var(--danger-bg)] border-[var(--danger-border)] text-[var(--danger-text)]'
           }`}
         >
           <div className="flex items-center gap-2.5">
@@ -263,8 +263,8 @@ export const SessionsPage = () => {
                           {browser} on {os}
                         </span>
                         {session.is_current ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-500/40 text-emerald-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--success-bg)] border border-[var(--success-border)] text-[var(--success-text)]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
                             Current session
                           </span>
                         ) : (
@@ -301,7 +301,7 @@ export const SessionsPage = () => {
                         <span className="flex items-center gap-1.5">
                           <Shield className="w-3.5 h-3.5" style={{ color: 'var(--text-subtle)' }} />
                           Last active:{' '}
-                          <span className={session.is_current ? 'text-emerald-400 font-medium' : ''} style={{ color: session.is_current ? undefined : 'var(--text)' }}>
+                          <span className={session.is_current ? 'text-[var(--success-text)] font-semibold' : ''} style={{ color: session.is_current ? undefined : 'var(--text)' }}>
                             {session.is_current
                               ? 'Active now'
                               : session.last_used_at
@@ -356,13 +356,13 @@ export const SessionsPage = () => {
         </div>
 
         {passwordError && (
-          <div className="my-4 p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs">
+          <div className="my-4 p-3 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs">
             {passwordError}
           </div>
         )}
 
         {passwordSuccess && (
-          <div className="my-4 p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs">
+          <div className="my-4 p-3 rounded-xl bg-[var(--success-bg)] border border-[var(--success-border)] text-[var(--success-text)] text-xs">
             {passwordSuccess}
           </div>
         )}

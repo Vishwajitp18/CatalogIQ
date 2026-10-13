@@ -44,20 +44,20 @@ export const Footer = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <div className="flex items-center gap-1.5">
-              <Server className="w-3.5 h-3.5 text-emerald-400" />
+              <Server className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>Django 5.1 REST</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span
                 className={`w-2 h-2 rounded-full ${
                   healthStatus === 'connected'
-                    ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+                    ? 'bg-[var(--success)] shadow-[0_0_8px_var(--glow)]'
                     : healthStatus === 'checking'
-                    ? 'bg-amber-400'
-                    : 'bg-rose-500'
+                    ? 'bg-[var(--warning)]'
+                    : 'bg-[var(--danger)]'
                 }`}
               />
-              <Database className="w-3.5 h-3.5 text-teal-400" />
+              <Database className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>
                 Supabase Postgres 17 (
                 {healthStatus === 'connected'
@@ -81,7 +81,7 @@ export const Footer = () => {
               rel="noreferrer"
               className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors"
             >
-              <GitFork className="w-4 h-4 text-emerald-400" />
+              <GitFork className="w-4 h-4 text-[var(--accent)]" />
               <span>GitHub</span>
             </a>
           </div>

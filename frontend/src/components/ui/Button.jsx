@@ -14,7 +14,7 @@ export const Button = ({
 }) => {
   const baseClasses =
     'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-xl select-none cursor-pointer ' +
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] ' +
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98]'
 
   const sizeClasses = {
@@ -33,7 +33,7 @@ export const Button = ({
     ghost:
       'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] border border-transparent',
     danger:
-      'bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-500/50',
+      'bg-[var(--danger-bg)] text-[var(--danger-text)] border border-[var(--danger-border)] hover:opacity-90 active:opacity-100',
     outline:
       'bg-transparent text-[var(--text)] border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[var(--border-strong)]',
   }

@@ -243,8 +243,8 @@ export const ProductFormModal = ({
     >
       <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-200">
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+          <div className="p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-200">
+            <AlertCircle className="w-4 h-4 text-[var(--danger-text)] shrink-0 mt-0.5" />
             <div className="flex-1 whitespace-pre-line leading-relaxed font-normal">{error}</div>
           </div>
         )}

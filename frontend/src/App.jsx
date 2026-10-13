@@ -20,7 +20,7 @@ function App() {
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col theme-canvas antialiased selection:bg-emerald-500/25 selection:text-emerald-200">
+            <div className="min-h-screen flex flex-col theme-canvas antialiased selection:bg-[var(--accent)] selection:text-[var(--accent-foreground)]">
               <Navbar onOpenCreateProduct={() => setIsCreateModalOpen(true)} />
               <main className="flex-1">
                 <Routes>

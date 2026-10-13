@@ -324,7 +324,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
               <div
                 className={`mb-3 p-3 rounded-xl border text-xs flex items-center justify-between gap-2 animate-in fade-in duration-200 ${
                   aiNotification.type === 'warning'
-                    ? 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+                    ? 'bg-[var(--warning-bg)] border-[var(--warning-border)] text-[var(--warning-text)]'
                     : 'bg-[var(--accent-soft)] border-[var(--border-strong)] text-[var(--accent)]'
                 }`}
               >
@@ -542,13 +542,13 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                           <span
                             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
                               p.is_active !== false
-                                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
-                                : 'bg-rose-950/60 text-rose-300 border-rose-500/30'
+                                ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]'
+                                : 'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]'
                             }`}
                           >
                             <span
                               className={`w-1.5 h-1.5 rounded-full ${
-                                p.is_active !== false ? 'bg-emerald-400' : 'bg-rose-500'
+                                p.is_active !== false ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'
                               }`}
                             />
                             <span>{p.is_active !== false ? 'Active' : 'Inactive'}</span>
@@ -575,7 +575,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                                   className={`px-2 py-1 rounded ${
                                     canEdit
                                       ? 'text-[var(--accent)] hover:underline'
-                                      : 'text-[var(--text-subtle)] hover:text-amber-300'
+                                      : 'text-[var(--text-subtle)] hover:text-[var(--warning-text)]'
                                   }`}
                                   title={
                                     canEdit
@@ -596,8 +596,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                                   }}
                                   className={`px-2 py-1 rounded ${
                                     canEdit
-                                      ? 'text-rose-400 hover:text-rose-300'
-                                      : 'text-[var(--text-subtle)] hover:text-rose-300'
+                                      ? 'text-[var(--danger-text)] hover:underline'
+                                      : 'text-[var(--text-subtle)] hover:text-[var(--danger-text)]'
                                   }`}
                                   title={
                                     canEdit

@@ -55,7 +55,7 @@ export const AiSearchBar = ({
               placeholder="Ask in natural language (e.g., 'Find running shoes from Nike under ₹3000')..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-transparent text-sm sm:text-base placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+              className="w-full bg-transparent text-sm sm:text-base placeholder:text-[var(--text-subtle)] focus:outline-none"
               style={{ color: 'var(--text)' }}
             />
 

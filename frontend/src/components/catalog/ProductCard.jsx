@@ -35,7 +35,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
             />
           ) : (
             <div
-              className="w-full h-full flex flex-col items-center justify-center text-slate-400"
+              className="w-full h-full flex flex-col items-center justify-center text-[var(--text-subtle)]"
               style={{
                 background: 'radial-gradient(ellipse at center, var(--accent-soft) 0%, var(--surface-muted) 80%)',
               }}
@@ -50,13 +50,13 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
             <span
               className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-md border ${
                 isActive
-                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-sm'
-                  : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                  ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)] shadow-sm'
+                  : 'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  isActive ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-rose-500'
+                  isActive ? 'bg-[var(--success)] shadow-[0_0_6px_var(--glow)]' : 'bg-[var(--danger)]'
                 }`}
               />
               <span>{isActive ? 'Active' : 'Inactive'}</span>
@@ -95,7 +95,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
               </span>
             ) : (
               <span
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 font-medium"
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--brand-bg)] border border-[var(--brand-border)] text-[var(--brand-text)] font-medium"
                 title="You created this product"
               >
                 <span>Your Item</span>
@@ -177,7 +177,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                 className={`p-1.5 rounded-lg transition-colors ${
                   canEdit
                     ? 'text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]'
-                    : 'text-[var(--text-subtle)] hover:text-amber-400 hover:bg-amber-500/10'
+                    : 'text-[var(--text-subtle)] hover:text-[var(--warning-text)] hover:bg-[var(--warning-bg)]'
                 }`}
                 title={
                   canEdit
@@ -201,11 +201,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                     onDelete(product.id)
                   }
                 }}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  canEdit
-                    ? 'text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10'
-                    : 'text-[var(--text-subtle)] hover:text-rose-400 hover:bg-rose-500/10'
-                }`}
+                className="p-1.5 rounded-lg transition-colors text-[var(--text-muted)] hover:text-[var(--danger-text)] hover:bg-[var(--danger-bg)]"
                 title={
                   canEdit
                     ? isAdmin
