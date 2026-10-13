@@ -12,11 +12,13 @@ from apps.catalog.selectors import (
     apply_ordering,
     apply_price_filter,
     apply_search,
+    get_catalog_stats,
     visible_products,
 )
 from apps.catalog.serializers import (
     BrandCreateSerializer,
     BrandSerializer,
+    CatalogStatsSerializer,
     CategoryCreateSerializer,
     CategorySerializer,
     ProductReadSerializer,
@@ -274,3 +276,51 @@ class CategoryListCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         category = serializer.save()
         return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
+
+
+class CatalogStatsView(APIView):
+    """Retrieves aggregated catalog statistics directly from the database."""
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    @extend_schema(
+        summary="Catalog statistics and aggregated metrics",
+        description="Calculates database-aggregated metrics (total products, brand count, category count, average price, AI-tagged count) across the active catalog or filtered subset.",
+        parameters=[
+            OpenApiParameter(
+                "search",
+                str,
+                description="Search term across name, description, brand, category, and tags",
+            ),
+            OpenApiParameter(
+                "brand", str, description="Filter by brand slug (repeatable)", many=True
+            ),
+            OpenApiParameter(
+                "category", str, description="Filter by category slug (repeatable)", many=True
+            ),
+            OpenApiParameter("min_price", float, description="Minimum price filter (inclusive)"),
+            OpenApiParameter("max_price", float, description="Maximum price filter (inclusive)"),
+        ],
+        responses={200: CatalogStatsSerializer},
+        tags=["Catalog"],
+    )
+    def get(self, request):
+        qs = visible_products()
+
+        # 1. Multi-term search
+        search_query = request.query_params.get("search")
+        qs = apply_search(qs, search_query)
+
+        # 2. Price filter validation & execution
+        min_p = request.query_params.get("min_price")
+        max_p = request.query_params.get("max_price")
+        qs = apply_price_filter(qs, min_p, max_p)
+
+        # 3. Brand & Category slug filters (repeatable)
+        filterset = ProductFilter(request.GET, queryset=qs, request=request)
+        if not filterset.is_valid():
+            raise exceptions.ValidationError(filterset.errors)
+        qs = filterset.qs
+
+        stats = get_catalog_stats(qs)
+        return Response(stats, status=status.HTTP_200_OK)

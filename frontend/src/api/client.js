@@ -152,6 +152,10 @@ export const catalogApi = {
     const res = await apiClient.get('/products/', { params })
     return res.data
   },
+  getStats: async (params = {}) => {
+    const res = await apiClient.get('/catalog/stats/', { params })
+    return res.data
+  },
   getProduct: async (id) => {
     const res = await apiClient.get(`/products/${id}/`)
     return res.data

@@ -1,10 +1,11 @@
 from decimal import Decimal, InvalidOperation
+from typing import Any
 
 from django.db import connection
-from django.db.models import Q, QuerySet
+from django.db.models import Avg, Count, Max, Min, Q, QuerySet
 from rest_framework import exceptions
 
-from apps.catalog.models import Product
+from apps.catalog.models import Brand, Category, Product
 
 ALLOWED_ORDERINGS = {
     "name",
@@ -175,3 +176,44 @@ def apply_ordering(qs: QuerySet[Product], ordering_param: str | None = None) -> 
         )
 
     return qs.order_by(ordering_param, "id")
+ 
+ 
+def get_catalog_stats(qs: QuerySet[Product] | None = None) -> dict[str, Any]:
+    """Aggregates catalog statistics directly from the database using SQL aggregations.
+    Computes total products, brand count, category count, average price, min/max price,
+    and count of AI-tagged products.
+    """
+    if qs is None:
+        qs = visible_products()
+
+    is_sqlite = connection.vendor == "sqlite"
+    tag_q = Q(tags__icontains='"') if is_sqlite else (~Q(tags=[]) & ~Q(tags__isnull=True))
+
+    agg = qs.aggregate(
+        total_products=Count("id"),
+        avg_price=Avg("price"),
+        min_price=Min("price"),
+        max_price=Max("price"),
+        ai_tagged_count=Count("id", filter=tag_q),
+    )
+
+    total_products = agg["total_products"] or 0
+    total_brands = qs.values("brand").distinct().count() if total_products > 0 else 0
+    total_categories = qs.values("category").distinct().count() if total_products > 0 else 0
+
+    avg_p = round(float(agg["avg_price"]), 2) if agg["avg_price"] is not None else 0.0
+    min_p = round(float(agg["min_price"]), 2) if agg["min_price"] is not None else 0.0
+    max_p = round(float(agg["max_price"]), 2) if agg["max_price"] is not None else 0.0
+
+    return {
+        "total_products": total_products,
+        "total_brands": total_brands,
+        "total_categories": total_categories,
+        "avg_price": avg_p,
+        "min_price": min_p,
+        "max_price": max_p,
+        "ai_tagged_count": agg["ai_tagged_count"] or 0,
+        "catalog_total_products": Product.objects.filter(is_active=True).count(),
+        "catalog_total_brands": Brand.objects.count(),
+        "catalog_total_categories": Category.objects.count(),
+    }

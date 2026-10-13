@@ -36,6 +36,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const sentinelRef = useRef(null)
   const [brands, setBrands] = useState([])
   const [categories, setCategories] = useState([])
+  const [stats, setStats] = useState(null)
+  const [isStatsLoading, setIsStatsLoading] = useState(true)
 
   // Filter & Search State
   const [filters, setFilters] = useState({
@@ -152,12 +154,34 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     [filters, showError]
   )
 
-  // Effect to load products when filters change (if not in AI mode)
+  // Dedicated database-aggregated query for Bento summary metrics
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsStatsLoading(true)
+      const params = {}
+      if (filters.search) params.search = filters.search
+      if (filters.brand) params.brand = filters.brand
+      if (filters.category) params.category = filters.category
+      if (filters.min_price) params.min_price = filters.min_price
+      if (filters.max_price) params.max_price = filters.max_price
+      if (filters.is_active) params.is_active = filters.is_active
+
+      const data = await catalogApi.getStats(params)
+      setStats(data)
+    } catch (err) {
+      console.warn('Catalog DB stats query failed:', err)
+    } finally {
+      setIsStatsLoading(false)
+    }
+  }, [filters])
+
+  // Effect to load products and DB stats when filters change (if not in AI mode)
   useEffect(() => {
     if (!isAiActive) {
       fetchCatalog(1, false)
+      fetchStats()
     }
-  }, [filters, isAiActive, fetchCatalog])
+  }, [filters, isAiActive, fetchCatalog, fetchStats])
 
   // IntersectionObserver for Infinite Continuous Scroll
   useEffect(() => {
@@ -231,6 +255,21 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         /widened|relaxed|relevance|matches found/i.test(n)
       )
 
+      // Calculate context stats for AI search result
+      const aiAvg = results.length
+        ? (results.reduce((acc, p) => acc + parseFloat(p.price || 0), 0) / results.length).toFixed(2)
+        : 0
+      const aiTagged = results.filter((p) => p.tags && p.tags.length > 0).length
+      const aiBrandCount = new Set(results.map((p) => p.brand?.id || p.brand?.name).filter(Boolean)).size
+      const aiCatCount = new Set(results.map((p) => p.category?.id || p.category?.name).filter(Boolean)).size
+      setStats({
+        total_products: results.length,
+        total_brands: aiBrandCount,
+        total_categories: aiCatCount,
+        avg_price: aiAvg,
+        ai_tagged_count: aiTagged,
+      })
+
       if (results.length === 0) {
         setAiNotification({
           type: 'warning',
@@ -249,6 +288,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
       showError(err, 'AI Natural Query Error')
       setIsAiActive(false)
       fetchCatalog(1, false)
+      fetchStats()
     } finally {
       setAiLoading(false)
     }
@@ -261,6 +301,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     setAiQuery('')
     setAiNotification(null)
     fetchCatalog(1, false)
+    fetchStats()
   }
 
   const handleFilterChange = (newFilters) => {
@@ -299,6 +340,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         handleAiSearch(aiQuery)
       } else {
         fetchCatalog(1, false)
+        fetchStats()
       }
     } catch (err) {
       showError(err, 'Failed to Delete Product')
@@ -363,7 +405,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
       {/* Bento Stats Summary Row */}
       <CatalogStats
-        products={products}
+        stats={stats}
+        isLoading={isStatsLoading}
         totalCount={totalCount}
         brands={brands}
         categories={categories}
@@ -709,6 +752,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             handleAiSearch(aiQuery)
           } else {
             fetchCatalog(1, false)
+            fetchStats()
           }
         }}
       />

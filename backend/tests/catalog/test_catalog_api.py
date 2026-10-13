@@ -202,3 +202,42 @@ class TestCatalogAPI:
         res_c = authed.post("/api/v1/categories/", {"name": "Smartphones"})
         assert res_c.status_code == 201
         assert res_c.json()["slug"] == "smartphones"
+
+    def test_catalog_stats_endpoint(self, client):
+        b1 = BrandFactory(name="Apple", slug="apple")
+        b2 = BrandFactory(name="Sony", slug="sony")
+        c1 = CategoryFactory(name="Electronics", slug="electronics")
+        c2 = CategoryFactory(name="Audio", slug="audio")
+
+        # 3 active products
+        ProductFactory(
+            brand=b1, category=c1, price=Decimal("1000.00"), tags=["phone", "smart"], is_active=True
+        )
+        ProductFactory(
+            brand=b2, category=c2, price=Decimal("2000.00"), tags=["audio"], is_active=True
+        )
+        ProductFactory(brand=b1, category=c2, price=Decimal("3000.00"), tags=[], is_active=True)
+        # 1 soft-deleted product
+        ProductFactory(brand=b2, category=c1, price=Decimal("5000.00"), is_active=False)
+
+        res = client.get("/api/v1/catalog/stats/")
+        assert res.status_code == 200
+        data = res.json()
+
+        assert data["total_products"] == 3
+        assert data["total_brands"] == 2
+        assert data["total_categories"] == 2
+        assert float(data["avg_price"]) == 2000.00
+        assert data["ai_tagged_count"] == 2
+        assert float(data["min_price"]) == 1000.00
+        assert float(data["max_price"]) == 3000.00
+        assert data["catalog_total_products"] == 3
+
+        # Filtered stats by brand
+        res_filtered = client.get("/api/v1/catalog/stats/?brand=apple")
+        assert res_filtered.status_code == 200
+        data_filtered = res_filtered.json()
+        assert data_filtered["total_products"] == 2
+        assert data_filtered["total_brands"] == 1
+        assert float(data_filtered["avg_price"]) == 2000.00
+

@@ -142,3 +142,18 @@ class ProductWriteSerializer(serializers.Serializer):
                 seen.add(tag)
                 cleaned.append(tag[:40])
         return cleaned[:10]
+
+
+class CatalogStatsSerializer(serializers.Serializer):
+    """Schema for database-aggregated catalog statistics."""
+
+    total_products = serializers.IntegerField()
+    total_brands = serializers.IntegerField()
+    total_categories = serializers.IntegerField()
+    avg_price = serializers.DecimalField(max_digits=12, decimal_places=2)
+    min_price = serializers.DecimalField(max_digits=12, decimal_places=2, allow_null=True)
+    max_price = serializers.DecimalField(max_digits=12, decimal_places=2, allow_null=True)
+    ai_tagged_count = serializers.IntegerField()
+    catalog_total_products = serializers.IntegerField()
+    catalog_total_brands = serializers.IntegerField()
+    catalog_total_categories = serializers.IntegerField()
