@@ -315,8 +315,3 @@ node test-e2e.mjs
   * Product creation with Brand/Category dropdowns and stock persistence
   * Instant Dark $\leftrightarrow$ Light theme toggling
   * Remote device session sign-out and route re-protection
-
----
-
-## 📜 License
-This project is submitted for the Full Stack Development Technical Assignment. Released under the [MIT License](LICENSE).
