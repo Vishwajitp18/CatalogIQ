@@ -27,8 +27,9 @@ Standard e-commerce search engines struggle with conversational or multi-paramet
 1. **AI Query Intelligence**: Groq's high-speed inference engine (`qwen/qwen3.8-27b`) interprets conversational natural language queries into strict, validated JSON search parameters.
 2. **Zero-Hallucination Deterministic Retrieval**: The structured parameters are executed directly against PostgreSQL via Django ORM selectors, ensuring 100% accurate real-time inventory, pricing, and availability.
 3. **AI Copywriter Studio**: Transforms raw bullet points into polished, high-converting product descriptions and SEO hashtags across multiple brand voice tones.
-4. **Enterprise Multi-Device Session Security**: Dual-token authentication with opaque refresh tokens stored as SHA-256 hashes, automatic rotation with token-theft detection grace windows, sliding session expiration, and remote device revocation.
-5. **Modern Production UI/UX**: Responsive Apple Pro / Neo-Bento design system supporting true Dark and Light modes, custom accessible controls (WCAG 2.2 AA compliant), Bento statistics cards, and dual Grid/Table browsing.
+4. **Enterprise Multi-Device Session Security**: Dual-token authentication with opaque refresh tokens stored as SHA-256 hashes, automatic rotation with token-theft detection grace windows, sliding session expiration, remote device revocation, and deep-link route guarding.
+5. **Real-Time Database Aggregated Analytics**: Dedicated SQL aggregation engine (`/api/v1/catalog/stats/`) computing true catalog-wide metrics (catalog average price, distinct brands/categories, AI-indexed counts) directly in PostgreSQL, completely eliminating client-side pagination drift.
+6. **Modern Production UI/UX & Resilient Error Handling**: Responsive Apple Pro / Neo-Bento design system supporting true Dark and Light modes, exact backend validation constraint extraction (no generic error banners), tactile feedback demo controls, and dual Grid/Table browsing.
 
 ---
 
@@ -77,7 +78,7 @@ Standard e-commerce search engines struggle with conversational or multi-paramet
 | **Styling & Design** | **Tailwind CSS v4** + Custom Design Tokens | Dual Dark/Light themes, CSS variables, high contrast, non-glass readable cards. |
 | **Icons & UI** | **Lucide React** + Custom Accessible Controls | OS-agnostic dropdowns, physical tactile feedback demo buttons, Bento summary cards. |
 | **State & Networking** | **React Context API** + **Axios** | Centralized Auth, Toast, and Theme providers with automatic JWT refresh interceptors. |
-| **Testing** | **Pytest** + **Puppeteer E2E (Chrome)** | 24 backend unit/integration tests + 29-step automated headless browser test suite. |
+| **Testing** | **Pytest** + **Puppeteer E2E (Chrome)** | 29 backend unit/integration tests + 29-step automated headless browser test suite. |
 
 ---
 
@@ -142,6 +143,7 @@ The platform includes pre-configured demo accounts and **tactile 1-click fill bu
 * `POST /products/`: Creates a new product with stock and tags *(Requires authentication)*.
 * `PATCH /products/{id}/`: Updates an existing product *(Requires Admin or creator ownership)*.
 * `DELETE /products/{id}/`: Soft-deletes a product (`is_active = False`).
+* `GET /stats/` or `GET /catalog/stats/`: Database-aggregated metrics computing total active products, distinct brands, distinct categories, catalog average price, and AI-tagged counts with filter awareness.
 * `GET /brands/`: Lists available brands.
 * `POST /brands/`: Creates a new brand inline *(Requires Admin)*.
 * `GET /categories/`: Lists available categories.
@@ -282,12 +284,16 @@ npm run dev
 
 1. **Hybrid Deterministic AI Architecture**:
    Instead of using vector databases that suffer from embedding staleness or pure LLM response generation that invents product pricing, we leverage the LLM as an **intelligent semantic parser** and the PostgreSQL database as the **deterministic source of truth**.
-2. **Enterprise Session Management & Token Rotation**:
+2. **Database-Aggregated Bento Analytics vs. Client Slicing**:
+   Rather than evaluating summary statistics (average price, AI-tagged counts, total catalog) in client-side JavaScript over paginated memory slices (which causes metrics to fluctuate as users scroll or fetch new pages), CatalogIQ uses a dedicated backend database aggregation endpoint (`/api/v1/catalog/stats/`). Single-query PostgreSQL aggregations (`Avg('price')`, `Count('id')`, distinct brand/category groupings) ensure rock-solid, production-grade metrics that remain stable during infinite scrolling while seamlessly responding to active filters.
+3. **Enterprise Session Management & Token Rotation**:
    Rather than standard stateless refresh tokens that cannot be revoked upon device theft, refresh tokens are generated as high-entropy cryptographically secure tokens whose SHA-256 hashes are stored in the database. When refreshed, the old token is revoked and a 10-second reuse grace window allows network recovery without triggering false theft alarms.
-3. **Unified Dual Dark/Light Theme System**:
+4. **Exact Backend Validation Error Extraction**:
+   Centralized frontend error translation (`errorParser.js`) unifies DRF's structured exception handler envelopes (`{ error: { code, message, details: { [field]: [...] } } }`). Instead of obscuring errors behind generic banners like *"Registration failed"*, it extracts and presents exact backend validation constraints (e.g. password complexity rules, uniqueness conflicts, required fields) formatted with clean, multi-line bulleted feedback.
+5. **Production Deep-Link Route Guards & Return-URL Preservation**:
+   Unauthenticated attempts to access protected routes (`/sessions`) immediately redirect users to `/login?redirect=...`. Upon successful sign-in, users are returned to their destination seamlessly without disrupting background silent JWT refresh operations.
+6. **Unified Dual Dark/Light Theme System**:
    Implemented using pure semantic CSS variables (`--surface`, `--surface-panel`, `--text`, `--accent`, `--border`) without relying on simplistic color inversion. High contrast is preserved across every component for WCAG 2.2 AA accessibility.
-4. **Resilient Error Parsing**:
-   Centralized frontend error translation (`errorParser.js`) that automatically extracts structured Django REST Framework errors into human-friendly messages and displays non-intrusive toast notifications.
 
 ---
 
@@ -296,9 +302,9 @@ npm run dev
 ### 1. Backend Automated Tests (Pytest)
 ```bash
 cd backend
-.venv/bin/pytest
+.venv/bin/pytest --ds=config.settings.test
 ```
-* **Coverage**: 24 comprehensive unit and integration tests verifying user registration, login, token rotation, product CRUD permissions, search filtering, and GenAI schema validations.
+* **Coverage**: 29 comprehensive unit and integration tests verifying user registration, login, token rotation, product CRUD permissions, search filtering, database-level catalog stats aggregations, and GenAI schema validations.
 
 ### 2. Website End-to-End Browser Tests (Puppeteer)
 ```bash
