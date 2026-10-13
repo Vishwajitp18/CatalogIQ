@@ -191,8 +191,20 @@ export const aiApi = {
     const res = await apiClient.post('/ai/product-description/', payload)
     return res.data
   },
+  searchNatural: async (queryOrPayload) => {
+    const body =
+      typeof queryOrPayload === 'string'
+        ? { query: queryOrPayload, limit: 20 }
+        : queryOrPayload
+    const res = await apiClient.post('/ai/search/', body)
+    return res.data
+  },
   search: async (payload) => {
-    const res = await apiClient.post('/ai/search/', payload)
+    const body =
+      typeof payload === 'string'
+        ? { query: payload, limit: 20 }
+        : payload
+    const res = await apiClient.post('/ai/search/', body)
     return res.data
   },
 }

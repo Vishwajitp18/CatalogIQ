@@ -10,7 +10,7 @@ export const AiSearchBar = ({
   interpretation = null,
   activeQuery = '',
 }) => {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(activeQuery || '')
 
   const suggestions = [
     'Nike shoes under ₹3000',

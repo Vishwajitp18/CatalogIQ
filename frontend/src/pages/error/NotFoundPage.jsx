@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Compass } from 'lucide-react'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
-import { BrandLogo } from '../../components/brand/BrandLogo'
 
 export const NotFoundPage = () => {
   return (
