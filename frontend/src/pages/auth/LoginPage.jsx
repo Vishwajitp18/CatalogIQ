@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, ArrowRight, KeyRound, ShieldAlert } from 'lucide-react'
+import { Mail, Lock, ArrowRight, KeyRound, ShieldAlert, Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
@@ -42,6 +42,8 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [activeDemoRole, setActiveDemoRole] = useState(null)
+  const [pressedButton, setPressedButton] = useState(null)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -73,12 +75,29 @@ export const LoginPage = () => {
     setEmail('admin@catalogiq.com')
     setPassword('AdminPass123!')
     setError('')
+    setActiveDemoRole('admin')
+    setPressedButton('admin')
+    setTimeout(() => setPressedButton(null), 300)
   }
 
   const handleFillUser = () => {
     setEmail('user@catalogiq.com')
     setPassword('UserPass123!')
     setError('')
+    setActiveDemoRole('user')
+    setPressedButton('user')
+    setTimeout(() => setPressedButton(null), 300)
+  }
+
+  const handleEmailChange = (val) => {
+    setEmail(val)
+    if (activeDemoRole === 'admin' && val !== 'admin@catalogiq.com') setActiveDemoRole(null)
+    if (activeDemoRole === 'user' && val !== 'user@catalogiq.com') setActiveDemoRole(null)
+  }
+
+  const handlePasswordChange = (val) => {
+    setPassword(val)
+    if (activeDemoRole) setActiveDemoRole(null)
   }
 
   return (
@@ -115,45 +134,68 @@ export const LoginPage = () => {
 
           {/* Quick Demo Login Pills */}
           <div
-            className="mb-6 p-3.5 rounded-xl border space-y-2.5"
+            className="mb-6 p-3.5 rounded-xl border space-y-2.5 transition-colors"
             style={{
               backgroundColor: 'var(--surface-muted)',
               borderColor: 'var(--border)',
             }}
           >
-            <div className="flex items-center justify-between text-xs" style={{ color: 'var(--accent)' }}>
-              <div className="flex items-center gap-1.5 font-medium">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--accent)' }}>
                 <KeyRound className="w-3.5 h-3.5 shrink-0" />
                 <span>Quick Role Demo Logins</span>
               </div>
-              <span className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>1-click fill</span>
+              {activeDemoRole ? (
+                <span className="text-[10px] font-semibold text-[var(--accent)] flex items-center gap-1 animate-in fade-in zoom-in-95 duration-150">
+                  <Check className="w-3 h-3 stroke-[2.5]" />
+                  <span>{activeDemoRole === 'admin' ? 'Admin' : 'User'} filled</span>
+                </span>
+              ) : (
+                <span className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>
+                  1-click fill
+                </span>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={handleFillAdmin}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold transition-all shadow-sm group"
-                style={{
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--accent-foreground)',
-                }}
-                title="Admin: All rights across the catalog"
+                className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold cursor-pointer select-none transition-all duration-150 active:scale-[0.93] active:translate-y-[1px] shadow-sm hover:shadow-md ${
+                  pressedButton === 'admin' ? 'scale-[0.94] ring-2 ring-[var(--accent)]' : ''
+                } ${
+                  activeDemoRole === 'admin'
+                    ? 'bg-[var(--accent)] text-[var(--accent-foreground)] ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--surface-muted)] shadow-md'
+                    : 'bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)]'
+                }`}
+                title="Admin: All rights across the catalog (admin@catalogiq.com)"
               >
                 <span>👑 Admin</span>
+                {activeDemoRole === 'admin' ? (
+                  <Check className="w-3.5 h-3.5 stroke-[2.5] animate-in zoom-in-50 duration-150" />
+                ) : (
+                  <span className="text-[10px] opacity-60 font-normal ml-0.5">Fill</span>
+                )}
               </button>
+
               <button
                 type="button"
                 onClick={handleFillUser}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold border transition-all shadow-sm group"
-                style={{
-                  backgroundColor: 'var(--surface)',
-                  borderColor: 'var(--border)',
-                  color: 'var(--text)',
-                }}
-                title="Standard User: Owns only their products, read-only on others"
+                className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold cursor-pointer select-none transition-all duration-150 active:scale-[0.93] active:translate-y-[1px] shadow-sm hover:shadow-md ${
+                  pressedButton === 'user' ? 'scale-[0.94] ring-2 ring-[var(--accent)]' : ''
+                } ${
+                  activeDemoRole === 'user'
+                    ? 'bg-[var(--accent)] text-[var(--accent-foreground)] ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--surface-muted)] shadow-md'
+                    : 'bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)]'
+                }`}
+                title="Standard User: Owns only their products, read-only on others (user@catalogiq.com)"
               >
                 <span>👤 Standard User</span>
+                {activeDemoRole === 'user' ? (
+                  <Check className="w-3.5 h-3.5 stroke-[2.5] animate-in zoom-in-50 duration-150" />
+                ) : (
+                  <span className="text-[10px] opacity-60 font-normal ml-0.5">Fill</span>
+                )}
               </button>
             </div>
           </div>
@@ -173,7 +215,7 @@ export const LoginPage = () => {
               icon={Mail}
               placeholder="e.g. admin@catalogiq.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleEmailChange(e.target.value)}
             />
 
             <Input
@@ -183,7 +225,7 @@ export const LoginPage = () => {
               icon={Lock}
               placeholder="••••••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => handlePasswordChange(e.target.value)}
             />
 
             <div className="pt-2">

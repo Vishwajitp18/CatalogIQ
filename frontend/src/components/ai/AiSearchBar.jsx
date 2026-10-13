@@ -1,7 +1,23 @@
 import React, { useState } from 'react'
-import { Sparkles, ArrowRight, X, Cpu, Tag, IndianRupee, BrainCircuit } from 'lucide-react'
+import { Sparkles, ArrowRight, X, Cpu, Tag, IndianRupee, BrainCircuit, ArrowUpDown } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
+
+const formatSortLabel = (sortBy) => {
+  switch (sortBy) {
+    case 'price_asc':
+      return 'Price: Low to High'
+    case 'price_desc':
+      return 'Price: High to Low'
+    case 'newest':
+      return 'Newest Arrivals'
+    case 'name_asc':
+      return 'Name: A to Z'
+    case 'relevance':
+    default:
+      return 'Best Match'
+  }
+}
 
 export const AiSearchBar = ({
   onSearch,
@@ -125,6 +141,20 @@ export const AiSearchBar = ({
         const terms = interpretation.search_terms || interpretation.keywords || []
         const notes = interpretation.notes || []
 
+        const hasSpecificCriteria =
+          Boolean(brandLabel) ||
+          Boolean(categoryLabel) ||
+          terms.length > 0 ||
+          interpretation.min_price != null ||
+          interpretation.max_price != null
+
+        const displayNotes = [...notes]
+        if (!hasSpecificCriteria) {
+          displayNotes.unshift(
+            `No specific category, brand, or price constraints detected for "${activeQuery || query || 'query'}". Displaying catalog ordered by Best Match.`
+          )
+        }
+
         return (
           <div
             className="rounded-2xl p-5 border space-y-3 animate-in fade-in zoom-in-95 duration-200"
@@ -194,17 +224,28 @@ export const AiSearchBar = ({
               )}
 
               {interpretation.sort_by && (
-                <Badge variant="neutral" className="gap-1">
-                  <span>Sort: {interpretation.sort_by}</span>
+                <Badge
+                  variant="neutral"
+                  className="gap-1.5"
+                  title="Products sorted by match relevance and latest arrivals"
+                >
+                  <ArrowUpDown className="w-3 h-3 text-[var(--accent)]" />
+                  <span>
+                    Sort: <strong>{formatSortLabel(interpretation.sort_by)}</strong>
+                  </span>
                 </Badge>
               )}
             </div>
 
-            {notes.length > 0 && (
-              <div className="text-xs space-y-1 pt-1" style={{ color: 'var(--text-muted)' }}>
-                {notes.map((note, idx) => (
-                  <p key={idx} className="italic">
-                    ℹ️ {note}
+            {displayNotes.length > 0 && (
+              <div
+                className="text-xs space-y-1.5 pt-2 border-t border-[var(--border)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {displayNotes.map((note, idx) => (
+                  <p key={idx} className="flex items-start gap-1.5 leading-relaxed">
+                    <span className="text-[var(--accent)] font-semibold shrink-0">ℹ️</span>
+                    <span>{note}</span>
                   </p>
                 ))}
               </div>
