@@ -6,36 +6,50 @@ export const Input = ({
   icon: Icon,
   className = '',
   id,
+  type = 'text',
   ...props
 }) => {
-  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
+  const inputId = id || (label ? label.toLowerCase().replace(/[^a-z0-9]/g, '-') : undefined)
 
   return (
     <div className="w-full space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-medium text-slate-300">
+        <label
+          htmlFor={inputId}
+          className="block text-xs font-medium tracking-wide"
+          style={{ color: 'var(--text-muted)' }}
+        >
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className="relative rounded-xl">
         {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <div
+            className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+            style={{ color: 'var(--text-subtle)' }}
+          >
             <Icon className="w-4 h-4" />
           </div>
         )}
         <input
           id={inputId}
+          type={type}
           className={`
-            w-full rounded-xl glass-input px-3.5 py-2.5 text-sm placeholder-slate-500
+            w-full rounded-xl theme-input px-3.5 py-2.5 text-sm
+            transition-all duration-150
+            focus:outline-none
             ${Icon ? 'pl-10' : ''}
-            ${error ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500/20' : ''}
+            ${error ? 'border-rose-500/60 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20' : ''}
             ${className}
           `}
           {...props}
         />
       </div>
-      {error && <p className="text-xs text-rose-400 mt-1">{error}</p>}
+      {error && (
+        <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
+          <span>{error}</span>
+        </p>
+      )}
     </div>
   )
 }
-

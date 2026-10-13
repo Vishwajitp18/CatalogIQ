@@ -1,36 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="borderGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#7c3aed" />
-      <stop offset="50%" stop-color="#9333ea" />
-      <stop offset="100%" stop-color="#06b6d4" />
+    <linearGradient id="emeraldBorder" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#244139" />
+      <stop offset="50%" stop-color="#35E0C1" />
+      <stop offset="100%" stop-color="#55D6A4" />
     </linearGradient>
-    <linearGradient id="sparkleGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#c084fc" />
-      <stop offset="100%" stop-color="#38bdf8" />
+    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#62F0D4" />
+      <stop offset="60%" stop-color="#35E0C1" />
+      <stop offset="100%" stop-color="#087F69" />
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.4" />
-      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+    <radialGradient id="emeraldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#35E0C1" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#06110F" stop-opacity="0" />
     </radialGradient>
   </defs>
 
-  <!-- Outer squircle with vibrant brand gradient border -->
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#borderGrad)" />
-  <!-- Dark Luxe slate interior matching CatalogIQ palette -->
-  <rect x="4.5" y="4.5" width="55" height="55" rx="13.5" fill="#06080F" />
+  <!-- Outer squircle with fine emerald border -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#emeraldBorder)" />
+  <!-- Deep forest-black canvas interior -->
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#06110F" />
 
-  <!-- Radial ambient glow behind sparkles -->
-  <circle cx="32" cy="32" r="20" fill="url(#glow)" />
+  <!-- Ambient radial emerald glow -->
+  <circle cx="32" cy="32" r="22" fill="url(#emeraldGlow)" />
 
-  <!-- Sparkles Logo Mark -->
-  <g transform="translate(13, 13) scale(1.58)" stroke="url(#sparkleGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <!-- Main 4-point sparkle -->
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" fill="#a855f7" fill-opacity="0.2" />
-    <!-- Secondary accent sparkles -->
-    <path d="M5 3v4" />
-    <path d="M19 17v4" />
-    <path d="M3 5h4" />
-    <path d="M17 19h4" />
+  <!-- Subtle grid lines inside icon -->
+  <line x1="20" y1="10" x2="20" y2="54" stroke="#244139" stroke-width="0.75" opacity="0.6" />
+  <line x1="44" y1="10" x2="44" y2="54" stroke="#244139" stroke-width="0.75" opacity="0.6" />
+  <line x1="10" y1="20" x2="54" y2="20" stroke="#244139" stroke-width="0.75" opacity="0.6" />
+  <line x1="10" y1="44" x2="54" y2="44" stroke="#244139" stroke-width="0.75" opacity="0.6" />
+
+  <!-- Emerald Grid Intelligent Logo Emblem -->
+  <g transform="translate(14, 14) scale(1.5)" stroke="url(#mintGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Faceted catalog diamond / intelligence spark -->
+    <path d="M12 2L4 7v10l8 5 8-5V7L12 2z" fill="#0D201B" fill-opacity="0.6" />
+    <path d="M12 22V12" />
+    <path d="M20 7l-8 5-8-5" />
+    <!-- Center AI core node -->
+    <circle cx="12" cy="12" r="2.2" fill="#35E0C1" stroke="none" />
   </g>
 </svg>

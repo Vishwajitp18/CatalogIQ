@@ -10,17 +10,20 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
   const isActive = product.is_active !== false
   const canEdit = product.can_edit !== false
 
-
   return (
     <BentoCard
       highlight
-      className="group flex flex-col justify-between p-5 hover:border-purple-500/30 transition-all duration-300 overflow-hidden"
+      className="group flex flex-col justify-between p-5 hover:border-[var(--accent)] transition-all duration-300 overflow-hidden"
     >
       <div>
         {/* Product Image Showcase */}
         <div
           onClick={() => onView(product)}
-          className="relative w-full h-44 rounded-xl overflow-hidden bg-slate-900/90 border border-white/[0.08] mb-3.5 cursor-pointer group/img"
+          className="relative w-full h-44 rounded-xl overflow-hidden mb-3.5 cursor-pointer group/img border"
+          style={{
+            backgroundColor: 'var(--surface-muted)',
+            borderColor: 'var(--border)',
+          }}
         >
           {product.image_url && !imageError ? (
             <img
@@ -31,9 +34,14 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-950/20 via-slate-900/60 to-cyan-950/20 text-slate-500">
-              <Package className="w-8 h-8 group-hover/img:text-purple-400 group-hover/img:scale-110 transition-all" />
-              <span className="text-[10px] mt-1 text-slate-500 font-mono">CatalogIQ</span>
+            <div
+              className="w-full h-full flex flex-col items-center justify-center text-slate-400"
+              style={{
+                background: 'radial-gradient(ellipse at center, var(--accent-soft) 0%, var(--surface-muted) 80%)',
+              }}
+            >
+              <Package className="w-8 h-8 text-[var(--accent)] group-hover/img:scale-110 transition-transform" />
+              <span className="text-[10px] mt-1.5 font-mono" style={{ color: 'var(--text-subtle)' }}>CatalogIQ</span>
             </div>
           )}
 
@@ -42,8 +50,8 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
             <span
               className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-md border ${
                 isActive
-                  ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.25)]'
-                  : 'bg-rose-950/70 text-rose-300 border-rose-500/30'
+                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-sm'
+                  : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
               }`}
             >
               <span
@@ -67,23 +75,27 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
           {isAuthenticated && (
             isAdmin ? (
               <span
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300 font-medium"
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-soft)] border border-[var(--border-strong)] text-[var(--accent)] font-medium"
                 title="Admin Privileges: Full rights to modify or delete this item"
               >
-                <Shield className="w-2.5 h-2.5 text-purple-400" />
+                <Shield className="w-2.5 h-2.5 text-[var(--accent)]" />
                 <span>Admin Rights</span>
               </span>
             ) : !canEdit ? (
               <span
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-slate-900 border border-white/10 text-slate-400 font-medium"
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border text-[var(--text-subtle)] font-medium"
+                style={{
+                  backgroundColor: 'var(--surface-muted)',
+                  borderColor: 'var(--border)',
+                }}
                 title={`Created by ${product.created_by_email || 'Admin'}. Read-only for standard users.`}
               >
-                <Lock className="w-2.5 h-2.5 text-slate-500" />
+                <Lock className="w-2.5 h-2.5 text-[var(--text-subtle)]" />
                 <span>Read-Only</span>
               </span>
             ) : (
               <span
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-medium"
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 font-medium"
                 title="You created this product"
               >
                 <span>Your Item</span>
@@ -95,19 +107,20 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
         {/* Title & SKU */}
         <h3
           onClick={() => onView(product)}
-          className="font-semibold text-white text-base leading-snug group-hover:text-purple-300 transition-colors cursor-pointer line-clamp-2"
+          className="font-semibold text-base leading-snug hover:text-[var(--accent)] transition-colors cursor-pointer line-clamp-2"
+          style={{ color: 'var(--text)' }}
         >
           {product.name}
         </h3>
 
         {product.sku && (
-          <p className="text-[11px] font-mono text-slate-500 mt-1">
+          <p className="text-[11px] font-mono mt-1" style={{ color: 'var(--text-subtle)' }}>
             SKU: {product.sku}
           </p>
         )}
 
         {/* Description snippet */}
-        <p className="text-xs text-slate-400 mt-2.5 line-clamp-2 leading-relaxed">
+        <p className="text-xs mt-2.5 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
           {product.description || 'No description provided.'}
         </p>
 
@@ -117,13 +130,13 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
             {product.tags.slice(0, 3).map((t, idx) => (
               <span
                 key={idx}
-                className="text-[10px] px-2 py-0.5 rounded-md bg-purple-950/40 text-purple-300 border border-purple-500/20"
+                className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--text-muted)]"
               >
                 #{t}
               </span>
             ))}
             {product.tags.length > 3 && (
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>
                 +{product.tags.length - 3}
               </span>
             )}
@@ -131,21 +144,27 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
         )}
       </div>
 
-      {/* Bottom Price & Actions */}
-      <div className="pt-4 mt-4 border-t border-white/[0.07] flex items-center justify-between">
+      {/* Bottom Price, Stock & Actions */}
+      <div className="pt-4 mt-4 border-t border-[var(--border)] flex items-center justify-between">
         <div>
-          <span className="text-[11px] text-slate-500 block">Price</span>
-          <span className="text-xl font-bold text-white tabular-nums">
-            ₹{parseFloat(product.price || 0).toFixed(2)}
-          </span>
+          <span className="text-[11px] block" style={{ color: 'var(--text-subtle)' }}>Price</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold tabular-nums" style={{ color: 'var(--text)' }}>
+              ₹{parseFloat(product.price || 0).toFixed(2)}
+            </span>
+            <span className="text-[11px] font-medium" style={{ color: 'var(--text-subtle)' }}>
+              ({product.stock ?? 0} in stock)
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-85 group-hover:opacity-100 transition-opacity">
           <button
             type="button"
             onClick={() => onView(product)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors"
             title="View details"
+            aria-label="View product details"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -157,8 +176,8 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                 onClick={() => onEdit(product)}
                 className={`p-1.5 rounded-lg transition-colors ${
                   canEdit
-                    ? 'text-slate-400 hover:text-purple-300 hover:bg-purple-500/10'
-                    : 'text-slate-500 hover:text-amber-400 hover:bg-amber-500/10'
+                    ? 'text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]'
+                    : 'text-[var(--text-subtle)] hover:text-amber-400 hover:bg-amber-500/10'
                 }`}
                 title={
                   canEdit
@@ -167,6 +186,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                       : 'Edit your product'
                     : `Read-only: Created by ${product.created_by_email || 'Admin'}`
                 }
+                aria-label="Edit product"
               >
                 <Edit3 className="w-4 h-4" />
               </button>
@@ -183,8 +203,8 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                 }}
                 className={`p-1.5 rounded-lg transition-colors ${
                   canEdit
-                    ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'
-                    : 'text-slate-500 hover:text-rose-400 hover:bg-rose-500/10'
+                    ? 'text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10'
+                    : 'text-[var(--text-subtle)] hover:text-rose-400 hover:bg-rose-500/10'
                 }`}
                 title={
                   canEdit
@@ -193,6 +213,7 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
                       : 'Delete your product'
                     : `Read-only: Created by ${product.created_by_email || 'Admin'}`
                 }
+                aria-label="Delete product"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -203,4 +224,3 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
     </BentoCard>
   )
 }
-

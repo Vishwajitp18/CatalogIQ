@@ -12,10 +12,10 @@ export const BentoCard = ({
     <div
       onClick={onClick}
       className={`
-        relative rounded-2xl glass-card p-6 overflow-hidden
-        ${highlight ? 'bento-highlight' : ''}
-        ${glowing ? 'border-purple-500/30 shadow-[0_0_25px_-5px_rgba(168,85,247,0.15)]' : ''}
-        ${onClick ? 'cursor-pointer' : ''}
+        relative rounded-2xl surface-card p-6 overflow-hidden
+        ${highlight ? 'emerald-card-highlight' : ''}
+        ${glowing ? 'border-[var(--border-strong)] shadow-[0_0_24px_var(--glow)]' : ''}
+        ${onClick ? 'cursor-pointer hover:border-[var(--accent)] hover:shadow-lg' : ''}
         ${className}
       `}
       {...props}
@@ -24,4 +24,3 @@ export const BentoCard = ({
     </div>
   )
 }
-

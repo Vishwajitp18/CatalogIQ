@@ -10,28 +10,28 @@ const TOAST_ICONS = {
 
 const TOAST_STYLES = {
   error: {
-    container: 'bg-slate-950/95 border-rose-500/40 shadow-rose-950/40 text-rose-200',
+    container: 'bg-[var(--surface)] border-rose-500/40 text-rose-200 shadow-xl shadow-rose-950/20',
     iconBg: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
     title: 'text-rose-100',
     progress: 'bg-rose-500',
   },
   warning: {
-    container: 'bg-slate-950/95 border-amber-500/40 shadow-amber-950/40 text-amber-200',
+    container: 'bg-[var(--surface)] border-amber-500/40 text-amber-200 shadow-xl shadow-amber-950/20',
     iconBg: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
     title: 'text-amber-100',
     progress: 'bg-amber-500',
   },
   success: {
-    container: 'bg-slate-950/95 border-emerald-500/40 shadow-emerald-950/40 text-emerald-200',
+    container: 'bg-[var(--surface)] border-emerald-500/40 text-emerald-200 shadow-xl shadow-emerald-950/20',
     iconBg: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
     title: 'text-emerald-100',
     progress: 'bg-emerald-500',
   },
   info: {
-    container: 'bg-slate-950/95 border-purple-500/40 shadow-purple-950/40 text-purple-200',
-    iconBg: 'bg-purple-500/15 text-purple-400 border border-purple-500/30',
-    title: 'text-purple-100',
-    progress: 'bg-purple-500',
+    container: 'bg-[var(--surface)] border-[var(--border-strong)] text-[var(--text)] shadow-xl shadow-emerald-950/20',
+    iconBg: 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]',
+    title: 'text-[var(--text)]',
+    progress: 'bg-[var(--accent)]',
   },
 }
 
@@ -80,7 +80,7 @@ export const ToastItem = ({ toast, onDismiss }) => {
                     ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                     : type === 'warning'
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                 }`}
               >
                 HTTP {toast.status}
@@ -92,7 +92,10 @@ export const ToastItem = ({ toast, onDismiss }) => {
               </h4>
             )}
           </div>
-          <p className="text-xs leading-relaxed opacity-90 break-words whitespace-pre-line text-slate-300">
+          <p
+            className="text-xs leading-relaxed opacity-90 break-words whitespace-pre-line"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {message}
           </p>
         </div>
@@ -100,35 +103,34 @@ export const ToastItem = ({ toast, onDismiss }) => {
         <button
           type="button"
           onClick={() => onDismiss(id)}
-          className="shrink-0 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-          title="Dismiss notification"
+          className="text-slate-400 hover:text-white rounded-lg p-1 transition-colors shrink-0"
+          aria-label="Dismiss notification"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       {duration > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/[0.06] overflow-hidden">
-          <div
-            className={`h-full ${style.progress}`}
-            style={{
-              width: progressWidth,
-              transition: `width ${duration}ms linear`,
-            }}
-          />
-        </div>
+        <div
+          className={`absolute bottom-0 left-0 h-1 transition-all ease-linear ${style.progress}`}
+          style={{
+            width: progressWidth,
+            transitionDuration: `${duration}ms`,
+          }}
+        />
       )}
     </div>
   )
 }
 
 export const ToastContainer = ({ toasts, onDismiss }) => {
-  if (!toasts || toasts.length === 0) return null
+  if (!toasts.length) return null
 
   return (
     <div
       aria-live="polite"
-      className="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm sm:max-w-md w-[calc(100%-2.5rem)] pointer-events-none"
+      aria-atomic="true"
+      className="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none"
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
@@ -136,4 +138,3 @@ export const ToastContainer = ({ toasts, onDismiss }) => {
     </div>
   )
 }
-

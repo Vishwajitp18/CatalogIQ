@@ -11,70 +11,73 @@ export const CatalogStats = ({ products = [], totalCount = 0, brands = [], categ
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Total Catalog */}
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400">Total Catalog</span>
-          <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Total Catalog</span>
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <Package className="w-4 h-4" />
           </div>
         </div>
         <div className="mt-3">
-          <span className="text-2xl font-bold tracking-tight text-white tabular-nums">
+          <span className="text-2xl font-bold tracking-tight tabular-nums" style={{ color: 'var(--text)' }}>
             {totalCount}
           </span>
-          <span className="text-xs text-slate-500 ml-2">items</span>
+          <span className="text-xs ml-2" style={{ color: 'var(--text-subtle)' }}>items</span>
         </div>
       </BentoCard>
 
+      {/* Brands & Categories */}
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400">Brands & Categories</span>
-          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Brands & Categories</span>
+          <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
             <Tag className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-2xl font-bold tracking-tight text-white tabular-nums">
+        <div className="mt-3 flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-2xl font-bold tracking-tight tabular-nums" style={{ color: 'var(--text)' }}>
             {brands.length}
           </span>
-          <span className="text-xs text-slate-400">brands /</span>
-          <span className="text-lg font-semibold text-slate-300 tabular-nums">
+          <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>brands /</span>
+          <span className="text-lg font-semibold tabular-nums" style={{ color: 'var(--text)' }}>
             {categories.length}
           </span>
-          <span className="text-xs text-slate-400">categories</span>
+          <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>categories</span>
         </div>
       </BentoCard>
 
+      {/* Average Price */}
       <BentoCard highlight className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400">Page Average Price</span>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Page Average Price</span>
           <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="mt-3">
-          <span className="text-2xl font-bold tracking-tight text-white tabular-nums">
+          <span className="text-2xl font-bold tracking-tight tabular-nums" style={{ color: 'var(--text)' }}>
             ₹{avgPrice}
           </span>
-          <span className="text-xs text-slate-500 ml-2">INR</span>
+          <span className="text-xs ml-2" style={{ color: 'var(--text-subtle)' }}>INR</span>
         </div>
       </BentoCard>
 
+      {/* AI Tagged & Indexed */}
       <BentoCard highlight glowing className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-purple-300">AI Tagged & Indexed</span>
-          <div className="p-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30">
+          <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>AI Tagged & Indexed</span>
+          <div className="p-2 rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]">
             <Sparkles className="w-4 h-4" />
           </div>
         </div>
         <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-2xl font-bold tracking-tight text-white tabular-nums">
+          <span className="text-2xl font-bold tracking-tight tabular-nums" style={{ color: 'var(--text)' }}>
             {aiTaggedCount}
           </span>
-          <span className="text-xs text-purple-400">on this view</span>
+          <span className="text-xs" style={{ color: 'var(--accent)' }}>on this view</span>
         </div>
       </BentoCard>
     </div>
   )
 }
-

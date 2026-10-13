@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { Navbar } from './components/layout/Navbar'
@@ -7,8 +8,8 @@ import { Footer } from './components/layout/Footer'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { SessionsPage } from './pages/sessions/SessionsPage'
+import { NotFoundPage } from './pages/error/NotFoundPage'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
-
 import { CatalogPage } from './pages/catalog/CatalogPage'
 
 function App() {
@@ -16,39 +17,41 @@ function App() {
 
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <div className="min-h-screen flex flex-col bg-[#06080F] text-slate-100 antialiased selection:bg-purple-500/30 selection:text-white">
-          <Navbar onOpenCreateProduct={() => setIsCreateModalOpen(true)} />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route
-                path="/sessions"
-                element={
-                  <ProtectedRoute>
-                    <SessionsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/"
-                element={
-                  <CatalogPage
-                    isCreateOpen={isCreateModalOpen}
-                    onCloseCreate={() => setIsCreateModalOpen(false)}
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <div className="min-h-screen flex flex-col theme-canvas antialiased selection:bg-emerald-500/25 selection:text-emerald-200">
+              <Navbar onOpenCreateProduct={() => setIsCreateModalOpen(true)} />
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route
+                    path="/sessions"
+                    element={
+                      <ProtectedRoute>
+                        <SessionsPage />
+                      </ProtectedRoute>
+                    }
                   />
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </AuthProvider>
-    </ToastProvider>
-  </BrowserRouter>
+                  <Route
+                    path="/"
+                    element={
+                      <CatalogPage
+                        isCreateOpen={isCreateModalOpen}
+                        onCloseCreate={() => setIsCreateModalOpen(false)}
+                      />
+                    }
+                  />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   )
 }
 

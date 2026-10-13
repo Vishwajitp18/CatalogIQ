@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Sparkles, Mail, Lock, ArrowRight, ShieldCheck, KeyRound } from 'lucide-react'
+import { Mail, Lock, ArrowRight, KeyRound } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { BrandLogo } from '../../components/brand/BrandLogo'
 
 export const LoginPage = () => {
   const { login } = useAuth()
@@ -50,42 +51,43 @@ export const LoginPage = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 relative">
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[140px]" />
-      </div>
-
       <div className="w-full max-w-md relative z-10">
-        <BentoCard highlight glowing className="p-8">
-          <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 p-[1px] mx-auto mb-4 shadow-xl shadow-purple-500/20">
-              <div className="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-purple-400" />
-              </div>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+        <BentoCard highlight glowing className="p-7 sm:p-8">
+          <div className="flex flex-col items-center text-center mb-6">
+            <BrandLogo size="lg" showText={false} asLink={false} className="mb-4" />
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
               Welcome back
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
               Sign in to manage and enrich your product catalog
             </p>
           </div>
 
-          {/* Role-Based Quick Demo Pills */}
-          <div className="mb-6 p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/20 space-y-2.5">
-            <div className="flex items-center justify-between text-xs text-purple-300">
+          {/* Quick Demo Login Pills */}
+          <div
+            className="mb-6 p-3.5 rounded-xl border space-y-2.5"
+            style={{
+              backgroundColor: 'var(--surface-muted)',
+              borderColor: 'var(--border)',
+            }}
+          >
+            <div className="flex items-center justify-between text-xs" style={{ color: 'var(--accent)' }}>
               <div className="flex items-center gap-1.5 font-medium">
-                <KeyRound className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <KeyRound className="w-3.5 h-3.5 shrink-0" />
                 <span>Quick Role Demo Logins</span>
               </div>
-              <span className="text-[10px] text-slate-400">1-click fill</span>
+              <span className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>1-click fill</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={handleFillAdmin}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold bg-purple-600/80 hover:bg-purple-500 text-white transition-all shadow-sm group"
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold transition-all shadow-sm group"
+                style={{
+                  backgroundColor: 'var(--accent)',
+                  color: 'var(--accent-foreground)',
+                }}
                 title="Admin: All rights across the catalog"
               >
                 <span>👑 Admin</span>
@@ -93,19 +95,21 @@ export const LoginPage = () => {
               <button
                 type="button"
                 onClick={handleFillUser}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition-all shadow-sm group"
+                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-semibold border transition-all shadow-sm group"
+                style={{
+                  backgroundColor: 'var(--surface)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--text)',
+                }}
                 title="Standard User: Owns only their products, read-only on others"
               >
                 <span>👤 Standard User</span>
               </button>
             </div>
-            <p className="text-[10px] text-slate-400 text-center">
-              Admin has all catalog rights • Standard User has owner-isolated rights
-            </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+            <div className="mb-6 p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
               <span>{error}</span>
             </div>
           )}
@@ -115,8 +119,9 @@ export const LoginPage = () => {
               label="Email Address"
               type="email"
               required
+              autoFocus
               icon={Mail}
-              placeholder="you@company.com"
+              placeholder="e.g. admin@catalogiq.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -131,38 +136,31 @@ export const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full mt-2"
-              isLoading={isLoading}
-              icon={ArrowRight}
-            >
-              Sign In
-            </Button>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={isLoading}
+                icon={ArrowRight}
+                className="w-full justify-center"
+              >
+                Sign In
+              </Button>
+            </div>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/[0.08] text-center">
-            <p className="text-xs text-slate-400">
-              Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
-              >
-                Create one now
-              </Link>
-            </p>
+          <div className="mt-6 pt-6 border-t border-[var(--border)] text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span>Don't have an account yet? </span>
+            <Link
+              to="/register"
+              className="font-medium text-[var(--accent)] hover:underline ml-1"
+            >
+              Create account
+            </Link>
           </div>
         </BentoCard>
-
-        {/* Security badge below card */}
-        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-500">
-          <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-          <span>Protected with opaque token rotation & theft detection</span>
-        </div>
       </div>
     </div>
   )
 }
-

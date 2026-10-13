@@ -20,7 +20,6 @@ export const ProductFormModal = ({
   const { showError, showSuccess } = useToast()
   const isEditing = Boolean(product?.id)
 
-
   const [name, setName] = useState('')
   const [sku, setSku] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -101,10 +100,10 @@ export const ProductFormModal = ({
       setName('')
       setSku('')
       setImageUrl('')
-      setBrandId(brands[0]?.id || '')
-      setCategoryId(categories[0]?.id || '')
+      setBrandId('')
+      setCategoryId('')
       setPrice('')
-      setStock('10')
+      setStock('0')
       setIsActive(true)
       setDescription('')
       setTags([])
@@ -112,7 +111,7 @@ export const ProductFormModal = ({
     }
     setError('')
     setAiSuccessMessage('')
-  }, [product, brands, categories, isOpen])
+  }, [product, isOpen])
 
   const handleAddTag = () => {
     const trimmed = tagInput.trim().toLowerCase()
@@ -159,7 +158,6 @@ export const ProductFormModal = ({
         setDescription(data.description)
       }
       if (data.tags && Array.isArray(data.tags)) {
-        // Merge without duplicates
         const merged = Array.from(new Set([...tags, ...data.tags]))
         setTags(merged)
       }
@@ -245,15 +243,15 @@ export const ProductFormModal = ({
     >
       <form id="product-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-950/50 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 shadow-lg shadow-rose-950/20 animate-in fade-in duration-200">
+          <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-200">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <div className="flex-1 whitespace-pre-line leading-relaxed font-normal">{error}</div>
           </div>
         )}
 
         {aiSuccessMessage && (
-          <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-xs flex items-center gap-2">
-            <Check className="w-4 h-4 shrink-0 text-purple-400" />
+          <div className="p-3 rounded-xl bg-[var(--accent-soft)] border border-[var(--border-strong)] text-[var(--accent)] text-xs flex items-center gap-2">
+            <Check className="w-4 h-4 shrink-0" />
             <span>{aiSuccessMessage}</span>
           </div>
         )}
@@ -275,15 +273,16 @@ export const ProductFormModal = ({
             onChange={(e) => setSku(e.target.value)}
           />
 
+          {/* Brand select */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                 Brand
               </label>
               <button
                 type="button"
                 onClick={() => setShowNewBrandInput(!showNewBrandInput)}
-                className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+                className="text-[11px] text-[var(--accent)] hover:underline transition-colors"
               >
                 {showNewBrandInput ? 'Cancel' : '+ New Brand'}
               </button>
@@ -296,7 +295,7 @@ export const ProductFormModal = ({
                   placeholder="New brand name (e.g. Dyson)..."
                   value={newBrandName}
                   onChange={(e) => setNewBrandName(e.target.value)}
-                  className="w-full rounded-xl glass-input px-3 py-2 text-xs"
+                  className="w-full rounded-xl theme-input px-3 py-2 text-xs"
                 />
                 <Button
                   type="button"
@@ -312,7 +311,7 @@ export const ProductFormModal = ({
               <select
                 value={brandId}
                 onChange={(e) => setBrandId(e.target.value)}
-                className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
+                className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)]"
               >
                 <option value="">No Brand Selected</option>
                 {brands.map((b) => (
@@ -324,15 +323,16 @@ export const ProductFormModal = ({
             )}
           </div>
 
+          {/* Category select */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                 Category
               </label>
               <button
                 type="button"
                 onClick={() => setShowNewCategoryInput(!showNewCategoryInput)}
-                className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+                className="text-[11px] text-[var(--accent)] hover:underline transition-colors"
               >
                 {showNewCategoryInput ? 'Cancel' : '+ New Category'}
               </button>
@@ -345,7 +345,7 @@ export const ProductFormModal = ({
                   placeholder="New category name (e.g. Wearables)..."
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="w-full rounded-xl glass-input px-3 py-2 text-xs"
+                  className="w-full rounded-xl theme-input px-3 py-2 text-xs"
                 />
                 <Button
                   type="button"
@@ -361,7 +361,7 @@ export const ProductFormModal = ({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm bg-slate-900 text-slate-200 border border-white/10"
+                className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)]"
               >
                 <option value="">No Category Selected</option>
                 {categories.map((c) => (
@@ -402,14 +402,20 @@ export const ProductFormModal = ({
               onChange={(e) => setImageUrl(e.target.value)}
             />
             {imageUrl && (
-              <div className="mt-2 flex items-center gap-3 p-2 rounded-xl bg-white/[0.02] border border-white/10">
+              <div
+                className="mt-2 flex items-center gap-3 p-2 rounded-xl border"
+                style={{
+                  backgroundColor: 'var(--surface-muted)',
+                  borderColor: 'var(--border)',
+                }}
+              >
                 <img
                   src={imageUrl}
                   alt="Preview"
-                  className="w-12 h-12 object-cover rounded-lg border border-white/10"
+                  className="w-12 h-12 object-cover rounded-lg border border-[var(--border)]"
                   onError={(e) => (e.target.style.display = 'none')}
                 />
-                <span className="text-[11px] text-slate-400 truncate">
+                <span className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
                   Image preview attached
                 </span>
               </div>
@@ -418,11 +424,17 @@ export const ProductFormModal = ({
         </div>
 
         {/* AI Copywriter Studio Box */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/30 to-indigo-950/30 border border-purple-500/20 space-y-2.5">
+        <div
+          className="p-3.5 rounded-2xl border space-y-2.5"
+          style={{
+            backgroundColor: 'var(--surface-muted)',
+            borderColor: 'var(--border-strong)',
+          }}
+        >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span className="text-[11px] font-semibold text-purple-200 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
                 AI Copywriter Studio (Groq Qwen 27B)
               </span>
             </div>
@@ -431,7 +443,7 @@ export const ProductFormModal = ({
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="text-xs rounded-lg glass-input px-2.5 py-1 bg-slate-900 border-white/10 text-slate-200 focus:outline-none focus:border-purple-500"
+                className="text-xs rounded-lg theme-input px-2.5 py-1 bg-[var(--input-bg)] text-[var(--text)] border border-[var(--border)] focus:outline-none focus:border-[var(--accent)]"
               >
                 <option value="Professional">Tone: Professional</option>
                 <option value="Friendly">Tone: Friendly</option>
@@ -459,13 +471,13 @@ export const ProductFormModal = ({
             placeholder="Optional raw feature bullets (e.g. '30-hour battery, active noise cancellation, lightweight foldable frame')..."
             value={bullets}
             onChange={(e) => setBullets(e.target.value)}
-            className="w-full rounded-xl glass-input px-3 py-1.5 text-xs placeholder-slate-500 bg-slate-950/60"
+            className="w-full rounded-xl theme-input px-3 py-1.5 text-xs bg-[var(--input-bg)] text-[var(--text)]"
           />
         </div>
 
         {/* Description Field */}
         <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
+          <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
             Marketing Description
           </label>
           <textarea
@@ -473,13 +485,13 @@ export const ProductFormModal = ({
             placeholder="Rich product description..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-xl glass-input px-3 py-2 text-xs placeholder-slate-500 leading-relaxed"
+            className="w-full rounded-xl theme-input px-3 py-2 text-xs leading-relaxed"
           />
         </div>
 
         {/* Tags management */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-slate-300">
+          <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
             Product Tags
           </label>
           <div className="flex items-center gap-2">
@@ -494,7 +506,7 @@ export const ProductFormModal = ({
                   handleAddTag()
                 }
               }}
-              className="w-full rounded-xl glass-input px-3 py-1.5 text-xs placeholder-slate-500"
+              className="w-full rounded-xl theme-input px-3 py-1.5 text-xs"
             />
             <Button
               type="button"
@@ -511,11 +523,12 @@ export const ProductFormModal = ({
             <div className="flex flex-wrap gap-1.5 pt-0.5">
               {tags.map((t, idx) => (
                 <Badge key={idx} variant="ai" className="gap-1 pr-1.5 text-[11px] py-0.5">
-                  <span>{t}</span>
+                  <span>#{t}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(t)}
-                    className="hover:text-white"
+                    className="hover:opacity-75"
+                    aria-label={`Remove tag ${t}`}
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -527,12 +540,12 @@ export const ProductFormModal = ({
 
         {/* Active status */}
         <div className="flex items-center gap-2 pt-1">
-          <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+          <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--text)' }}>
             <input
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="rounded bg-slate-900 border-white/20 text-purple-600 focus:ring-purple-500/30"
+              className="rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
             />
             <span>Active listing (visible in public catalog)</span>
           </label>

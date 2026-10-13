@@ -27,21 +27,27 @@ export const Footer = () => {
   }, [])
 
   return (
-    <footer className="mt-auto border-t border-white/[0.07] bg-slate-950/60 backdrop-blur-md py-8">
+    <footer
+      className="mt-auto border-t py-8 transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--bg-elevated)',
+        borderColor: 'var(--border)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-200">CatalogIQ</span>
+            <span className="font-semibold" style={{ color: 'var(--text)' }}>CatalogIQ</span>
             <span>•</span>
             <span>AI-Powered Product Intelligence</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="flex items-center gap-1.5">
               <Server className="w-3.5 h-3.5 text-emerald-400" />
               <span>Django 5.1 REST</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="flex items-center gap-1.5">
               <span
                 className={`w-2 h-2 rounded-full ${
                   healthStatus === 'connected'
@@ -51,7 +57,7 @@ export const Footer = () => {
                     : 'bg-rose-500'
                 }`}
               />
-              <Database className="w-3.5 h-3.5 text-cyan-400" />
+              <Database className="w-3.5 h-3.5 text-teal-400" />
               <span>
                 Supabase Postgres 17 (
                 {healthStatus === 'connected'
@@ -62,7 +68,7 @@ export const Footer = () => {
                 )
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-purple-400">
+            <div className="flex items-center gap-1.5" style={{ color: 'var(--accent)' }}>
               <Cpu className="w-3.5 h-3.5" />
               <span>Groq (qwen/qwen3.8-27b)</span>
             </div>
@@ -73,9 +79,9 @@ export const Footer = () => {
               href="https://github.com/Vishwajitp18/CatalogIQ"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors"
             >
-              <GitFork className="w-4 h-4 text-purple-400" />
+              <GitFork className="w-4 h-4 text-emerald-400" />
               <span>GitHub</span>
             </a>
           </div>

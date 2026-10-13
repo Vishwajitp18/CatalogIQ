@@ -8,7 +8,7 @@ export const AiSearchBar = ({
   onClear,
   isLoading = false,
   interpretation = null,
-  _activeQuery = '',
+  activeQuery = '',
 }) => {
   const [query, setQuery] = useState('')
 
@@ -35,9 +35,18 @@ export const AiSearchBar = ({
     <div className="space-y-4">
       {/* Search Input Box */}
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-violet-500/40 via-purple-500/20 to-cyan-500/40 focus-within:from-violet-500 focus-within:to-cyan-400 shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all">
-          <div className="relative flex items-center bg-slate-950/90 rounded-[15px] px-4 py-2">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 mr-2 shrink-0">
+        <div
+          className="relative rounded-2xl p-[1px] transition-all duration-200"
+          style={{
+            background: 'linear-gradient(135deg, var(--border-strong) 0%, var(--accent) 50%, #55D6A4 100%)',
+            boxShadow: '0 0 25px var(--glow)',
+          }}
+        >
+          <div
+            className="relative flex items-center rounded-[15px] px-3.5 sm:px-4 py-2"
+            style={{ backgroundColor: 'var(--surface)' }}
+          >
+            <div className="p-2 rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] mr-2 shrink-0">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
 
@@ -46,14 +55,16 @@ export const AiSearchBar = ({
               placeholder="Ask in natural language (e.g., 'Find running shoes from Nike under ₹3000')..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none"
+              className="w-full bg-transparent text-sm sm:text-base placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+              style={{ color: 'var(--text)' }}
             />
 
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="p-1 rounded-lg text-slate-500 hover:text-white mr-2 transition-colors"
+                className="p-1 rounded-lg text-[var(--text-subtle)] hover:text-[var(--text)] mr-2 transition-colors"
+                aria-label="Clear AI query input"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -76,18 +87,23 @@ export const AiSearchBar = ({
       {/* Suggestion Chips */}
       {!interpretation && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-400 flex items-center gap-1">
-            <BrainCircuit className="w-3.5 h-3.5 text-purple-400" />
-            Try prompts:
+          <span className="text-xs flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+            <BrainCircuit className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span>Try prompts:</span>
           </span>
           {suggestions.map((sample, i) => (
             <button
               key={i}
               type="button"
               onClick={() => handleSuggestionClick(sample)}
-              className="text-xs px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/10 hover:border-purple-500/30 transition-all flex items-center gap-1.5"
+              className="text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              style={{
+                backgroundColor: 'var(--surface-muted)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-muted)',
+              }}
             >
-              <Sparkles className="w-2.5 h-2.5 text-purple-400" />
+              <Sparkles className="w-2.5 h-2.5 text-[var(--accent)]" />
               <span>{sample}</span>
             </button>
           ))}
@@ -110,13 +126,20 @@ export const AiSearchBar = ({
         const notes = interpretation.notes || []
 
         return (
-          <div className="rounded-2xl p-5 bg-gradient-to-r from-purple-950/30 via-slate-900/60 to-cyan-950/30 border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.12)] space-y-3 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div
+            className="rounded-2xl p-5 border space-y-3 animate-in fade-in zoom-in-95 duration-200"
+            style={{
+              backgroundColor: 'var(--surface)',
+              borderColor: 'var(--border-strong)',
+              boxShadow: '0 0 24px var(--glow)',
+            }}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300">
+                <div className="p-1.5 rounded-lg bg-[var(--accent-soft)] text-[var(--accent)]">
                   <Cpu className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">
                   Groq Qwen 27B Query Interpretation
                 </span>
               </div>
@@ -124,10 +147,15 @@ export const AiSearchBar = ({
               <button
                 type="button"
                 onClick={onClear}
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10"
+                className="text-xs flex items-center gap-1 transition-colors px-2.5 py-1 rounded-lg border hover:border-[var(--accent)]"
+                style={{
+                  backgroundColor: 'var(--surface-muted)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--text-muted)',
+                }}
               >
                 <X className="w-3.5 h-3.5" />
-                Exit AI Search
+                <span>Exit AI Search</span>
               </button>
             </div>
 
@@ -135,45 +163,47 @@ export const AiSearchBar = ({
               {brandLabel && (
                 <Badge variant="brand" className="gap-1">
                   <Tag className="w-3 h-3" />
-                  Brand: <strong className="text-white">{brandLabel}</strong>
+                  <span>Brand: <strong>{brandLabel}</strong></span>
                 </Badge>
               )}
 
               {categoryLabel && (
                 <Badge variant="ai" className="gap-1">
-                  Category: <strong className="text-white">{categoryLabel}</strong>
+                  <span>Category: <strong>{categoryLabel}</strong></span>
                 </Badge>
               )}
 
               {(interpretation.min_price != null || interpretation.max_price != null) && (
                 <Badge variant="success" className="gap-1">
                   <IndianRupee className="w-3 h-3" />
-                  Price:
-                  <strong className="text-white">
-                    {interpretation.min_price != null ? `₹${interpretation.min_price}` : '₹0'}
-                    {' - '}
-                    {interpretation.max_price != null ? `₹${interpretation.max_price}` : 'No limit'}
-                  </strong>
+                  <span>
+                    Price:
+                    <strong>
+                      {interpretation.min_price != null ? ` ₹${interpretation.min_price}` : ' ₹0'}
+                      {' - '}
+                      {interpretation.max_price != null ? `₹${interpretation.max_price}` : 'No limit'}
+                    </strong>
+                  </span>
                 </Badge>
               )}
 
               {terms.length > 0 && (
                 <Badge variant="neutral" className="gap-1">
-                  Keywords: {terms.join(', ')}
+                  <span>Keywords: {terms.join(', ')}</span>
                 </Badge>
               )}
 
               {interpretation.sort_by && (
                 <Badge variant="neutral" className="gap-1">
-                  Sort: {interpretation.sort_by}
+                  <span>Sort: {interpretation.sort_by}</span>
                 </Badge>
               )}
             </div>
 
             {notes.length > 0 && (
-              <div className="text-xs text-slate-400 space-y-1 pt-1">
+              <div className="text-xs space-y-1 pt-1" style={{ color: 'var(--text-muted)' }}>
                 {notes.map((note, idx) => (
-                  <p key={idx} className="italic text-slate-300">
+                  <p key={idx} className="italic">
                     ℹ️ {note}
                   </p>
                 ))}
@@ -185,4 +215,3 @@ export const AiSearchBar = ({
     </div>
   )
 }
-

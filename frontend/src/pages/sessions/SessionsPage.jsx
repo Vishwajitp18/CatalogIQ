@@ -5,7 +5,6 @@ import {
   Smartphone,
   Globe,
   Clock,
-  RotateCw,
   Trash2,
   AlertTriangle,
   CheckCircle2,
@@ -18,7 +17,6 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
-import { Badge } from '../../components/ui/Badge'
 
 export const SessionsPage = () => {
   const { user } = useAuth()
@@ -148,17 +146,17 @@ export const SessionsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[var(--border)]">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
-              <Shield className="w-5 h-5 text-purple-400" />
+            <div className="p-2 rounded-xl bg-[var(--accent-soft)] border border-[var(--border-strong)] text-[var(--accent)]">
+              <Shield className="w-5 h-5" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
               Security & Active Sessions
             </h1>
           </div>
-          <p className="text-sm text-slate-400 mt-1.5">
+          <p className="text-sm mt-1.5" style={{ color: 'var(--text-muted)' }}>
             Monitor and manage your active logins across web browsers and devices.
           </p>
         </div>
@@ -189,7 +187,7 @@ export const SessionsPage = () => {
 
       {message && (
         <div
-          className={`p-4 rounded-2xl border text-sm flex items-center justify-between transition-all ${
+          className={`p-4 rounded-xl border text-sm flex items-center justify-between transition-all ${
             message.type === 'success'
               ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
               : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
@@ -204,6 +202,7 @@ export const SessionsPage = () => {
             <span>{message.text}</span>
           </div>
           <button
+            type="button"
             onClick={() => setMessage(null)}
             className="text-xs hover:underline opacity-80"
           >
@@ -215,21 +214,21 @@ export const SessionsPage = () => {
       {/* Sessions List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>
             Active Devices ({sessions.length})
           </h2>
-          <span className="text-xs text-slate-400">
-            Signed in as <strong className="text-slate-200">{user?.email}</strong>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Signed in as <strong style={{ color: 'var(--text)' }}>{user?.email}</strong>
           </span>
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-400" />
+          <div className="p-12 text-center" style={{ color: 'var(--text-muted)' }}>
+            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[var(--accent)]" />
             Loading active sessions...
           </div>
         ) : sessions.length === 0 ? (
-          <BentoCard className="p-8 text-center text-slate-400">
+          <BentoCard className="p-8 text-center" style={{ color: 'var(--text-muted)' }}>
             No active sessions found.
           </BentoCard>
         ) : (
@@ -243,7 +242,7 @@ export const SessionsPage = () => {
                   key={session.id}
                   className={`p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all ${
                     session.is_current
-                      ? 'border-purple-500/40 bg-purple-950/10'
+                      ? 'border-[var(--border-strong)] bg-[var(--surface)] shadow-md'
                       : ''
                   }`}
                 >
@@ -251,8 +250,8 @@ export const SessionsPage = () => {
                     <div
                       className={`p-3 rounded-2xl shrink-0 ${
                         session.is_current
-                          ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
-                          : 'bg-white/5 text-slate-400 border border-white/10'
+                          ? 'bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]'
+                          : 'bg-[var(--surface-muted)] text-[var(--text-muted)] border border-[var(--border)]'
                       }`}
                     >
                       <Icon className="w-6 h-6" />
@@ -260,30 +259,37 @@ export const SessionsPage = () => {
 
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-white text-sm">
+                        <span className="font-semibold text-sm" style={{ color: 'var(--text)' }}>
                           {browser} on {os}
                         </span>
                         {session.is_current ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-500/30 text-emerald-300">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-500/40 text-emerald-300">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             Current session
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-400 border border-white/10">
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border"
+                            style={{
+                              backgroundColor: 'var(--surface-muted)',
+                              borderColor: 'var(--border)',
+                              color: 'var(--text-muted)',
+                            }}
+                          >
                             Active
                           </span>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-400">
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs" style={{ color: 'var(--text-muted)' }}>
                         <span className="flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5 text-slate-500" />
-                          IP: <strong className="text-slate-300 font-medium">{session.ip_address || '127.0.0.1'}</strong>
+                          <Globe className="w-3.5 h-3.5" style={{ color: 'var(--text-subtle)' }} />
+                          IP: <strong className="font-medium" style={{ color: 'var(--text)' }}>{session.ip_address || '127.0.0.1'}</strong>
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-subtle)' }} />
                           Signed in:{' '}
-                          <span className="text-slate-300">
+                          <span style={{ color: 'var(--text)' }}>
                             {session.created_at
                               ? new Date(session.created_at).toLocaleString(undefined, {
                                   dateStyle: 'medium',
@@ -293,9 +299,9 @@ export const SessionsPage = () => {
                           </span>
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Shield className="w-3.5 h-3.5 text-slate-500" />
+                          <Shield className="w-3.5 h-3.5" style={{ color: 'var(--text-subtle)' }} />
                           Last active:{' '}
-                          <span className={session.is_current ? 'text-emerald-400 font-medium' : 'text-slate-300'}>
+                          <span className={session.is_current ? 'text-emerald-400 font-medium' : ''} style={{ color: session.is_current ? undefined : 'var(--text)' }}>
                             {session.is_current
                               ? 'Active now'
                               : session.last_used_at
@@ -313,16 +319,15 @@ export const SessionsPage = () => {
                   <div className="sm:self-center shrink-0 w-full sm:w-auto flex justify-end">
                     {!session.is_current ? (
                       <Button
-                        variant="secondary"
+                        variant="danger"
                         size="sm"
                         onClick={() => handleRevokeSingle(session.id)}
                         isLoading={actionLoading === session.id}
-                        className="text-rose-400 hover:text-rose-300 hover:border-rose-500/30 hover:bg-rose-500/10"
                       >
                         Revoke
                       </Button>
                     ) : (
-                      <span className="text-xs text-slate-500 italic px-2">
+                      <span className="text-xs italic px-2" style={{ color: 'var(--text-subtle)' }}>
                         This device
                       </span>
                     )}
@@ -337,14 +342,14 @@ export const SessionsPage = () => {
       {/* Change Password Card */}
       <BentoCard highlight className="p-6 max-w-xl">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <div className="p-2 rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold" style={{ color: 'var(--text)' }}>
               Change Account Password
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Updating your password revokes all other active sessions across devices.
             </p>
           </div>
@@ -364,7 +369,7 @@ export const SessionsPage = () => {
 
         <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-300">
+            <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
               Current Password
             </label>
             <input
@@ -373,12 +378,12 @@ export const SessionsPage = () => {
               placeholder="••••••••••••"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm"
+              className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-300">
+            <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
               New Password (min 8 chars)
             </label>
             <input
@@ -387,7 +392,7 @@ export const SessionsPage = () => {
               placeholder="••••••••••••"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-xl glass-input px-3.5 py-2.5 text-sm"
+              className="w-full rounded-xl theme-input px-3.5 py-2.5 text-sm"
             />
           </div>
 
@@ -405,4 +410,3 @@ export const SessionsPage = () => {
     </div>
   )
 }
-

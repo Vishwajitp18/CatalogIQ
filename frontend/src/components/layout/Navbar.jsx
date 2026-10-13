@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Sparkles, Layers, Shield, FileCode2, LogOut, User, Plus } from 'lucide-react'
+import { Layers, Shield, FileCode2, LogOut, User, Plus, Menu, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../ui/Button'
-import { Badge } from '../ui/Badge'
+import { BrandLogo } from '../brand/BrandLogo'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 export const Navbar = ({ onOpenCreateProduct }) => {
   const { user, isAuthenticated, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isActive = (path) => location.pathname === path
 
@@ -19,51 +21,47 @@ export const Navbar = ({ onOpenCreateProduct }) => {
     if (onOpenCreateProduct) {
       onOpenCreateProduct()
     }
+    setMobileMenuOpen(false)
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-2xl bg-slate-950/75 border-b border-white/[0.08]">
+    <header
+      className="sticky top-0 z-40 w-full backdrop-blur-xl border-b transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--header-bg)',
+        borderColor: 'var(--border)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 p-[1px] shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight apple-header-text">
-                Catalog<span className="ai-gradient-text">IQ</span>
-              </span>
-            </div>
-          </Link>
+          <BrandLogo size="md" />
 
-          {/* Nav Links */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center gap-1.5" aria-label="Main Navigation">
             <Link
               to="/"
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                 isActive('/')
-                  ? 'bg-white/10 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
               }`}
             >
               <Layers className="w-4 h-4" />
-              Catalog
+              <span>Catalog</span>
             </Link>
 
             {isAuthenticated && (
               <Link
                 to="/sessions"
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                   isActive('/sessions')
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-sm'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
                 <Shield className="w-4 h-4" />
-                Security & Sessions
+                <span>Security & Sessions</span>
               </Link>
             )}
 
@@ -71,16 +69,19 @@ export const Navbar = ({ onOpenCreateProduct }) => {
               href="http://localhost:8000/api/docs/"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] transition-all"
             >
-              <FileCode2 className="w-4 h-4 text-slate-400" />
-              Swagger API
+              <FileCode2 className="w-4 h-4" />
+              <span>Swagger API</span>
             </a>
           </nav>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Theme Toggle Button */}
+          <ThemeToggle />
+
           {isAuthenticated ? (
             <>
               {onOpenCreateProduct && (
@@ -95,31 +96,40 @@ export const Navbar = ({ onOpenCreateProduct }) => {
                 </Button>
               )}
 
-              <div className="flex items-center gap-2 pl-2 border-l border-white/10">
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300">
-                  <User className="w-3.5 h-3.5 text-purple-400" />
-                  <span className="max-w-[120px] truncate font-medium">
-                    {user?.full_name || user?.email}
+              {/* User Profile Pill */}
+              <div
+                className="hidden lg:flex items-center gap-2 pl-2.5 py-1 pr-2 rounded-xl text-xs border"
+                style={{
+                  backgroundColor: 'var(--surface)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--text)',
+                }}
+              >
+                <User className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span className="max-w-[120px] truncate font-medium">
+                  {user?.full_name || user?.email}
+                </span>
+                {user?.role === 'admin' || user?.is_staff || user?.is_superuser ? (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--border-strong)]">
+                    Admin
                   </span>
-                  {user?.role === 'admin' || user?.is_staff || user?.is_superuser ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-950/80 border border-purple-500/40 text-purple-300 shadow-sm">
-                      👑 Admin
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 border border-white/10 text-slate-300">
-                      Standard User
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={logout}
-                  title="Sign out"
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                ) : (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--surface-muted)] text-[var(--text-muted)] border border-[var(--border)]">
+                    User
+                  </span>
+                )}
               </div>
+
+              {/* Sign Out Button */}
+              <button
+                type="button"
+                onClick={logout}
+                title="Sign out"
+                aria-label="Sign out"
+                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -135,9 +145,84 @@ export const Navbar = ({ onOpenCreateProduct }) => {
               </Link>
             </div>
           )}
+
+          {/* Mobile Menu Trigger */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] border border-[var(--border)] transition-colors"
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden border-b px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-150"
+          style={{
+            backgroundColor: 'var(--surface)',
+            borderColor: 'var(--border)',
+          }}
+        >
+          <nav className="flex flex-col gap-1.5" aria-label="Mobile Navigation">
+            <Link
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium ${
+                isActive('/')
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Catalog</span>
+            </Link>
+
+            {isAuthenticated && (
+              <Link
+                to="/sessions"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium ${
+                  isActive('/sessions')
+                    ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]'
+                }`}
+              >
+                <Shield className="w-4 h-4" />
+                <span>Security & Sessions</span>
+              </Link>
+            )}
+
+            <a
+              href="http://localhost:8000/api/docs/"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)]"
+            >
+              <FileCode2 className="w-4 h-4" />
+              <span>Swagger API</span>
+            </a>
+
+            {isAuthenticated && onOpenCreateProduct && (
+              <div className="pt-2">
+                <Button
+                  variant="ai"
+                  size="sm"
+                  icon={Plus}
+                  onClick={handleOpenCreateProduct}
+                  className="w-full justify-center"
+                >
+                  Add Product
+                </Button>
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   )
 }
-

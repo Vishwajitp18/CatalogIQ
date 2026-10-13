@@ -32,41 +32,57 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        style={{ backgroundColor: 'var(--modal-backdrop)' }}
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Modal Dialog */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'modal-title' : undefined}
         className={`
-          relative w-full ${maxWidth} max-h-[92vh] flex flex-col rounded-3xl glass-panel z-10
-          border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)]
+          relative w-full ${maxWidth} max-h-[92vh] flex flex-col rounded-2xl z-10
+          surface-panel border-[var(--border-strong)] shadow-2xl
           animate-in zoom-in-95 duration-200 overflow-hidden
         `}
       >
-        <div className="flex items-start justify-between px-5 sm:px-6 py-4 border-b border-white/[0.08] shrink-0 bg-white/[0.02]">
+        {/* Header */}
+        <div className="flex items-start justify-between px-5 sm:px-6 py-4 border-b border-[var(--border)] shrink-0 bg-[var(--surface)]">
           <div>
             {title && (
-              <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight">
+              <h3
+                id="modal-title"
+                className="text-lg sm:text-xl font-semibold tracking-tight"
+                style={{ color: 'var(--text)' }}
+              >
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-400 mt-0.5">{subtitle}</p>
+              <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {subtitle}
+              </p>
             )}
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close dialog"
+            className="rounded-xl p-1.5 text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
+        {/* Content body */}
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1">{children}</div>
 
+        {/* Footer */}
         {footer && (
-          <div className="px-5 sm:px-6 py-3.5 border-t border-white/[0.08] shrink-0 flex items-center justify-end gap-3 bg-white/[0.02]">
+          <div className="px-5 sm:px-6 py-3.5 border-t border-[var(--border)] shrink-0 flex items-center justify-end gap-3 bg-[var(--surface-muted)]">
             {footer}
           </div>
         )}
@@ -74,4 +90,3 @@ export const Modal = ({
     </div>
   )
 }
-

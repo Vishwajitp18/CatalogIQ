@@ -8,7 +8,6 @@ import {
   RefreshCw,
   AlertCircle,
   ArrowUp,
-  CheckCircle2,
 } from 'lucide-react'
 import { catalogApi, aiApi } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
@@ -23,8 +22,7 @@ import { ProductFormModal } from '../../components/catalog/ProductFormModal'
 
 export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const { isAuthenticated, isAdmin, user } = useAuth()
-  const { showError, showSuccess, showWarning, showInfo } = useToast()
-
+  const { showError, showSuccess } = useToast()
 
   // Catalog State
   const PAGE_SIZE = 12
@@ -56,6 +54,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   const [aiInterpretation, setAiInterpretation] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiQuery, setAiQuery] = useState('')
+  const [aiNotification, setAiNotification] = useState(null)
 
   const location = useLocation()
 
@@ -138,13 +137,12 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
           setProducts(incoming)
         }
 
-        const count = data.count ?? incoming.length
-        setTotalCount(count)
-        setTotalPages(data.total_pages || Math.ceil(count / PAGE_SIZE) || 1)
-        setCurrentPage(data.current_page || page)
+        setTotalCount(data.count || 0)
+        setTotalPages(Math.ceil((data.count || 0) / PAGE_SIZE) || 1)
+        setCurrentPage(page)
       } catch (err) {
-        console.error('Failed to load products:', err)
-        showError(err, 'Failed to Load Products')
+        console.error('Catalog fetch failed:', err)
+        showError(err, 'Failed to Load Catalog')
       } finally {
         setIsLoading(false)
         setIsLoadingMore(false)
@@ -199,55 +197,46 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
     fetchCatalog,
   ])
 
-  const [aiNotification, setAiNotification] = useState(null)
-
-  // Handle AI Search Execution
-  const handleAiSearch = async (query) => {
+  // Natural Language AI Search Handler
+  const handleAiSearch = async (queryText) => {
+    if (!queryText.trim()) return
+    setAiLoading(true)
+    setIsAiActive(true)
+    setAiQuery(queryText)
     setAiNotification(null)
 
-    if (!isAuthenticated) {
-      setAiNotification({
-        type: 'warning',
-        message:
-          'Please sign in to use Natural Language AI search. You can click "Fill Demo" on the Login page for 1-click access!',
-      })
-      // Fallback: search via standard keyword search
-      handleFilterChange({ search: query })
-      return
-    }
-
     try {
-      setAiLoading(true)
-      setAiQuery(query)
-      setIsAiActive(true)
-
-      const data = await aiApi.search({
-        query,
-        limit: 20,
-      })
-
-      setProducts(data.results || [])
-      setTotalCount(data.count ?? data.total_count ?? (data.results?.length || 0))
+      const data = await aiApi.searchNatural(queryText)
+      setAiInterpretation(data.interpretation)
+      const results = data.results || []
+      setProducts(results)
+      setTotalCount(results.length)
       setTotalPages(1)
       setCurrentPage(1)
-      setAiInterpretation(data.interpretation || null)
-    } catch (err) {
-      console.warn('AI Search notice:', err)
-      const statusCode = err.response?.status
-      const msg = err.response?.data?.error?.message || err.response?.data?.detail || ''
-      if (statusCode === 401) {
+
+      const notes = data.interpretation?.notes || []
+      const hasRelaxationNote = notes.some((n) =>
+        /widened|relaxed|relevance|matches found/i.test(n)
+      )
+
+      if (results.length === 0) {
         setAiNotification({
           type: 'warning',
-          message: 'Your session has expired. Please sign in to run AI searches.',
+          message:
+            data.interpretation?.notes?.[0] ||
+            'No catalog items matched the interpreted criteria.',
         })
-      } else {
+      } else if (hasRelaxationNote) {
         setAiNotification({
           type: 'info',
-          message: `AI inference service note: ${msg || 'Code ' + statusCode}. Switched to keyword search for "${query}".`,
+          message: notes[0],
         })
       }
+    } catch (err) {
+      console.error('AI search failed:', err)
+      showError(err, 'AI Natural Query Error')
       setIsAiActive(false)
-      handleFilterChange({ search: query })
+      fetchCatalog(1, false)
     } finally {
       setAiLoading(false)
     }
@@ -307,19 +296,26 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Hero & AI Search Banner */}
-      <div className="relative rounded-3xl glass-panel p-6 sm:p-8 overflow-hidden bento-highlight">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
+      <div
+        className="relative rounded-3xl surface-panel p-6 sm:p-8 overflow-hidden emerald-card-highlight border-[var(--border-strong)]"
+        style={{
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow)',
+        }}
+      >
         <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/40 border border-purple-500/30 text-purple-300 text-xs font-medium">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--border-strong)] text-[var(--accent)] text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5" />
             <span>AI-Driven Product Intelligence with Groq Qwen 27B</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight"
+            style={{ color: 'var(--text)' }}
+          >
             Intelligent E-Commerce Catalog & Natural Search
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300">
+          <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             Query across multi-attribute products using conversational intent, or let AI draft rich product marketing copy and SEO tags in seconds.
           </p>
 
@@ -329,7 +325,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                 className={`mb-3 p-3 rounded-xl border text-xs flex items-center justify-between gap-2 animate-in fade-in duration-200 ${
                   aiNotification.type === 'warning'
                     ? 'bg-amber-950/40 border-amber-500/30 text-amber-300'
-                    : 'bg-purple-950/40 border-purple-500/30 text-purple-300'
+                    : 'bg-[var(--accent-soft)] border-[var(--border-strong)] text-[var(--accent)]'
                 }`}
               >
                 <span>{aiNotification.message}</span>
@@ -371,43 +367,52 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             onReset={handleResetFilters}
             brands={brands}
             categories={categories}
-            isAiActive={isAiActive}
           />
         </div>
 
         {/* Right Product Grid/Table Area */}
         <div className="lg:col-span-3 space-y-6">
           {/* Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-white/[0.08]">
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl surface-card">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
                 {isAiActive ? 'AI Search Results' : 'Catalog Products'}
               </span>
-              <span className="text-xs text-slate-400">({totalCount} found)</span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>({totalCount} found)</span>
             </div>
 
             <div className="flex items-center gap-3">
               {/* View Toggle */}
-              <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-white/10">
+              <div
+                className="flex items-center p-1 rounded-xl border"
+                style={{
+                  backgroundColor: 'var(--surface-muted)',
+                  borderColor: 'var(--border)',
+                }}
+              >
                 <button
+                  type="button"
                   onClick={() => setViewMode('grid')}
                   className={`p-1.5 rounded-lg transition-colors ${
                     viewMode === 'grid'
-                      ? 'bg-purple-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold border border-[var(--border-strong)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
                   }`}
                   title="Grid View"
+                  aria-label="Switch to grid view"
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setViewMode('table')}
                   className={`p-1.5 rounded-lg transition-colors ${
                     viewMode === 'table'
-                      ? 'bg-purple-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold border border-[var(--border-strong)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
                   }`}
                   title="Table View"
+                  aria-label="Switch to table view"
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -431,17 +436,17 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
 
           {/* Product Items */}
           {isLoading || aiLoading ? (
-            <div className="p-16 text-center text-slate-400">
-              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-purple-400" />
+            <div className="p-16 text-center" style={{ color: 'var(--text-muted)' }}>
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-[var(--accent)]" />
               <p className="text-sm">Fetching catalog products...</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="p-12 text-center rounded-2xl glass-card border border-white/[0.08] space-y-3">
-              <AlertCircle className="w-8 h-8 text-slate-500 mx-auto" />
-              <h3 className="text-base font-semibold text-white">
+            <div className="p-12 text-center rounded-2xl surface-card space-y-3">
+              <AlertCircle className="w-8 h-8 text-[var(--text-subtle)] mx-auto" />
+              <h3 className="text-base font-semibold" style={{ color: 'var(--text)' }}>
                 No products match this query
               </h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
+              <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
                 Try widening your price range, selecting different categories, or resetting the search filter.
               </p>
               <Button
@@ -469,29 +474,42 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
             </div>
           ) : (
             /* Table View */
-            <div className="rounded-2xl glass-card overflow-hidden border border-white/[0.08]">
+            <div className="rounded-2xl surface-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-white/[0.03] text-slate-400 border-b border-white/[0.08]">
+                  <thead
+                    className="border-b font-medium"
+                    style={{
+                      backgroundColor: 'var(--surface-muted)',
+                      borderColor: 'var(--border)',
+                      color: 'var(--text-muted)',
+                    }}
+                  >
                     <tr>
-                      <th className="p-3.5 font-medium">Product</th>
-                      <th className="p-3.5 font-medium">Brand</th>
-                      <th className="p-3.5 font-medium">Category</th>
-                      <th className="p-3.5 font-medium">Price</th>
-                      <th className="p-3.5 font-medium">Stock</th>
-                      <th className="p-3.5 font-medium">Status</th>
-                      <th className="p-3.5 font-medium text-right">Actions</th>
+                      <th className="p-3.5">Product</th>
+                      <th className="p-3.5">Brand</th>
+                      <th className="p-3.5">Category</th>
+                      <th className="p-3.5">Price</th>
+                      <th className="p-3.5">Stock</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/[0.05]">
+                  <tbody className="divide-y divide-[var(--border)]">
                     {products.map((p) => (
                       <tr
                         key={p.id}
-                        className="hover:bg-white/[0.02] transition-colors"
+                        className="hover:bg-[var(--surface-hover)] transition-colors"
                       >
-                        <td className="p-3.5 font-medium text-white max-w-xs">
+                        <td className="p-3.5 font-medium max-w-xs" style={{ color: 'var(--text)' }}>
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-900 border border-white/10 shrink-0 flex items-center justify-center">
+                            <div
+                              className="w-9 h-9 rounded-lg overflow-hidden border shrink-0 flex items-center justify-center"
+                              style={{
+                                backgroundColor: 'var(--surface-muted)',
+                                borderColor: 'var(--border)',
+                              }}
+                            >
                               {p.image_url ? (
                                 <img
                                   src={p.image_url}
@@ -502,22 +520,22 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                                   }}
                                 />
                               ) : (
-                                <span className="text-[9px] text-slate-500 font-mono">N/A</span>
+                                <span className="text-[9px] font-mono" style={{ color: 'var(--text-subtle)' }}>N/A</span>
                               )}
                             </div>
                             <span className="truncate">{p.name}</span>
                           </div>
                         </td>
-                        <td className="p-3.5 text-slate-300">
+                        <td className="p-3.5" style={{ color: 'var(--text-muted)' }}>
                           {p.brand?.name || '—'}
                         </td>
-                        <td className="p-3.5 text-slate-300">
+                        <td className="p-3.5" style={{ color: 'var(--text-muted)' }}>
                           {p.category?.name || '—'}
                         </td>
-                        <td className="p-3.5 font-semibold text-white tabular-nums">
+                        <td className="p-3.5 font-semibold tabular-nums" style={{ color: 'var(--text)' }}>
                           ₹{parseFloat(p.price || 0).toFixed(2)}
                         </td>
-                        <td className="p-3.5 text-slate-400 tabular-nums">
+                        <td className="p-3.5 tabular-nums" style={{ color: 'var(--text-muted)' }}>
                           {p.stock ?? 0}
                         </td>
                         <td className="p-3.5">
@@ -538,8 +556,9 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         </td>
                         <td className="p-3.5 text-right space-x-1">
                           <button
+                            type="button"
                             onClick={() => setSelectedProduct(p)}
-                            className="text-slate-400 hover:text-white px-2 py-1 rounded"
+                            className="text-[var(--text-muted)] hover:text-[var(--text)] px-2 py-1 rounded"
                           >
                             View
                           </button>
@@ -548,14 +567,15 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                             return (
                               <>
                                 <button
+                                  type="button"
                                   onClick={() => {
                                     setEditingProduct(p)
                                     setIsFormOpen(true)
                                   }}
                                   className={`px-2 py-1 rounded ${
                                     canEdit
-                                      ? 'text-purple-400 hover:text-purple-300'
-                                      : 'text-slate-500 hover:text-amber-300'
+                                      ? 'text-[var(--accent)] hover:underline'
+                                      : 'text-[var(--text-subtle)] hover:text-amber-300'
                                   }`}
                                   title={
                                     canEdit
@@ -568,6 +588,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                                   Edit
                                 </button>
                                 <button
+                                  type="button"
                                   onClick={() => {
                                     if (window.confirm(`Are you sure you want to soft delete "${p.name}"?`)) {
                                       handleDeleteProduct(p.id)
@@ -576,7 +597,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                                   className={`px-2 py-1 rounded ${
                                     canEdit
                                       ? 'text-rose-400 hover:text-rose-300'
-                                      : 'text-slate-500 hover:text-rose-300'
+                                      : 'text-[var(--text-subtle)] hover:text-rose-300'
                                   }`}
                                   title={
                                     canEdit
@@ -604,8 +625,8 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
           {!isAiActive && (
             <div className="pt-6 pb-2 flex flex-col items-center justify-center space-y-3">
               {isLoadingMore && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs shadow-lg animate-in fade-in duration-200">
-                  <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-soft)] border border-[var(--border-strong)] text-[var(--accent)] text-xs shadow-lg animate-in fade-in duration-200">
+                  <RefreshCw className="w-4 h-4 animate-spin text-[var(--accent)]" />
                   <span>Loading more products...</span>
                 </div>
               )}
@@ -615,7 +636,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
               )}
 
               {products.length >= totalCount && totalCount > 0 && !isLoading && (
-                <p className="text-xs text-slate-500 tracking-wide text-center pt-2">
+                <p className="text-xs tracking-wide text-center pt-2" style={{ color: 'var(--text-subtle)' }}>
                   Showing all {totalCount} products
                 </p>
               )}
@@ -629,8 +650,9 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-40 p-3 rounded-2xl bg-purple-600/90 hover:bg-purple-500 text-white shadow-xl shadow-purple-950/50 backdrop-blur-md border border-purple-400/30 transition-all duration-300 hover:scale-105 group"
+          className="fixed bottom-6 right-6 z-40 p-3 rounded-2xl bg-[var(--accent)] text-[var(--accent-foreground)] shadow-xl border border-[var(--accent-pressed)] transition-all duration-200 hover:scale-105 group"
           title="Back to top"
+          aria-label="Back to top"
         >
           <ArrowUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
         </button>

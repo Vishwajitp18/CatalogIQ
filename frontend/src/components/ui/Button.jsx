@@ -9,42 +9,48 @@ export const Button = ({
   disabled = false,
   className = '',
   icon: Icon,
+  type = 'button',
   ...props
 }) => {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed select-none'
+    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-xl select-none cursor-pointer ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] ' +
+    'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98]'
 
   const sizeClasses = {
-    sm: 'text-xs px-3 py-1.5 gap-1.5',
-    md: 'text-sm px-4 py-2.5 gap-2',
-    lg: 'text-base px-6 py-3.5 gap-2.5',
+    sm: 'text-xs px-3 py-1.5 gap-1.5 min-h-[32px]',
+    md: 'text-sm px-4 py-2 gap-2 min-h-[38px]',
+    lg: 'text-base px-5 py-2.5 gap-2.5 min-h-[44px]',
   }
 
-  const variantClasses = {
+  const variantStyles = {
     primary:
-      'bg-white text-slate-950 hover:bg-slate-100 shadow-[0_0_20px_rgba(255,255,255,0.15)] active:scale-[0.98]',
-    ai: 'bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border border-purple-400/30 shadow-[0_0_25px_rgba(168,85,247,0.3)] active:scale-[0.98]',
+      'bg-[var(--accent)] text-[var(--accent-foreground)] font-semibold shadow-sm hover:bg-[var(--accent-hover)] active:bg-[var(--accent-pressed)] border border-[var(--accent-pressed)]',
+    ai:
+      'bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 text-white font-semibold border border-emerald-400/40 shadow-[0_0_18px_var(--glow)] hover:brightness-110 active:brightness-95',
     secondary:
-      'bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 active:scale-[0.98]',
+      'bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[var(--border-strong)]',
     ghost:
-      'bg-transparent hover:bg-white/[0.07] text-slate-300 hover:text-white',
+      'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] border border-transparent',
     danger:
-      'bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 active:scale-[0.98]',
+      'bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-500/50',
+    outline:
+      'bg-transparent text-[var(--text)] border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[var(--border-strong)]',
   }
 
   return (
     <button
+      type={type}
       disabled={disabled || isLoading}
-      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      className={`${baseClasses} ${sizeClasses[size]} ${variantStyles[variant] || variantStyles.primary} ${className}`}
       {...props}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin text-current" />
+        <Loader2 className="w-4 h-4 animate-spin shrink-0 text-current" />
       ) : Icon ? (
-        <Icon className="w-4 h-4 text-current" />
+        <Icon className="w-4 h-4 shrink-0 text-current" />
       ) : null}
       {children}
     </button>
   )
 }
-

@@ -18,7 +18,6 @@ export const ProductDetailModal = ({
   const isActive = product.is_active !== false
   const canEdit = product.can_edit !== false
 
-
   return (
     <Modal
       isOpen={isOpen}
@@ -75,19 +74,19 @@ export const ProductDetailModal = ({
         {/* Role & Access Rights Banner */}
         {isAuthenticated && (
           isAdmin ? (
-            <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 text-xs flex items-center justify-between gap-3 text-purple-300">
+            <div className="p-3.5 rounded-xl bg-[var(--accent-soft)] border border-[var(--border-strong)] text-xs flex items-center justify-between gap-3 text-[var(--accent)]">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-purple-400 shrink-0" />
+                <Shield className="w-4 h-4 text-[var(--accent)] shrink-0" />
                 <span>
                   Admin Privileges: You have full rights to edit, update, or soft-delete this product.
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 shrink-0">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--accent)] text-[var(--accent-foreground)] shrink-0">
                 Admin Full Access
               </span>
             </div>
           ) : !canEdit ? (
-            <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-xs flex items-center justify-between gap-3 text-amber-300">
+            <div className="p-3.5 rounded-xl bg-amber-950/25 border border-amber-500/30 text-xs flex items-center justify-between gap-3 text-amber-300">
               <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-amber-400 shrink-0" />
                 <span>
@@ -99,7 +98,7 @@ export const ProductDetailModal = ({
               </span>
             </div>
           ) : (
-            <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-xs flex items-center justify-between gap-3 text-emerald-300">
+            <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs flex items-center justify-between gap-3 text-emerald-300">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>
@@ -115,7 +114,13 @@ export const ProductDetailModal = ({
 
         {/* Product Image Banner */}
         {product.image_url && (
-          <div className="w-full h-60 rounded-2xl overflow-hidden bg-slate-900/90 border border-white/10 relative shadow-lg">
+          <div
+            className="w-full h-60 rounded-xl overflow-hidden border relative shadow-md"
+            style={{
+              backgroundColor: 'var(--surface-muted)',
+              borderColor: 'var(--border)',
+            }}
+          >
             <img
               src={product.image_url}
               alt={product.name}
@@ -128,10 +133,16 @@ export const ProductDetailModal = ({
         )}
 
         {/* Top Price & Status Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+        <div
+          className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border"
+          style={{
+            backgroundColor: 'var(--surface-muted)',
+            borderColor: 'var(--border)',
+          }}
+        >
           <div>
-            <span className="text-xs text-slate-400">Price</span>
-            <div className="text-3xl font-bold text-white tabular-nums">
+            <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>Price</span>
+            <div className="text-3xl font-bold tabular-nums" style={{ color: 'var(--text)' }}>
               ₹{parseFloat(product.price || 0).toFixed(2)}
             </div>
           </div>
@@ -151,10 +162,17 @@ export const ProductDetailModal = ({
 
         {/* Description */}
         <div className="space-y-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-subtle)' }}>
             Description
           </h4>
-          <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line bg-slate-950/40 p-4 rounded-xl border border-white/[0.05]">
+          <p
+            className="text-sm leading-relaxed whitespace-pre-line p-4 rounded-xl border"
+            style={{
+              backgroundColor: 'var(--surface-muted)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)',
+            }}
+          >
             {product.description || 'No description provided.'}
           </p>
         </div>
@@ -162,7 +180,7 @@ export const ProductDetailModal = ({
         {/* Tags */}
         {product.tags && product.tags.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-subtle)' }}>
               AI Tags & Keywords
             </h4>
             <div className="flex flex-wrap gap-1.5">
@@ -176,13 +194,13 @@ export const ProductDetailModal = ({
         )}
 
         {/* Meta Specs Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-400 pt-2 border-t border-white/[0.08]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-2 border-t border-[var(--border)]" style={{ color: 'var(--text-muted)' }}>
           <div className="flex items-center gap-2">
-            <PackageCheck className="w-4 h-4 text-purple-400" />
+            <PackageCheck className="w-4 h-4 text-[var(--accent)]" />
             <span>Stock: {product.stock ?? 0}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-cyan-400" />
+            <Calendar className="w-4 h-4 text-teal-400" />
             <span>Added: {new Date(product.created_at).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center gap-2">

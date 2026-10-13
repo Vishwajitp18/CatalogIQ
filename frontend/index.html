@@ -1,15 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CatalogIQ | AI-Powered Product Intelligence</title>
+    <meta name="description" content="Production-grade AI-powered product intelligence, conversational search, and automated catalog copywriter." />
+    <meta name="theme-color" content="#06110F" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('catalogiq_theme');
+          var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#06080F] text-slate-100 antialiased min-h-screen selection:bg-purple-500/30 selection:text-white">
+  <body class="theme-canvas antialiased min-h-screen selection:bg-emerald-500/25 selection:text-emerald-200">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
