@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
+import { parseApiError } from '../../utils/errorParser'
 
 export const SessionsPage = () => {
   const { user } = useAuth()
@@ -130,14 +131,9 @@ export const SessionsPage = () => {
       setNewPassword('')
       await fetchSessions()
     } catch (err) {
+      const parsed = parseApiError(err, 'Failed to change password. Please verify your current password.')
       showError(err, 'Failed to Change Password')
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.current_password?.[0] ||
-        err.response?.data?.error?.message ||
-        err.response?.data?.detail ||
-        'Failed to change password. Please verify your current password.'
-      setPasswordError(msg)
+      setPasswordError(parsed.message)
     } finally {
       setPasswordLoading(false)
     }
@@ -356,8 +352,9 @@ export const SessionsPage = () => {
         </div>
 
         {passwordError && (
-          <div className="my-4 p-3 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs">
-            {passwordError}
+          <div className="my-4 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-150">
+            <AlertTriangle className="w-4 h-4 text-[var(--danger-text)] shrink-0 mt-0.5" />
+            <div className="flex-1 whitespace-pre-line leading-relaxed font-normal">{passwordError}</div>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { BrandLogo } from '../../components/brand/BrandLogo'
+import { parseApiError } from '../../utils/errorParser'
 
 export const LoginPage = () => {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth()
@@ -61,11 +62,8 @@ export const LoginPage = () => {
       await login(email, password)
       navigate(redirectDestination, { replace: true, state: redirectState })
     } catch (err) {
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.detail ||
-        'Invalid email or password. Please try again.'
-      setError(msg)
+      const parsed = parseApiError(err, 'Invalid email or password. Please try again.')
+      setError(parsed.message)
     } finally {
       setIsLoading(false)
     }
@@ -201,8 +199,9 @@ export const LoginPage = () => {
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-center gap-2 animate-in fade-in duration-150">
-              <span>{error}</span>
+            <div className="mb-6 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-150">
+              <ShieldAlert className="w-4 h-4 text-[var(--danger-text)] shrink-0 mt-0.5" />
+              <div className="flex-1 whitespace-pre-line leading-relaxed font-normal">{error}</div>
             </div>
           )}
 

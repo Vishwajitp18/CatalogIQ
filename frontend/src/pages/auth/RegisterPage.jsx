@@ -6,6 +6,7 @@ import { BentoCard } from '../../components/ui/BentoCard'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { BrandLogo } from '../../components/brand/BrandLogo'
+import { parseApiError } from '../../utils/errorParser'
 
 export const RegisterPage = () => {
   const { register, isAuthenticated, isLoading: authLoading } = useAuth()
@@ -64,12 +65,8 @@ export const RegisterPage = () => {
       await register(email, password, fullName)
       navigate(redirectDestination, { replace: true, state: redirectState })
     } catch (err) {
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.email?.[0] ||
-        err.response?.data?.detail ||
-        'Registration failed. Please check your details.'
-      setError(msg)
+      const parsed = parseApiError(err, 'Registration failed. Please check your details.')
+      setError(parsed.message)
     } finally {
       setIsLoading(false)
     }
@@ -108,8 +105,9 @@ export const RegisterPage = () => {
           )}
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-center gap-2 animate-in fade-in duration-150">
-              <span>{error}</span>
+            <div className="mb-6 p-3.5 rounded-xl bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-xs flex items-start gap-2.5 shadow-sm animate-in fade-in duration-150">
+              <ShieldAlert className="w-4 h-4 text-[var(--danger-text)] shrink-0 mt-0.5" />
+              <div className="flex-1 whitespace-pre-line leading-relaxed font-normal">{error}</div>
             </div>
           )}
 

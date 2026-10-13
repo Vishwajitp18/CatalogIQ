@@ -61,7 +61,8 @@ export const ProductFormModal = ({
       setNewBrandName('')
       setShowNewBrandInput(false)
     } catch (err) {
-      setError(err.response?.data?.errors?.[0]?.message || 'Failed to create brand.')
+      const parsed = parseApiError(err, 'Failed to create brand.')
+      setError(parsed.message)
     } finally {
       setIsCreatingBrand(false)
     }
@@ -78,7 +79,8 @@ export const ProductFormModal = ({
       setNewCategoryName('')
       setShowNewCategoryInput(false)
     } catch (err) {
-      setError(err.response?.data?.errors?.[0]?.message || 'Failed to create category.')
+      const parsed = parseApiError(err, 'Failed to create category.')
+      setError(parsed.message)
     } finally {
       setIsCreatingCategory(false)
     }
