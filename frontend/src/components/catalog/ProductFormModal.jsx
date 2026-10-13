@@ -539,16 +539,25 @@ export const ProductFormModal = ({
         </div>
 
         {/* Active status */}
-        <div className="flex items-center gap-2 pt-1">
-          <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--text)' }}>
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
-            />
-            <span>Active listing (visible in public catalog)</span>
-          </label>
+        <div className="pt-1">
+          <div className="flex items-center justify-between p-3 rounded-xl border" style={{ backgroundColor: 'var(--surface-muted)', borderColor: 'var(--border)' }}>
+            <label className="flex items-center gap-2.5 text-xs cursor-pointer select-none" style={{ color: 'var(--text)' }}>
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="rounded w-4 h-4 accent-[var(--accent)] border-[var(--border)] focus:ring-[var(--accent)] cursor-pointer"
+              />
+              <span className="font-medium">Active listing (visible in public catalog)</span>
+            </label>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+              isActive
+                ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]'
+                : 'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]'
+            }`}>
+              {isActive ? 'Active' : 'Draft / Inactive'}
+            </span>
+          </div>
         </div>
       </form>
     </Modal>

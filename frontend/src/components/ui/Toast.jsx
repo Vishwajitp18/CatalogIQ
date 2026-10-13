@@ -64,7 +64,7 @@ export const ToastItem = ({ toast, onDismiss }) => {
   return (
     <div
       role="alert"
-      className={`relative w-full rounded-2xl border p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 overflow-hidden pointer-events-auto ${style.container}`}
+      className={`relative w-full rounded-2xl border p-4 shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 overflow-hidden pointer-events-auto ${style.container}`}
     >
       <div className="flex items-start gap-3.5">
         <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${style.iconBg}`}>

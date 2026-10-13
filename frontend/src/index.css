@@ -23,30 +23,30 @@
     --accent-soft: #103A30;
     --glow: rgba(20, 220, 166, 0.16);
 
-    /* Feedback tokens - Dark */
+    /* Feedback tokens - Dark (Solid Opaque, Non-Glass) */
     --success: #55D6A4;
-    --success-bg: rgba(19, 123, 85, 0.25);
+    --success-bg: #0B2920;
     --success-text: #55D6A4;
-    --success-border: rgba(85, 214, 164, 0.35);
+    --success-border: #185240;
 
     --warning: #F4C66A;
-    --warning-bg: rgba(244, 198, 106, 0.18);
-    --warning-text: #F4C66A;
-    --warning-border: rgba(244, 198, 106, 0.35);
+    --warning-bg: #291E0A;
+    --warning-text: #FAD074;
+    --warning-border: #573F14;
 
     --danger: #FF7777;
-    --danger-bg: rgba(255, 119, 119, 0.18);
-    --danger-text: #FF8888;
-    --danger-border: rgba(255, 119, 119, 0.35);
+    --danger-bg: #2A0E12;
+    --danger-text: #FFA5A5;
+    --danger-border: #5C1D24;
 
     --info: #7CCBFF;
-    --info-bg: rgba(124, 203, 255, 0.18);
-    --info-text: #7CCBFF;
-    --info-border: rgba(124, 203, 255, 0.35);
+    --info-bg: #0C2133;
+    --info-text: #96D7FF;
+    --info-border: #1A476E;
 
-    --brand-bg: rgba(53, 224, 193, 0.15);
-    --brand-text: #35E0C1;
-    --brand-border: rgba(53, 224, 193, 0.35);
+    --brand-bg: #0C2822;
+    --brand-text: #3AE2C4;
+    --brand-border: #1C594C;
 
     /* Semantic mappings */
     --card-bg: #0D201B;
@@ -54,7 +54,7 @@
     --card-hover-border: #356255;
     --input-bg: #0A1916;
     --input-border: #244139;
-    --header-bg: rgba(6, 17, 15, 0.88);
+    --header-bg: rgba(6, 17, 15, 0.95);
     --modal-backdrop: rgba(3, 10, 8, 0.82);
 
     --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
@@ -80,30 +80,30 @@
     --accent-soft: #DDF6ED;
     --glow: rgba(15, 160, 119, 0.10);
 
-    /* Feedback tokens - Light */
-    --success: #137B55;
+    /* Feedback tokens - Light (Solid Opaque, High Contrast) */
+    --success: #065F46;
     --success-bg: #E6F7F0;
-    --success-text: #0D6845;
+    --success-text: #065F46;
     --success-border: #A3E3CA;
 
-    --warning: #8B5C08;
+    --warning: #78350F;
     --warning-bg: #FEF7EA;
-    --warning-text: #8C5808;
+    --warning-text: #78350F;
     --warning-border: #F7D794;
 
-    --danger: #B42332;
-    --danger-bg: #FDF0F0;
-    --danger-text: #B91C1C;
+    --danger: #991B1B;
+    --danger-bg: #FEECEC;
+    --danger-text: #991B1B;
     --danger-border: #FCA5A5;
 
-    --info: #145E96;
+    --info: #075985;
     --info-bg: #EDF7FE;
-    --info-text: #0369A1;
+    --info-text: #075985;
     --info-border: #BAE6FD;
 
-    --brand-bg: #DDF6ED;
-    --brand-text: #087F69;
-    --brand-border: #A9C8BA;
+    --brand-bg: #E6F7F0;
+    --brand-text: #065F46;
+    --brand-border: #A3E3CA;
 
     /* Semantic mappings */
     --card-bg: #FFFFFF;
@@ -111,7 +111,7 @@
     --card-hover-border: #A9C8BA;
     --input-bg: #FFFFFF;
     --input-border: #D5E5DE;
-    --header-bg: rgba(255, 255, 255, 0.92);
+    --header-bg: rgba(255, 255, 255, 0.96);
     --modal-backdrop: rgba(16, 37, 31, 0.45);
 
     --card-shadow: 0 2px 8px -2px rgba(16, 37, 31, 0.06), 0 1px 3px rgba(16, 37, 31, 0.04);

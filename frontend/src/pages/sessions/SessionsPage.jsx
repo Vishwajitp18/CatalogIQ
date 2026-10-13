@@ -263,13 +263,13 @@ export const SessionsPage = () => {
                           {browser} on {os}
                         </span>
                         {session.is_current ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--success-bg)] border border-[var(--success-border)] text-[var(--success-text)]">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--success-bg)] border border-[var(--success-border)] text-[var(--success-text)] shadow-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
                             Current session
                           </span>
                         ) : (
                           <span
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
                             style={{
                               backgroundColor: 'var(--surface-muted)',
                               borderColor: 'var(--border)',

@@ -9,17 +9,17 @@ export const Badge = ({
 }) => {
   const variantStyles = {
     neutral:
-      'bg-[var(--surface-muted)] text-[var(--text-muted)] border-[var(--border)]',
+      'bg-[var(--surface-muted)] text-[var(--text-muted)] border-[var(--border)] font-medium',
     ai:
-      'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--border-strong)] shadow-[0_0_8px_var(--glow)]',
+      'bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--border-strong)] font-semibold shadow-sm',
     success:
-      'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]',
+      'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)] font-semibold',
     warning:
-      'bg-[var(--warning-bg)] text-[var(--warning-text)] border-[var(--warning-border)]',
+      'bg-[var(--warning-bg)] text-[var(--warning-text)] border-[var(--warning-border)] font-semibold',
     danger:
-      'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]',
+      'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)] font-semibold',
     brand:
-      'bg-[var(--brand-bg)] text-[var(--brand-text)] border-[var(--brand-border)]',
+      'bg-[var(--brand-bg)] text-[var(--brand-text)] border-[var(--brand-border)] font-semibold',
   }
 
   const sizeStyles = {

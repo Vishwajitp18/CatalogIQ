@@ -299,7 +299,7 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
       <div
         className="relative rounded-3xl surface-panel p-6 sm:p-8 overflow-hidden emerald-card-highlight border-[var(--border-strong)]"
         style={{
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow)',
+          boxShadow: 'var(--panel-shadow), 0 0 24px var(--glow)',
         }}
       >
         <div className="relative z-10 max-w-3xl space-y-4">
@@ -540,14 +540,14 @@ export const CatalogPage = ({ isCreateOpen = false, onCloseCreate }) => {
                         </td>
                         <td className="p-3.5">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                               p.is_active !== false
                                 ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]'
                                 : 'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]'
                             }`}
                           >
                             <span
-                              className={`w-1.5 h-1.5 rounded-full ${
+                              className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                 p.is_active !== false ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'
                               }`}
                             />

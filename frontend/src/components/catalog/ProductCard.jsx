@@ -45,21 +45,21 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* Active Status Badge in Top-Right Corner */}
-          <div className="absolute top-2.5 right-2.5">
+          {/* Active Status Badge in Top-Right Corner - Solid Non-Glass */}
+          <div className="absolute top-2.5 right-2.5 z-10">
             <span
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-md border ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border shadow-md ${
                 isActive
-                  ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)] shadow-sm'
+                  ? 'bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]'
                   : 'bg-[var(--danger-bg)] text-[var(--danger-text)] border-[var(--danger-border)]'
               }`}
             >
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  isActive ? 'bg-[var(--success)] shadow-[0_0_6px_var(--glow)]' : 'bg-[var(--danger)]'
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  isActive ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'
                 }`}
               />
-              <span>{isActive ? 'Active' : 'Inactive'}</span>
+              <span className="tracking-wide">{isActive ? 'Active' : 'Inactive'}</span>
             </span>
           </div>
         </div>
@@ -148,13 +148,23 @@ export const ProductCard = ({ product, onView, onEdit, onDelete }) => {
       <div className="pt-4 mt-4 border-t border-[var(--border)] flex items-center justify-between">
         <div>
           <span className="text-[11px] block" style={{ color: 'var(--text-subtle)' }}>Price</span>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-xl font-bold tabular-nums" style={{ color: 'var(--text)' }}>
               ₹{parseFloat(product.price || 0).toFixed(2)}
             </span>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--text-subtle)' }}>
-              ({product.stock ?? 0} in stock)
-            </span>
+            {(product.stock ?? 0) <= 0 ? (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--danger-bg)] text-[var(--danger-text)] border border-[var(--danger-border)]">
+                Out of stock
+              </span>
+            ) : (product.stock ?? 0) <= 5 ? (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--warning-bg)] text-[var(--warning-text)] border border-[var(--warning-border)]">
+                Only {product.stock} left
+              </span>
+            ) : (
+              <span className="text-[11px] font-medium" style={{ color: 'var(--text-subtle)' }}>
+                ({product.stock} in stock)
+              </span>
+            )}
           </div>
         </div>
 
