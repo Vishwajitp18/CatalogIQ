@@ -64,7 +64,7 @@ export const ToastItem = ({ toast, onDismiss }) => {
   return (
     <div
       role="alert"
-      className={`relative w-full rounded-2xl border p-4 shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 overflow-hidden pointer-events-auto ${style.container}`}
+      className={`relative w-full rounded-2xl border p-4 shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 overflow-hidden pointer-events-auto ${style.container}`}
     >
       <div className="flex items-start gap-3.5">
         <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${style.iconBg}`}>
@@ -130,7 +130,7 @@ export const ToastContainer = ({ toasts, onDismiss }) => {
     <div
       aria-live="polite"
       aria-atomic="true"
-      className="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none"
+      className="fixed bottom-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none"
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />

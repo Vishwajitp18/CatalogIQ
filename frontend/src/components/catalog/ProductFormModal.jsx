@@ -179,6 +179,22 @@ export const ProductFormModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!name.trim()) {
+      setError('Please provide a product name.')
+      return
+    }
+
+    if (!brandId) {
+      setError('Please select a brand for this product.')
+      return
+    }
+
+    if (!categoryId) {
+      setError('Please select a category for this product.')
+      return
+    }
+
     setIsSaving(true)
 
     try {
@@ -186,8 +202,8 @@ export const ProductFormModal = ({
         name: name.trim(),
         sku: sku.trim() || undefined,
         image_url: imageUrl.trim() || '',
-        brand_id: brandId || null,
-        category_id: categoryId || null,
+        brand_id: brandId,
+        category_id: categoryId,
         price: parseFloat(price) || 0,
         stock: parseInt(stock, 10) || 0,
         is_active: isActive,
@@ -310,6 +326,7 @@ export const ProductFormModal = ({
               </div>
             ) : (
               <Select
+                id="brand-select"
                 value={brandId}
                 onChange={(val) => setBrandId(val)}
                 placeholder="No Brand Selected"
@@ -325,7 +342,7 @@ export const ProductFormModal = ({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
-                Category
+                Category *
               </label>
               <button
                 type="button"
@@ -357,6 +374,7 @@ export const ProductFormModal = ({
               </div>
             ) : (
               <Select
+                id="category-select"
                 value={categoryId}
                 onChange={(val) => setCategoryId(val)}
                 placeholder="No Category Selected"

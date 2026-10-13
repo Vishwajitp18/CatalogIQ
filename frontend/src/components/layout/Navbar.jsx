@@ -130,11 +130,12 @@ export const Navbar = ({ onOpenCreateProduct }) => {
 
               {/* Sign Out Button */}
               <button
+                id="nav-sign-out-btn"
                 type="button"
                 onClick={logout}
                 title="Sign out"
                 aria-label="Sign out"
-                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger-text)] hover:bg-[var(--danger-bg)] border border-transparent hover:border-[var(--danger-border)] transition-colors"
+                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger-text)] hover:bg-[var(--danger-bg)] border border-transparent hover:border-[var(--danger-border)] transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
