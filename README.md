@@ -1,4 +1,4 @@
-# ⚡ CatalogIQ — Product Management & AI-Powered Search Platform
+# ⚡ CatalogIQ
 
 > **Full Stack Development Intern – Technical Assignment**  
 > A production-grade, enterprise-ready product catalog management system featuring **Django 5.1 REST Framework**, **PostgreSQL 17**, **React 19 + Vite**, and **Groq Qwen 2.5 27B GenAI**.
@@ -9,11 +9,11 @@
 
 | Resource | URL |
 | :--- | :--- |
-| **Live Frontend Application** | `[FRONTEND_URL_PLACEHOLDER]` *(e.g. `https://catalogiq.vercel.app`)* |
-| **Backend REST API** | `[BACKEND_URL_PLACEHOLDER]` *(e.g. `https://catalogiq-api.onrender.com`)* |
-| **Interactive Swagger API Docs** | `[BACKEND_URL_PLACEHOLDER]/api/docs/` |
-| **OpenAPI Schema (JSON)** | `[BACKEND_URL_PLACEHOLDER]/api/schema/` |
-| **GitHub Repository** | `https://github.com/Vishwajitp18/CatalogIQ` |
+| **Live Frontend Application** | [https://catalog-iq-mauve.vercel.app/](https://catalog-iq-mauve.vercel.app/) |
+| **Backend REST API** | [https://catalog-iq-backend.vercel.app/](https://catalog-iq-backend.vercel.app/) |
+| **Interactive Swagger API Docs** | [https://catalog-iq-backend.vercel.app/api/docs/](https://catalog-iq-backend.vercel.app/api/docs/) |
+| **OpenAPI Schema (JSON)** | [https://catalog-iq-backend.vercel.app/api/schema/](https://catalog-iq-backend.vercel.app/api/schema/) |
+| **GitHub Repository** | [https://github.com/Vishwajitp18/CatalogIQ](https://github.com/Vishwajitp18/CatalogIQ) |
 
 ---
 
@@ -239,8 +239,8 @@ npm run dev
 | `DJANGO_DEBUG` | Enable debug mode (`True` for local, `False` for prod) | `True` |
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated list of allowed hostnames | `localhost,127.0.0.1,.onrender.com` |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/dbname` |
-| `CORS_ALLOWED_ORIGINS` | Permitted frontend origins | `http://localhost:5173,https://your-app.vercel.app` |
-| `CSRF_TRUSTED_ORIGINS` | Trusted origins for CSRF protection | `http://localhost:5173,https://your-app.vercel.app` |
+| `CORS_ALLOWED_ORIGINS` | Permitted frontend origins | `http://localhost:5173,https://catalog-iq-mauve.vercel.app` |
+| `CSRF_TRUSTED_ORIGINS` | Trusted origins for CSRF protection | `http://localhost:5173,https://catalog-iq-mauve.vercel.app` |
 | `GROQ_API_KEY` | API Key for Groq Cloud GenAI | `gsk_...` |
 | `GROQ_MODEL` | Groq LLM model name | `qwen/qwen3.8-27b` |
 | `ACCESS_TOKEN_MINUTES` | Lifetime of signed JWT access token | `10` |
@@ -252,13 +252,13 @@ npm run dev
 
 | Variable | Description | Example |
 | :--- | :--- | :--- |
-| `VITE_API_BASE_URL` | Base URL pointing to Django API v1 | `http://localhost:8000/api/v1` or `https://api.yourdomain.com/api/v1` |
+| `VITE_API_BASE_URL` | Base URL pointing to Django API v1 | `http://localhost:8000/api/v1` or `https://catalog-iq-backend.vercel.app/api/v1` |
 
 ---
 
 ## 🚢 Deployment Details
 
-### Backend Deployment (e.g. Render / Railway / Cloud Run)
+### Backend Deployment (e.g. Render / Railway / Vercel Serverless)
 1. **Build Command**:
    ```bash
    pip install uv && uv sync --frozen && uv run python manage.py collectstatic --noinput && uv run python manage.py migrate
@@ -269,12 +269,12 @@ npm run dev
    ```
 3. Set environment variables (`DJANGO_SETTINGS_MODULE=config.settings.production`, `DJANGO_DEBUG=False`, `DATABASE_URL`, `GROQ_API_KEY`, `CORS_ALLOWED_ORIGINS`, `DJANGO_ALLOWED_HOSTS`).
 
-### Frontend Deployment (e.g. Vercel / Netlify)
+### Frontend Deployment (Vercel)
 1. **Framework Preset**: Vite
 2. **Build Command**: `npm run build`
 3. **Output Directory**: `dist`
-4. **Environment Variable**: `VITE_API_BASE_URL=https://<your-backend-domain>/api/v1`
-5. **SPA Rewrites**: Add single-page application route rewrite rule (`/* -> /index.html`) so client-side routing works on refresh.
+4. **Environment Variable**: `VITE_API_BASE_URL=https://catalog-iq-backend.vercel.app/api/v1`
+5. **SPA Rewrites**: Single-page application route rewrite (`/* -> /index.html`) configured for client-side routing on refresh.
 
 ---
 

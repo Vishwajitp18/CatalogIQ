@@ -12,6 +12,9 @@ export const Navbar = ({ onOpenCreateProduct }) => {
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  const apiDocsUrl = (import.meta.env.VITE_API_BASE_URL || 'https://catalog-iq-backend.vercel.app/api/v1')
+    .replace(/\/api\/v1\/?$/, '') + '/api/docs/'
+
   const isActive = (path) => location.pathname === path
 
   const handleOpenCreateProduct = () => {
@@ -74,7 +77,7 @@ export const Navbar = ({ onOpenCreateProduct }) => {
             </Link>
 
             <a
-              href="http://localhost:8000/api/docs/"
+              href={apiDocsUrl}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-hover)] transition-all"
@@ -204,7 +207,7 @@ export const Navbar = ({ onOpenCreateProduct }) => {
             </Link>
 
             <a
-              href="http://localhost:8000/api/docs/"
+              href={apiDocsUrl}
               target="_blank"
               rel="noreferrer"
               onClick={() => setMobileMenuOpen(false)}
