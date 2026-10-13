@@ -72,7 +72,7 @@ export const AiSearchBar = ({
 
             <Button
               type="submit"
-              variant="ai"
+              variant="primary"
               size="sm"
               isLoading={isLoading}
               icon={ArrowRight}

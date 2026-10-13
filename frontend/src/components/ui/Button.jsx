@@ -27,7 +27,7 @@ export const Button = ({
     primary:
       'bg-[var(--accent)] text-[var(--accent-foreground)] font-semibold shadow-sm hover:bg-[var(--accent-hover)] active:bg-[var(--accent-pressed)] border border-[var(--accent-pressed)]',
     ai:
-      'bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 text-white font-semibold border border-emerald-400/40 shadow-[0_0_18px_var(--glow)] hover:brightness-110 active:brightness-95',
+      'bg-[var(--accent)] text-[var(--accent-foreground)] font-semibold shadow-[0_0_16px_var(--glow)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent-pressed)] border border-[var(--accent-pressed)]',
     secondary:
       'bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:border-[var(--border-strong)]',
     ghost:
